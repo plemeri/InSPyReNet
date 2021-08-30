@@ -1,0 +1,2 @@
+from lib.InSPyReNet_Res2Net50 import InSPyReNet_Res2Net50
+from lib.InSPyReNet_SwinB import InSPyReNet_SwinB
