@@ -22,70 +22,72 @@ Salient object detection (SOD) requires multi-scale features from intermediate b
   + Install requirements with following command `pip install -r requirements.txt`
   
 ## 2. Preparation
-  + Download datasets and backbone checkpoints from following [URL](https://drive.google.com/file/d/1KkXffb1DEu1be7NO-RPUy1r2bZqJRuYl/view?usp=sharing)
-  + Move folder `data` to the repository.
-  + Folder should be ordered as follows,
-```
-.
-├── configs
-│   ├── InSPyReNet_Res2Net50.yaml
-│   └── InSPyReNet_SwinB.yaml
-├── data
-│   ├── backbone_ckpt
-│   │   ├── swin_base_patch4_window12_384_22kto1k.pth
-│   │   └── res2net50_v1b_26w_4s-3cf99910.pth
-│   ├── RGB_Dataset
-│   │   ├── Test_Dataset
-│   │   │   ├── DUTS-TE
-│   │   │   ├── DUT-OMRON
-│   │   │   ├── ECSSD
-│   │   │   ├── HKU-IS
-│   │   │   └──PASCAL-S
-│   │   └── Train_Dataset
-│   │       └── DUTS-TR
-├── Expr.py
-├── Exprs.py
-├── figures
-│   ├── figure1.jpg
-│   ├── figure2.jpg
-│   └── results.jpg
-├── lib
-│   ├── backbones
-│   ├── __init__.py
-│   ├── InSPyReNet_Res2Net50.py
-│   ├── InSPyReNet_SwinB.py
-│   ├── losses
-│   ├── modules
-├── LICENSE
-├── README.md
-├── requirements.txt
-├── results
-├── run
-│   ├── Eval.py
-│   ├── __init__.py
-│   ├── Test.py
-│   └── Train.py
-├── snapshots
-│   ├── InSPyReNet_Res2Net50
-│   │   ├── DUTS-TE
-│   │   ├── DUT-OMRON
-│   │   ├── ECSSD
-│   │   ├── HKU-IS
-│   │   ├── PASCAL-S
-│   │   └── latest.pth
-│   ├── InSPyReNet_SwinB
-│   │   ├── DUTS-TE
-│   │   ├── DUT-OMRON
-│   │   ├── ECSSD
-│   │   ├── HKU-IS
-│   │   ├── PASCAL-S
-│   │   └── latest.pth
-└── utils
-    ├── custom_transforms.py
-    ├── dataloader.py
-    ├── eval_functions.py
-    └── utils.py
-```
+  + Use following command to automatically download datasets and checkpoints with following command `sh install.sh`
+  + Instead, you can download them manually.
+    + Download datasets and backbone checkpoints from following [URL](https://drive.google.com/file/d/1KkXffb1DEu1be7NO-RPUy1r2bZqJRuYl/view?usp=sharing)
+    + Move folder `data` to the repository.
+    + Folder should be ordered as follows,
+  ```
+  .
+  ├── configs
+  │   ├── InSPyReNet_Res2Net50.yaml
+  │   └── InSPyReNet_SwinB.yaml
+  ├── data
+  │   ├── backbone_ckpt
+  │   │   ├── swin_base_patch4_window12_384_22kto1k.pth
+  │   │   └── res2net50_v1b_26w_4s-3cf99910.pth
+  │   ├── RGB_Dataset
+  │   │   ├── Test_Dataset
+  │   │   │   ├── DUTS-TE
+  │   │   │   ├── DUT-OMRON
+  │   │   │   ├── ECSSD
+  │   │   │   ├── HKU-IS
+  │   │   │   └──PASCAL-S
+  │   │   └── Train_Dataset
+  │   │       └── DUTS-TR
+  ├── Expr.py
+  ├── Exprs.py
+  ├── figures
+  │   ├── figure1.jpg
+  │   ├── figure2.jpg
+  │   └── results.jpg
+  ├── lib
+  │   ├── backbones
+  │   ├── __init__.py
+  │   ├── InSPyReNet_Res2Net50.py
+  │   ├── InSPyReNet_SwinB.py
+  │   ├── losses
+  │   ├── modules
+  ├── LICENSE
+  ├── README.md
+  ├── requirements.txt
+  ├── results
+  ├── run
+  │   ├── Eval.py
+  │   ├── __init__.py
+  │   ├── Test.py
+  │   └── Train.py
+  ├── snapshots
+  │   ├── InSPyReNet_Res2Net50
+  │   │   ├── DUTS-TE
+  │   │   ├── DUT-OMRON
+  │   │   ├── ECSSD
+  │   │   ├── HKU-IS
+  │   │   ├── PASCAL-S
+  │   │   └── latest.pth
+  │   ├── InSPyReNet_SwinB
+  │   │   ├── DUTS-TE
+  │   │   ├── DUT-OMRON
+  │   │   ├── ECSSD
+  │   │   ├── HKU-IS
+  │   │   ├── PASCAL-S
+  │   │   └── latest.pth
+  └── utils
+      ├── custom_transforms.py
+      ├── dataloader.py
+      ├── eval_functions.py
+      └── utils.py
+  ```
 
 ## 3. Train & Evaluate
   + You can train with `python run/Train.py --config configs/InSPyReNet_SwinB.yaml`
@@ -93,7 +95,7 @@ Salient object detection (SOD) requires multi-scale features from intermediate b
   + You can evaluate generated prediction with `python run/Eval.py --config configs/InSPyReNet_SwinB.yaml`
   + You can also use `python Expr.py --config configs/InSPyReNet_SwinB.yaml` to train, generate prediction and evaluation in single command
   
-  + (optional) Download our best result checkpoints and pre-computed saliency maps from following [URL](https://drive.google.com/file/d/1IlHzuFeAMbPzxLCghaFzDV1FPuXwwcC0/view?usp=sharing) for InSPyReNet_Res2Net50 and InSPyReNet_SwinB. Locate pth files following above file location.
+  + (optional) Download our best result checkpoints and pre-computed saliency maps from following [URL](https://drive.google.com/file/d/1IlHzuFeAMbPzxLCghaFzDV1FPuXwwcC0/view?usp=sharing) for InSPyReNet_Res2Net50 and InSPyReNet_SwinB. Locate pth files following above file location. If you use `install.sh`, then you don't need to download them manually.
   + (optional) You can download pre-computed saliency maps from other methods and evaluate with our evaluation code. Create an yaml file as follows,
   ```
   Eval:
