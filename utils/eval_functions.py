@@ -170,31 +170,6 @@ def wFmeasure_calu(pred, gt):
 
     return Q
 
-# def Fmeasure_calu(pred, gt, gtsize):
-#     sumLabel = 2 * np.mean(pred)
-#     if sumLabel > 1:
-#         sumLabel = 1
-
-#     Label3 = np.zeros_like(gt)
-#     Label3[pred >= sumLabel] = 1
-
-#     NumRec = np.sum(Label3 == 1)
-#     LabelAnd = (Label3 == 1) & (gt == 1)
-#     NumAnd = np.sum(LabelAnd == 1)
-#     num_obj = np.sum(gt)
-
-#     if NumAnd == 0:
-#         PreFtem = 0
-#         RecallFtem = 0
-#         FmeasureF = 0
-
-#     else:
-#         PreFtem = NumAnd / NumRec
-#         RecallFtem = NumAnd / num_obj
-#         FmeasureF = ((1.3 * PreFtem * RecallFtem) / (.3 * PreFtem + RecallFtem))
-    
-#     return PreFtem, RecallFtem, FmeasureF
-
 def AlignmentTerm(pred, gt):
     mu_pred = np.mean(pred)
     mu_gt = np.mean(gt)

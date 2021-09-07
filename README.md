@@ -17,7 +17,7 @@ Salient object detection (SOD) requires multi-scale features from intermediate b
 ![Teaser](./figures/figure2.jpg)
 
 ## 1. Create environment
-  + Create conda environment with following command `conda create -n inspyrenet python=3.7`
+  + Create conda environment with following command `conda create -y -n inspyrenet python=3.8`
   + Activate environment with following command `conda activate inspyrenet`
   + Install requirements with following command `pip install -r requirements.txt`
   
@@ -46,7 +46,6 @@ Salient object detection (SOD) requires multi-scale features from intermediate b
   │   │   └── Train_Dataset
   │   │       └── DUTS-TR
   ├── Expr.py
-  ├── Exprs.py
   ├── figures
   │   ├── figure1.jpg
   │   ├── figure2.jpg
@@ -119,7 +118,7 @@ PASCAL-S   0.872  0.058  0.907   0.888   0.864  0.827      0.773     0.792      
   ```
   + InSPyReNet_SwinB
   ```
-dataset       Sm    mae     Em    maxF    avgF    wFm    IoUmaxF    maxIoU    meanIoU                                    
+dataset       Sm    mae     Em    maxF    avgF    wFm    IoUmaxF    maxIoU    meanIoU
 ---------  -----  -----  -----  ------  ------  -----  ---------  --------  ---------
 DUTS-TE    0.931  0.024  0.964   0.934   0.903  0.889      0.852     0.869      0.836
 DUT-OMRON  0.878  0.044  0.907   0.855   0.831  0.801      0.759     0.778      0.754
