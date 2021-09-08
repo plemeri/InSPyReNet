@@ -18,3 +18,4 @@ unzip snapshots.zip -d snapshots
 rm data.zip
 rm snapshots.zip
 rm cookie
+clear
