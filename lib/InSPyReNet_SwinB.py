@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
 
-from .losses import *
+from .optim import *
 from .modules.layers import *
 from .modules.context_module import *
 from .modules.attention_module import *

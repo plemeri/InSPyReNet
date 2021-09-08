@@ -21,8 +21,9 @@ repopath = os.path.split(filepath)[0]
 sys.path.append(repopath)
 
 from lib import *
+from lib.optim import *
 from utils.dataloader import *
-from utils.utils import *
+
 
 def _args():
     parser = argparse.ArgumentParser()
