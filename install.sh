@@ -1,21 +1,57 @@
+#!/bin/bash
+
 if ! [ -x "$(command -v unzip)" ]; then
   echo "'unzip' could not be found. Please install with \"sudo apt install unzip\". " >&2
   exit 1
 fi
 
-curl -c ./cookie -s -L "https://drive.google.com/uc?export=download&id=1KkXffb1DEu1be7NO-RPUy1r2bZqJRuYl" > /dev/null
-curl -Lb ./cookie "https://drive.google.com/uc?export=download&confirm=`awk '/download/ {print $NF}' ./cookie`&id=1KkXffb1DEu1be7NO-RPUy1r2bZqJRuYl" -o data.zip
+while true; do
+    read -p "Do you wish to download datasets and backbone checkpoints? [y/n]: " yn
+    case $yn in
+      [Yy]* )
+          curl -c ./cookie -s -L "https://drive.google.com/uc?export=download&id=1KkXffb1DEu1be7NO-RPUy1r2bZqJRuYl" > /dev/null
+          curl -Lb ./cookie "https://drive.google.com/uc?export=download&confirm=`awk '/download/ {print $NF}' ./cookie`&id=1KkXffb1DEu1be7NO-RPUy1r2bZqJRuYl" -o data.zip
+          rm cookie
+          rmdir data
+          mkdir data
+          unzip data.zip -d data
+          rm data.zip; 
+          break;;
+      [Nn]* ) break;;
+      * ) echo "Please answer yes or no.";;
+    esac
+done
 
-curl -c ./cookie -s -L "https://drive.google.com/uc?export=download&id=1IlHzuFeAMbPzxLCghaFzDV1FPuXwwcC0" > /dev/null
-curl -Lb ./cookie "https://drive.google.com/uc?export=download&confirm=`awk '/download/ {print $NF}' ./cookie`&id=1IlHzuFeAMbPzxLCghaFzDV1FPuXwwcC0" -o snapshots.zip
+while true; do
+    read -p "Do you wish to download pretrained model checkpoints? [y/n]: " yn
+    case $yn in
+      [Yy]* )
+          curl -c ./cookie -s -L "https://drive.google.com/uc?export=download&id=1IlHzuFeAMbPzxLCghaFzDV1FPuXwwcC0" > /dev/null
+          curl -Lb ./cookie "https://drive.google.com/uc?export=download&confirm=`awk '/download/ {print $NF}' ./cookie`&id=1IlHzuFeAMbPzxLCghaFzDV1FPuXwwcC0" -o snapshots.zip
+          rm cookie
+          rmdir snapshots
+          mkdir snapshots
+          unzip snapshots.zip -d snapshots
+          rm snapshots.zip; 
+          break;;
+      [Nn]* ) break;;
+      * ) echo "Please answer yes or no.";;
+    esac
+done
 
-rmdir data
-rmdir snapshots
-mkdir data
-mkdir snapshots
-unzip data.zip -d data
-unzip snapshots.zip -d snapshots
-rm data.zip
-rm snapshots.zip
-rm cookie
+while true; do
+    read -p "Do you wish to create conda environment? [y/n]: " yn
+    case $yn in
+      [Yy]* )
+          source ~/.zshrc
+          conda create -n inspyrenet python=3.8
+          conda activate inspyrenet
+          pip install -r requirements.txt
+          break;;
+      [Nn]* ) break;;
+      * ) echo "Please answer yes or no.";;
+    esac
+done
+
+
 clear
