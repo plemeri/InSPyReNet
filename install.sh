@@ -45,8 +45,7 @@ while true; do
       [Yy]* )
           source ~/.zshrc
           conda create -y -n inspyrenet python=3.8
-          conda activate inspyrenet
-          pip install -r requirements.txt
+          "${HOME}/anaconda3/envs/inspyrenet/bin/python" -m pip install -r requirements.txt
           break;;
       [Nn]* ) break;;
       * ) echo "Please answer yes or no.";;
