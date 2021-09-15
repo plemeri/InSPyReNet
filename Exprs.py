@@ -10,6 +10,7 @@ def _args():
     parser.add_argument('--config', type=str, default='configs/InSPyReNet_SwinB.yaml')
     parser.add_argument('--devices', type=str, default='0')
     parser.add_argument('--exprs', type=int, default=4)
+    parser.add_argument('--verbose', action='store_true', default=False)
     return parser.parse_args()
 
 
@@ -40,5 +41,7 @@ if __name__ == "__main__":
         for exp in exp_tab:
             if exp[1] == device:
                 command += '&& CUDA_VISIBLE_DEVICES={} python Expr.py --config {} '.format(device, os.path.join('temp', exp[0] + '.yaml'))
+                if args.verbose is True:
+                    command += '--verbose '
         command += '\"'
         os.system(command)
