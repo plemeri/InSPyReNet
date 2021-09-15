@@ -26,7 +26,7 @@ def _args():
     parser.add_argument('--verbose', action='store_true', default=False)
     return parser.parse_args()
 
-def test(opt):
+def test(opt, verbose=False):
     model = eval(opt.Model.name)(channels=opt.Model.channels, pretrained=opt.Model.pretrained)
     model.load_state_dict(torch.load(os.path.join(opt.Test.Checkpoint.checkpoint_dir, 'latest.pth')), strict=True)
     model.cuda()
