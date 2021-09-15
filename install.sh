@@ -44,7 +44,7 @@ while true; do
     case $yn in
       [Yy]* )
           source ~/.zshrc
-          conda create -n inspyrenet python=3.8
+          conda create -y -n inspyrenet python=3.8
           conda activate inspyrenet
           pip install -r requirements.txt
           break;;
