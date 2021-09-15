@@ -29,9 +29,10 @@ def _args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--config', type=str, default='configs/SwinYNet.yaml')
     parser.add_argument('--local_rank', type=int, default=-1)
+    parser.add_argument('--verbose', action='store_true', default=False)
     return parser.parse_args()
 
-def train(opt, local_rank=-1):
+def train(opt, local_rank=-1, verbose=False):
     # device_ids = [int(i) for i in os.environ['CUDA_VISIBLE_DEVICES'].split(',')]
     device_ids = [0]
     device_num = len(device_ids)
@@ -89,13 +90,13 @@ def train(opt, local_rank=-1):
                                                           warmup_iteration=opt.Train.Scheduler.warmup_iteration)
     model.train()
 
-    if local_rank <= 0:
+    if local_rank <= 0 and verbose is True:
         epoch_iter = tqdm.tqdm(range(1, opt.Train.Scheduler.epoch + 1), desc='Epoch', total=opt.Train.Scheduler.epoch, position=0, bar_format='{desc:<5.5}{percentage:3.0f}%|{bar:40}{r_bar}')
     else:
         epoch_iter = range(1, opt.Train.Scheduler.epoch + 1)
 
     for epoch in epoch_iter:
-        if local_rank <= 0:
+        if local_rank <= 0 and verbose is True:
             step_iter = tqdm.tqdm(enumerate(train_loader, start=1), desc='Iter', total=len(train_loader), position=1, leave=False, bar_format='{desc:<5.5}{percentage:3.0f}%|{bar:40}{r_bar}')
             if device_num > 1:
                 train_sampler.set_epoch(epoch)
@@ -118,7 +119,7 @@ def train(opt, local_rank=-1):
                 optimizer.step()
                 scheduler.step()
 
-            if local_rank <= 0:
+            if local_rank <= 0 and verbose is True:
                 step_iter.set_postfix({'loss': out['loss'].item()})
 
         if local_rank <= 0:
@@ -166,4 +167,4 @@ def train(opt, local_rank=-1):
 if __name__ == '__main__':
     args = _args()
     opt = ed(yaml.load(open(args.config), yaml.FullLoader))
-    train(opt, args.local_rank)
+    train(opt, args.local_rank, args.verbose)
