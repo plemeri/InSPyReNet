@@ -1,5 +1,5 @@
 Model:
-    name: "EInSPyReNet_SwinB"
+    name: "InSPyReNet_SwinBSS"
     channels: 64
     pretrained: True
 
@@ -42,7 +42,7 @@ Train:
         warmup_iteration: 12000
     Checkpoint:
         checkpoint_epoch: 20
-        checkpoint_dir: "snapshots/EInSPyReNet_SwinB"
+        checkpoint_dir: "snapshots/InSPyReNet_SwinBSS"
     
 Test:
     Dataset:
@@ -61,11 +61,11 @@ Test:
         num_workers: 8
         pin_memory: True
     Checkpoint:
-        checkpoint_dir: "snapshots/EInSPyReNet_SwinB"
+        checkpoint_dir: "snapshots/InSPyReNet_SwinBSS"
 
 Eval:
     gt_root: "data/RGB_Dataset/Test_Dataset"
-    pred_root: "snapshots/EInSPyReNet_SwinB"
+    pred_root: "snapshots/InSPyReNet_SwinBSS"
     result_path: "results"
     datasets: ['DUTS-TE', 'DUT-OMRON', 'ECSSD', 'HKU-IS', 'PASCAL-S']
     metrics: ['Sm', 'mae', 'Em', 'maxF', 'avgF', 'wFm', 'IoUmaxF', 'maxIoU', 'meanIoU']

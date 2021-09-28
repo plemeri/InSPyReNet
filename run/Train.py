@@ -27,7 +27,7 @@ from utils.dataloader import *
 
 def _args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--config', type=str, default='configs/SwinYNet.yaml')
+    parser.add_argument('--config', type=str, default='configs/InSPyReNet_SwinBSS.yaml')
     parser.add_argument('--local_rank', type=int, default=-1)
     parser.add_argument('--verbose', action='store_true', default=False)
     return parser.parse_args()
