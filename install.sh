@@ -5,6 +5,11 @@ if ! [ -x "$(command -v unzip)" ]; then
   exit 1
 fi
 
+if ! [ -x "$(command -v curl)" ]; then
+  echo "'curl' could not be found. Please install with \"sudo apt install curl\". " >&2
+  exit 1
+fi
+
 while true; do
     read -p "Do you wish to download datasets and backbone checkpoints? [y/n]: " yn
     case $yn in
@@ -39,6 +44,11 @@ while true; do
     esac
 done
 
+if ! [ -x "$(command -v conda)" ]; then
+  echo "'conda' could not be found. Please install with Anaconda " >&2
+  exit 1
+fi
+
 while true; do
     read -p "Do you wish to create conda environment? [y/n]: " yn
     case $yn in
@@ -51,6 +61,5 @@ while true; do
       * ) echo "Please answer yes or no.";;
     esac
 done
-
 
 clear

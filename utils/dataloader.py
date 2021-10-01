@@ -20,7 +20,10 @@ class RGB_Dataset(data.Dataset):
         self.gts = sorted(self.gts)
         self.filter_files()
         self.size = len(self.images)
+        self.transform = self.get_transform(transform_list)
 
+    @staticmethod
+    def get_transform(transform_list):
         tfs = []
         for key, value in zip(transform_list.keys(), transform_list.values()):
             if value is not None:
@@ -28,7 +31,7 @@ class RGB_Dataset(data.Dataset):
             else:
                 tf = eval(key)()
             tfs.append(tf)
-        self.transform = transforms.Compose(tfs)
+        return transforms.Compose(tfs)
 
     def __getitem__(self, index):
         image = self.rgb_loader(self.images[index])
