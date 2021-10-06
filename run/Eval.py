@@ -1,22 +1,22 @@
 import os
 import argparse
 import tqdm
-import yaml
 import sys
 
 import numpy as np
 
 from PIL import Image
 from tabulate import tabulate
-from easydict import EasyDict as ed
 
 filepath = os.path.split(__file__)[0]
 repopath = os.path.split(filepath)[0]
 sys.path.append(repopath)
 
 from utils.eval_functions import *
+from utils.utils import *
 
 BETA = 1.0
+
 
 def _args():
     parser = argparse.ArgumentParser()
@@ -24,7 +24,8 @@ def _args():
     parser.add_argument('--verbose', action='store_true', default=False)
     return parser.parse_args()
 
-def evaluate(opt, verbose=False):
+
+def evaluate(opt, args):
     if os.path.isdir(opt.Eval.result_path) is False:
         os.makedirs(opt.Eval.result_path)
 
@@ -33,9 +34,10 @@ def evaluate(opt, verbose=False):
     headers = opt.Eval.metrics
     results = []
 
-    if verbose is True:
+    if args.verbose is True:
         print('#' * 20, 'Start Evaluation', '#' * 20)
-        datasets = tqdm.tqdm(opt.Eval.datasets, desc='Expr - ' + method, total=len(opt.Eval.datasets), position=0, bar_format='{desc:<30}{percentage:3.0f}%|{bar:50}{r_bar}')
+        datasets = tqdm.tqdm(opt.Eval.datasets, desc='Expr - ' + method, total=len(
+            opt.Eval.datasets), position=0, bar_format='{desc:<30}{percentage:3.0f}%|{bar:50}{r_bar}')
     else:
         datasets = opt.Eval.datasets
 
@@ -63,14 +65,15 @@ def evaluate(opt, verbose=False):
         wFmeasure = np.zeros(len(preds))
         Emeasure = np.zeros(len(preds))
 
-        if verbose is True:
-            samples = tqdm.tqdm(enumerate(zip(preds, gts)), desc=dataset + ' - Evaluation', total=len(preds), position=1, leave=False, bar_format='{desc:<30}{percentage:3.0f}%|{bar:50}{r_bar}')
+        if args.verbose is True:
+            samples = tqdm.tqdm(enumerate(zip(preds, gts)), desc=dataset + ' - Evaluation', total=len(
+                preds), position=1, leave=False, bar_format='{desc:<30}{percentage:3.0f}%|{bar:50}{r_bar}')
         else:
             samples = enumerate(zip(preds, gts))
 
         for i, sample in samples:
             pred, gt = sample
-            
+
             pred_mask = np.array(Image.open(os.path.join(pred_root, pred)))
             gt_mask = np.array(Image.open(os.path.join(gt_root, gt)))
 
@@ -79,15 +82,17 @@ def evaluate(opt, verbose=False):
             if len(gt_mask.shape) != 2:
                 gt_mask = gt_mask[:, :, 0]
             gtSize = gt_mask.shape
-            
+
             assert pred_mask.shape == gt_mask.shape
 
             gt_mask = gt_mask.astype(np.float64) / 255
             gt_mask = (gt_mask > 0.5).astype(np.float64)
 
-            pred_mask = pred_mask.astype(np.float64) / (pred_mask.max() + np.finfo(np.float64).eps)
+            pred_mask = pred_mask.astype(
+                np.float64) / (pred_mask.max() + np.finfo(np.float64).eps)
 
-            IoU[i], TPR[i], FPR[i], Pre[i], Recall[i], hitRate[i], falseAlarm[i] = thresholdBased_HR_FR(pred_mask, Thresholds, gt_mask) # index 0 is not working
+            IoU[i], TPR[i], FPR[i], Pre[i], Recall[i], hitRate[i], falseAlarm[i] = thresholdBased_HR_FR(
+                pred_mask, Thresholds, gt_mask)  # index 0 is not working
 
             S_measure[i] = StructureMeasure(pred_mask, gt_mask)
             wFmeasure[i] = wFmeasure_calu(pred_mask, gt_mask)
@@ -137,13 +142,14 @@ def evaluate(opt, verbose=False):
         csv.close()
     tab = tabulate(results, headers=['dataset', *headers], floatfmt=".3f")
 
-    if verbose is True:
+    if args.verbose is True:
         print(tab)
         print("#"*20, "End Evaluation", "#"*20)
-    
+
     return tab
+
 
 if __name__ == "__main__":
     args = _args()
-    opt = ed(yaml.load(open(args.config), yaml.FullLoader))
-    evaluate(opt, args.verbose)
+    opt = load_config(args.config)
+    evaluate(opt, args)

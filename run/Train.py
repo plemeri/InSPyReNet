@@ -1,28 +1,25 @@
-from utils.dataloader import *
-from lib.optim import *
-from lib import *
 from enum import auto
 import os
 import torch
 import argparse
-import yaml
 import tqdm
 import sys
 
 import cv2
-import numpy as np
 import torch.nn as nn
 import torch.distributed as dist
 
 from torch.autograd import Variable
 from torch.optim import Adam, SGD
 from torch.cuda.amp import GradScaler, autocast
-from easydict import EasyDict as ed
 
 filepath = os.path.split(__file__)[0]
 repopath = os.path.split(filepath)[0]
 sys.path.append(repopath)
 
+from utils.dataloader import *
+from lib.optim import *
+from lib import *
 
 def _args():
     parser = argparse.ArgumentParser()
@@ -153,5 +150,5 @@ def train(opt, args):
 
 if __name__ == '__main__':
     args = _args()
-    opt = ed(yaml.load(open(args.config), yaml.FullLoader))
+    opt = load_config(args.config)
     train(opt, args)
