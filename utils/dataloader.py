@@ -40,14 +40,14 @@ class RGB_Dataset(data.Dataset):
         image = self.rgb_loader(self.images[index])
         gt = self.binary_loader(self.gts[index])
         
-        original_size = gt.size[::-1]
+        shape = gt.size[::-1]
         name = self.images[index].split('/')[-1]
         if name.endswith('.jpg'):
             name = name.split('.jpg')[0] + '.png'
 
         sample = self.transform({'image': image, 'gt': gt})
         sample['name'] = name
-        sample['original_size'] = original_size
+        sample['shape'] = shape
         return sample
 
     def filter_files(self):
@@ -71,7 +71,6 @@ class RGB_Dataset(data.Dataset):
     def binary_loader(self, path):
         with open(path, 'rb') as f:
             img = Image.open(f)
-            # return img.convert('1')
             return img.convert('L')
 
     def __len__(self):
@@ -111,14 +110,14 @@ class RGBD_Dataset(data.Dataset):
         gt = self.binary_loader(self.gts[index])
         depth = self.binary_loader(self.depths[index])
         
-        original_size = gt.size[::-1]
-        name = self.images[index].split('/')[-1]
+        shape = gt.size[::-1]
+        name = self.images[index].split(os.sep)[-1]
         if name.endswith('.jpg'):
             name = name.split('.jpg')[0] + '.png'
 
         sample = self.transform({'image': image, 'gt': gt, 'depth': depth})
         sample['name'] = name
-        sample['original_size'] = original_size
+        sample['shape'] = shape
         return sample
 
     def filter_files(self):
