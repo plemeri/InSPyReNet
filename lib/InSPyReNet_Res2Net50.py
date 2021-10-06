@@ -40,7 +40,13 @@ class InSPyReNet_Res2Net50(nn.Module):
         self.spyd = SPyD(7, 1)
 
 
-    def forward(self, x, y=None):
+    def forward(self, sample):
+        x = sample['image']
+        if 'gt' in sample.keys():
+            y = sample['gt']
+        else:
+            y = None
+            
         B, _, H, W = x.shape # (b, 32H, 32W, 3)
         # base_size = x.shape[-2:]  # (b, 32H, 32W, 3)
         x = self.backbone.conv1(x)

@@ -40,7 +40,13 @@ class InSPyReNet_SwinB(nn.Module):
         self.inspyre = InSPyRe(7, 1)
         self.spyd = SPyD(7, 1)
 
-    def forward(self, x, y=None):
+    def forward(self, sample):
+        x = sample['image']
+        if 'gt' in sample.keys():
+            y = sample['gt']
+        else:
+            y = None
+
         B, _, H, W = x.shape # (b, 32H, 32W, 3)
 
         x1 = self.backbone.stem(x) # 8h 8w

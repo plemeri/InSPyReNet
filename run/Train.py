@@ -37,9 +37,7 @@ def train(opt, local_rank=-1, verbose=False):
     device_ids = [0]
     device_num = len(device_ids)
 
-    train_dataset = eval(opt.Train.Dataset.type)(image_root=os.path.join(opt.Train.Dataset.root, 'images'),
-                                                 gt_root=os.path.join(opt.Train.Dataset.root, 'masks'),
-                                                 transform_list=opt.Train.Dataset.transform_list)
+    train_dataset = eval(opt.Train.Dataset.type)(root=opt.Train.Dataset.root, transform_list=opt.Train.Dataset.transform_list)
 
     if device_num > 1:
         torch.cuda.set_device(local_rank)
@@ -107,7 +105,8 @@ def train(opt, local_rank=-1, verbose=False):
             optimizer.zero_grad()
             if opt.Train.Optimizer.mixed_precision is True:
                 with autocast():
-                    out = model(sample['image'].cuda(), sample['gt'].cuda())
+                    sample = to_cuda(sample)
+                    out = model(sample)
 
                     scaler.scale(out['loss']).backward()
                     scaler.step(optimizer)

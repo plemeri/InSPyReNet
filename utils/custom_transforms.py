@@ -15,9 +15,9 @@ class resize:
         if 'image' in sample.keys():
             sample['image'] = sample['image'].resize(self.size, Image.BILINEAR)
         if 'gt' in sample.keys():
-            sample['gt'] = sample['gt'].resize(self.size, Image.BILINEAR)
-        if 'mask' in sample.keys():
-            sample['mask'] = sample['mask'].resize(self.size, Image.BILINEAR)
+            sample['gt'] = sample['gt'].resize(self.size, Image.NEAREST)
+        if 'depth' in sample.keys():
+            sample['depth'] = sample['depth'].resize(self.size, Image.NEAREST)
 
         return sample
 
@@ -29,7 +29,7 @@ class random_scale_crop:
         scale = np.random.random() * (self.range[1] - self.range[0]) + self.range[0]
         if np.random.random() < 0.5:
             for key in sample.keys():
-                if key in ['image', 'gt', 'mask']:
+                if key in ['image', 'gt', 'depth']:
                     base_size = sample[key].size
 
                     scale_size = tuple((np.array(base_size) * scale).round().astype(int))
@@ -41,7 +41,7 @@ class random_scale_crop:
                     lw = (sample[key].size[1] + base_size[1]) // 2
 
                     border = -min(0, min(lf, up))
-                    sample[key] = ImageOps.expand(sample[key], border=border, fill=np.array(sample[key]).min() if key == 'mask' else None)
+                    sample[key] = ImageOps.expand(sample[key], border=border) #, fill=np.array(sample[key]).min() if key == 'depth' else None)
                     sample[key] = sample[key].crop((lf + border, up + border, rg + border, lw + border))
 
         return sample
@@ -56,7 +56,7 @@ class random_flip:
         ud = np.random.random() < 0.5 and self.ud is True
 
         for key in sample.keys():
-            if key in ['image', 'gt', 'mask']:
+            if key in ['image', 'gt', 'depth']:
                 sample[key] = np.array(sample[key])
                 if lr:
                     sample[key] = np.fliplr(sample[key])
@@ -77,10 +77,10 @@ class random_rotate:
 
         if np.random.random() < 0.5:
             for key in sample.keys():
-                if key in ['image', 'gt', 'mask']:
+                if key in ['image', 'gt', 'depth']:
                     base_size = sample[key].size
 
-                    sample[key] = sample[key].rotate(rot, expand=True, fillcolor=np.array(sample[key]).min() if key == 'mask' else None)
+                    sample[key] = sample[key].rotate(rot, expand=True) #, fillcolor=np.array(sample[key]).min() if key == 'depth' else None)
 
                     sample[key] = sample[key].crop(((sample[key].size[0] - base_size[0]) // 2,
                                                     (sample[key].size[1] - base_size[1]) // 2,
@@ -127,7 +127,7 @@ class tonumpy:
 
     def __call__(self, sample):
         for key in sample.keys():
-            if key in ['image', 'gt', 'mask']:
+            if key in ['image', 'gt', 'depth']:
                 sample[key] = np.array(sample[key], dtype=np.float32)
 
         return sample
@@ -146,8 +146,8 @@ class normalize:
         if 'gt' in sample.keys():
             sample['gt'] /= 255
 
-        # if 'mask' in sample.keys():
-            # sample['mask'] /= 255
+        if 'depth' in sample.keys():
+            sample['depth'] /= 255
 
         return sample
 
@@ -164,8 +164,8 @@ class totensor:
             sample['gt'] = torch.from_numpy(sample['gt'])
             sample['gt'] = sample['gt'].unsqueeze(dim=0)
 
-        if 'mask' in sample.keys():
-            sample['mask'] = torch.from_numpy(sample['mask'])
-            sample['mask'] = sample['mask'].unsqueeze(dim=0)
+        if 'depth' in sample.keys():
+            sample['depth'] = torch.from_numpy(sample['depth'])
+            sample['depth'] = sample['depth'].unsqueeze(dim=0)
 
         return sample

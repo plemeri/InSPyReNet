@@ -3,6 +3,12 @@ import torch
 import torch.nn as nn
 from email.mime.text import MIMEText
 
+def to_cuda(sample):
+    for key in sample.keys():
+        if type(sample[key]) == torch.tensor:
+            sample[key] = sample[key].cuda()
+    return sample
+
 def patch(x, patch_size=256):
     b, c, h, w = x.shape
     unfold  = nn.Unfold(kernel_size=(patch_size,) * 2, stride=patch_size // 2)
