@@ -18,7 +18,6 @@ while true; do
           curl -Lb ./cookie "https://drive.google.com/uc?export=download&confirm=`awk '/download/ {print $NF}' ./cookie`&id=1KkXffb1DEu1be7NO-RPUy1r2bZqJRuYl" -o data.zip
           rm cookie
           rm -rf data
-          mkdir data
           unzip data.zip -d data
           rm data.zip; 
           break;;
@@ -35,7 +34,6 @@ while true; do
           curl -Lb ./cookie "https://drive.google.com/uc?export=download&confirm=`awk '/download/ {print $NF}' ./cookie`&id=1IlHzuFeAMbPzxLCghaFzDV1FPuXwwcC0" -o snapshots.zip
           rm cookie
           rm -rf snapshots
-          mkdir snapshots
           unzip snapshots.zip -d snapshots
           rm snapshots.zip; 
           break;;

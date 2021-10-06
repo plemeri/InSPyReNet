@@ -129,6 +129,7 @@ def train(opt, args):
 
             if args.local_rank <= 0 and args.verbose is True:
                 step_iter.set_postfix({'loss': out['loss'].item()})
+            break
 
         if args.local_rank <= 0:
             os.makedirs(opt.Train.Checkpoint.checkpoint_dir, exist_ok=True)
@@ -140,8 +141,8 @@ def train(opt, args):
 
             if args.debug is True:
                 debout = debug_tile(out)
-            cv2.imwrite(os.path.join(
-                opt.Train.Checkpoint.checkpoint_dir, 'debug', str(epoch) + '.png'), debout)
+                cv2.imwrite(os.path.join(
+                    opt.Train.Checkpoint.checkpoint_dir, 'debug', str(epoch) + '.png'), debout)
 
     if args.local_rank <= 0:
         torch.save(model.module.state_dict() if device_num > 1 else model.state_dict(
