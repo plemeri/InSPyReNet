@@ -129,7 +129,6 @@ def train(opt, args):
 
             if args.local_rank <= 0 and args.verbose is True:
                 step_iter.set_postfix({'loss': out['loss'].item()})
-            break
 
         if args.local_rank <= 0:
             os.makedirs(opt.Train.Checkpoint.checkpoint_dir, exist_ok=True)
