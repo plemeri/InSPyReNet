@@ -29,7 +29,7 @@ def _args():
     return parser.parse_args()
 
 
-def test(opt, args):
+def inference(opt, args):
     model = eval(opt.Model.name)(channels=opt.Model.channels,
                                  pretrained=opt.Model.pretrained)
     model.load_state_dict(torch.load(os.path.join(
@@ -93,4 +93,4 @@ def test(opt, args):
 if __name__ == "__main__":
     args = _args()
     opt = load_config(args.config)
-    test(opt, args)
+    inference(opt, args)

@@ -20,14 +20,14 @@ from lib import *
 
 def _args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--config', type=str, default='configs/RIUNet.yaml')
+    parser.add_argument('--config', type=str, default='configs/InSPyReNet_SwinB.yaml')
     parser.add_argument('--verbose', action='store_true', default=False)
     return parser.parse_args()
 
 
 def test(opt, args):
     model = eval(opt.Model.name)(channels=opt.Model.channels,
-                                 pretrained=opt.Model.pretrained)
+                                pretrained=opt.Model.pretrained)
     model.load_state_dict(torch.load(os.path.join(
         opt.Test.Checkpoint.checkpoint_dir, 'latest.pth')), strict=True)
     model.cuda()
@@ -45,13 +45,12 @@ def test(opt, args):
 
         os.makedirs(save_path, exist_ok=True)
 
-        test_dataset = eval(opt.Test.Dataset.type)(root=os.path.join(
-            opt.Test.Dataset.root, testset), transform_list=opt.Test.Dataset.transform_list)
+        test_dataset = eval(opt.Test.Dataset.type)(root=data_path, transform_list=opt.Test.Dataset.transform_list)
 
         test_loader = data.DataLoader(dataset=test_dataset,
-                                      batch_size=1,
-                                      num_workers=opt.Test.Dataloader.num_workers,
-                                      pin_memory=opt.Test.Dataloader.pin_memory)
+                                    batch_size=1,
+                                    num_workers=opt.Test.Dataloader.num_workers,
+                                    pin_memory=opt.Test.Dataloader.pin_memory)
 
         if args.verbose is True:
             samples = tqdm.tqdm(test_loader, desc=testset + ' - Test', total=len(test_loader),
