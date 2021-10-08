@@ -24,13 +24,13 @@ def _args():
     parser.add_argument('--config', type=str,
                         default='configs/InSPyReNet_SwinB.yaml')
     parser.add_argument('--local_rank', type=int, default=-1)
-    parser.add_argument('--verbose', action='store_true', default=True)
-    parser.add_argument('--debug', action='store_true',   default=True)
+    parser.add_argument('--verbose', action='store_true', default=False)
+    parser.add_argument('--debug', action='store_true',   default=False)
     return parser.parse_args()
 
 
 def train(opt, args):
-    device_ids = [0] #os.environ["CUDA_VISIBLE_DEVICES"].split(',')
+    device_ids = os.environ["CUDA_VISIBLE_DEVICES"].split(',')
     device_num = len(device_ids)
 
     train_dataset = eval(opt.Train.Dataset.type)(
@@ -113,10 +113,10 @@ def train(opt, args):
                     sample = to_cuda(sample)
                     out = model(sample)
 
-                    scaler.scale(out['loss']).backward()
-                    scaler.step(optimizer)
-                    scaler.update()
-                    scheduler.step()
+                scaler.scale(out['loss']).backward()
+                scaler.step(optimizer)
+                scaler.update()
+                scheduler.step()
             else:
                 sample = to_cuda(sample)
                 out = model(sample)
