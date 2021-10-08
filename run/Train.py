@@ -1,4 +1,3 @@
-from enum import auto
 import os
 import torch
 import argparse
@@ -9,7 +8,6 @@ import cv2
 import torch.nn as nn
 import torch.distributed as dist
 
-from torch.autograd import Variable
 from torch.optim import Adam, SGD
 from torch.cuda.amp import GradScaler, autocast
 
@@ -32,8 +30,7 @@ def _args():
 
 
 def train(opt, args):
-    # device_ids = [int(i) for i in os.environ['CUDA_VISIBLE_DEVICES'].split(',')]
-    device_ids = [0]
+    device_ids = os.environ["CUDA_VISIBLE_DEVICES"].split(',')
     device_num = len(device_ids)
 
     train_dataset = eval(opt.Train.Dataset.type)(
@@ -48,12 +45,12 @@ def train(opt, args):
         train_sampler = None
 
     train_loader = data.DataLoader(dataset=train_dataset,
-                                   batch_size=opt.Train.Dataloader.batch_size,
-                                   shuffle=train_sampler is None,
-                                   sampler=train_sampler,
-                                   num_workers=opt.Train.Dataloader.num_workers,
-                                   pin_memory=opt.Train.Dataloader.pin_memory,
-                                   drop_last=True)
+                                    batch_size=opt.Train.Dataloader.batch_size,
+                                    shuffle=train_sampler is None,
+                                    sampler=train_sampler,
+                                    num_workers=opt.Train.Dataloader.num_workers,
+                                    pin_memory=opt.Train.Dataloader.pin_memory,
+                                    drop_last=True)
 
     model = eval(opt.Model.name)(channels=opt.Model.channels,
                                  pretrained=opt.Model.pretrained)
