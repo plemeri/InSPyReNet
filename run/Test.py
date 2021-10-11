@@ -60,7 +60,8 @@ def test(opt, args):
 
         for sample in samples:
             sample = to_cuda(sample)
-            out = model(sample)
+            with torch.no_grad():
+                out = model(sample)
             out['pred'] = F.interpolate(
                 out['pred'], sample['shape'], mode='bilinear', align_corners=True)
 

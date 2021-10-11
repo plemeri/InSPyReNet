@@ -69,7 +69,8 @@ def inference(opt, args):
         sample['image'] = sample['image'].unsqueeze(0)
         sample = to_cuda(sample)
 
-        out = model(sample)
+        with torch.no_grad():
+            out = model(sample)
         out['pred'] = F.interpolate(
             out['pred'], img.size[::-1], mode='bilinear', align_corners=True)
         out['pred'] = out['pred'].data.cpu()
