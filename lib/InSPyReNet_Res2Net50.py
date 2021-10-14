@@ -26,7 +26,9 @@ class InSPyReNet_Res2Net50(nn.Module):
 
         self.attention =  ASCA(channels    , channels, lmap_in=True)
         self.attention1 = ASCA(channels * 2, channels, lmap_in=True)
-        self.attention2 = ASCA(channels * 2, channels)
+        self.attention2 = ASCA(channels * 2, channels, lmap_in=True)
+        self.attention3 = ASCA(channels * 2, channels, lmap_in=True)
+        self.attention4 = ASCA(channels * 2, channels)
 
         self.loss_fn = lambda x, y: weighted_tversky_bce_loss(x, y, alpha=0.2, beta=0.8, gamma=2)
         self.pyramidal_consistency_loss_fn = nn.L1Loss()
@@ -47,29 +49,27 @@ class InSPyReNet_Res2Net50(nn.Module):
             y = None
             
         B, _, H, W = x.shape
-        x = self.backbone.conv1(x)
-        x = self.backbone.bn1(x)
-        x1 = self.backbone.relu(x)
-        x2 = self.backbone.maxpool(x1)
+        x1, x2, x3, x4, x5 = self.backbone(x)
+        
+        x1 = self.context1(x1) #4
+        x2 = self.context2(x2) #4
+        x3 = self.context3(x3) #8
+        x4 = self.context4(x4) #16
+        x5 = self.context5(x5) #32
 
-        x2 = self.backbone.layer1(x2)
-        x3 = self.backbone.layer2(x2)
-        x4 = self.backbone.layer3(x3)
-        x5 = self.backbone.layer4(x4)
+        f5, d5 = self.decoder(x3, x4, x5) #32
+        
+        f4, p4 = self.attention4(torch.cat([x4, self.res(f5, (H // 16, W // 16))], dim=1), d5.detach()) #16
+        d4 = self.inspyre.rec(d5.detach(), p4) #16
 
-        x1 = self.context1(x1)
-        x2 = self.context2(x2)
-        x3 = self.context3(x3)
-        x4 = self.context4(x4)
-        x5 = self.context5(x5)
+        f3, p3 = self.attention3(torch.cat([x3, self.res(f4, (H // 8,  W // 8 ))], dim=1), d4.detach(), p4.detach()) #8
+        d3 = self.inspyre.rec(d4.detach(), p3) #8
 
-        f3, d3 = self.decoder(x5, x4, x3)
+        f2, p2 = self.attention2(torch.cat([x2, self.res(f3, (H // 4,  W // 4 ))], dim=1), d3.detach(), p3.detach()) #4
+        d2 = self.inspyre.rec(d3.detach(), p2) #4
 
-        f2, p2 = self.attention2(torch.cat([x2, self.ret(f3, x2)], dim=1), d3.detach()) 
-        d2 = self.inspyre.rec(d3.detach(), p2)
-
-        f1, p1 = self.attention1(torch.cat([x1, self.ret(f2, x1)], dim=1), d2.detach(), p2.detach())
-        d1 = self.inspyre.rec(d2.detach(), p1)
+        f1, p1 = self.attention1(torch.cat([self.res(x1, (H // 2, W // 2)), self.res(f2, (H // 2, W // 2))], dim=1), d2.detach(), p2.detach()) #2
+        d1 = self.inspyre.rec(d2.detach(), p1) #2
 
         _, p = self.attention(self.res(f1, (H, W)), d1.detach(), p1.detach())
         d = self.inspyre.rec(d1.detach(), p)

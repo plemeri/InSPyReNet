@@ -204,17 +204,23 @@ class Res2Net(nn.Module):
         x = self.bn1(x)
         x = self.relu(x)
         x = self.maxpool(x)
+        
+        out = [x]
 
         x = self.layer1(x)
+        out.append(x)
         x = self.layer2(x)
+        out.append(x)
         x = self.layer3(x)
+        out.append(x)
         x = self.layer4(x)
+        out.append(x)
 
-        x = self.avgpool(x)
-        x = x.view(x.size(0), -1)
-        x = self.fc(x)
+        # x = self.avgpool(x)
+        # x = x.view(x.size(0), -1)
+        # x = self.fc(x)
 
-        return x
+        return out
 
 
 def res2net50_v1b(pretrained=False, **kwargs):

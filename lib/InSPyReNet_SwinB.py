@@ -17,16 +17,18 @@ class InSPyReNet_SwinB(nn.Module):
         self.backbone = SwinB(pretrained=pretrained)
 
         self.context1 = PAA_e(128, channels)
-        self.context2 = PAA_e(256, channels)
-        self.context3 = PAA_e(512, channels)
-        self.context4 = PAA_e(1024, channels)
+        self.context2 = PAA_e(128, channels)
+        self.context3 = PAA_e(256, channels)
+        self.context4 = PAA_e(512, channels)
         self.context5 = PAA_e(1024, channels)
 
         self.decoder = PAA_d(channels)
-
+        
         self.attention =  ASCA(channels    , channels, lmap_in=True)
         self.attention1 = ASCA(channels * 2, channels, lmap_in=True)
-        self.attention2 = ASCA(channels * 2, channels)
+        self.attention2 = ASCA(channels * 2, channels, lmap_in=True)
+        self.attention3 = ASCA(channels * 2, channels, lmap_in=True)
+        self.attention4 = ASCA(channels * 2, channels)
 
         self.loss_fn = lambda x, y: weighted_tversky_bce_loss(x, y, alpha=0.2, beta=0.8, gamma=2)
         self.pyramidal_consistency_loss_fn = nn.L1Loss()
@@ -44,36 +46,31 @@ class InSPyReNet_SwinB(nn.Module):
             y = sample['gt']
         else:
             y = None
-
+            
         B, _, H, W = x.shape
+        x1, x2, x3, x4, x5 = self.backbone(x)
+        
+        x1 = self.context1(x1) #4
+        x2 = self.context2(x2) #4
+        x3 = self.context3(x3) #8
+        x4 = self.context4(x4) #16
+        x5 = self.context5(x5) #32
 
-        x1 = self.backbone.stem(x)
-        x2 = self.backbone.layers[0](x1)
-        x3 = self.backbone.layers[1](x2)
-        x4 = self.backbone.layers[2](x3)
-        x5 = self.backbone.layers[3](x4)
+        f5, d5 = self.decoder(x3, x4, x5) #32
+        
+        f4, p4 = self.attention4(torch.cat([x4, self.res(f5, (H // 16, W // 16))], dim=1), d5.detach()) #16
+        d4 = self.inspyre.rec(d5.detach(), p4) #16
 
-        x1 = x1.view(B, H // 4, W // 4, -1).permute(0, 3, 1, 2).contiguous()
-        x2 = x2.view(B, H // 8, W // 8, -1).permute(0, 3, 1, 2).contiguous()
-        x3 = x3.view(B, H // 16, W // 16, -1).permute(0, 3, 1, 2).contiguous()
-        x4 = x4.view(B, H // 32, W // 32, -1).permute(0, 3, 1, 2).contiguous()
-        x5 = x5.view(B, H // 32, W // 32, -1).permute(0, 3, 1, 2).contiguous()
+        f3, p3 = self.attention3(torch.cat([x3, self.res(f4, (H // 8,  W // 8 ))], dim=1), d4.detach(), p4.detach()) #8
+        d3 = self.inspyre.rec(d4.detach(), p3) #8
 
-        x1 = self.context1(x1)
-        x2 = self.context2(x2)
-        x3 = self.context3(x3)
-        x4 = self.context4(x4)
-        x5 = self.context5(x5)
+        f2, p2 = self.attention2(torch.cat([x2, self.res(f3, (H // 4,  W // 4 ))], dim=1), d3.detach(), p3.detach()) #4
+        d2 = self.inspyre.rec(d3.detach(), p2) #4
 
-        f3, d3 = self.decoder(x5, x4, x3)
+        f1, p1 = self.attention1(torch.cat([self.res(x1, (H // 2, W // 2)), self.res(f2, (H // 2, W // 2))], dim=1), d2.detach(), p2.detach()) #2
+        d1 = self.inspyre.rec(d2.detach(), p1) #2
 
-        f2, p2 = self.attention2(torch.cat([x2, self.ret(f3, x2)], dim=1), d3.detach()) 
-        d2 = self.inspyre.rec(d3.detach(), p2)
-
-        f1, p1 = self.attention1(torch.cat([x1, self.ret(f2, x1)], dim=1), d2.detach(), p2.detach())
-        d1 = self.inspyre.rec(d2.detach(), p1)
-
-        _, p = self.attention(self.res(f1, (H // 2, W // 2)), d1.detach(), p1.detach())
+        _, p = self.attention(self.res(f1, (H, W)), d1.detach(), p1.detach())
         d = self.inspyre.rec(d1.detach(), p)
 
         if y is not None:       
@@ -98,15 +95,13 @@ class InSPyReNet_SwinB(nn.Module):
             ploss2 = self.pyramidal_consistency_loss_fn(d2, dd2.detach()) * 0.0001
             ploss3 = self.pyramidal_consistency_loss_fn(d1, dd1.detach()) * 0.0001
 
-            d =  self.res(d, (H, W))
-
-            y4 = self.des(y4, (H, W))
             y3 = self.des(y3, (H, W))
             y2 = self.des(y2, (H, W))
+            y1 = self.des(y1, (H, W))
 
-            closs =  self.loss_fn(d3, y4)
-            closs += self.loss_fn(d2, y3)
-            closs += self.loss_fn(d1, y2)
+            closs =  self.loss_fn(d3, y3)
+            closs += self.loss_fn(d2, y2)
+            closs += self.loss_fn(d1, y1)
             closs += self.loss_fn(d,  y)
             
             loss = ploss1 + ploss2 + ploss3 + closs

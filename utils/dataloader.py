@@ -1,14 +1,17 @@
 import os
 import cv2
+import sys
 
 import numpy as np
 import torch.utils.data as data
 
 from PIL import Image
 
-from utils.custom_transforms import *
-from utils.utils import *
+filepath = os.path.split(__file__)[0]
+repopath = os.path.split(filepath)[0]
+sys.path.append(repopath)
 
+from utils.utils import *
 class RGB_Dataset(data.Dataset):
     def __init__(self, root, transform_list):
         image_root, gt_root = os.path.join(root, 'images'), os.path.join(root, 'masks')
