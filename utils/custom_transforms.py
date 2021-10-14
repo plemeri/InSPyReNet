@@ -9,7 +9,7 @@ from .utils import *
 
 class resize:
     def __init__(self, size):
-        self.size = size
+        self.size = size[::-1]
 
     def __call__(self, sample):
         if 'image' in sample.keys():

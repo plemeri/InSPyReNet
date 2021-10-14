@@ -12,10 +12,8 @@ from .modules.decoder_module import *
 from lib.backbones.SwinTransformer import SwinB
 
 class InSPyReNet_SwinB(nn.Module):
-    # res2net based encoder decoder
     def __init__(self, channels=64, pretrained=True):
         super(InSPyReNet_SwinB, self).__init__()
-        # self.backbone = res2net50_v1b_26w_4s(pretrained=pretrained, output_stride=output_stride)
         self.backbone = SwinB(pretrained=pretrained)
 
         self.context1 = PAA_e(128, channels)
@@ -47,13 +45,13 @@ class InSPyReNet_SwinB(nn.Module):
         else:
             y = None
 
-        B, _, H, W = x.shape # (b, 32H, 32W, 3)
+        B, _, H, W = x.shape
 
-        x1 = self.backbone.stem(x) # 8h 8w
-        x2 = self.backbone.layers[0](x1) # 4h 4w
-        x3 = self.backbone.layers[1](x2) # 2h 2w
-        x4 = self.backbone.layers[2](x3) # h w
-        x5 = self.backbone.layers[3](x4) # hw
+        x1 = self.backbone.stem(x)
+        x2 = self.backbone.layers[0](x1)
+        x3 = self.backbone.layers[1](x2)
+        x4 = self.backbone.layers[2](x3)
+        x5 = self.backbone.layers[3](x4)
 
         x1 = x1.view(B, H // 4, W // 4, -1).permute(0, 3, 1, 2).contiguous()
         x2 = x2.view(B, H // 8, W // 8, -1).permute(0, 3, 1, 2).contiguous()
@@ -67,23 +65,22 @@ class InSPyReNet_SwinB(nn.Module):
         x4 = self.context4(x4)
         x5 = self.context5(x5)
 
-        f3, d3 = self.decoder(x5, x4, x3) # 2h 2w
+        f3, d3 = self.decoder(x5, x4, x3)
 
         f2, p2 = self.attention2(torch.cat([x2, self.ret(f3, x2)], dim=1), d3.detach()) 
-        d2 = self.inspyre.rec(d3.detach(), p2) # 4h 4w
+        d2 = self.inspyre.rec(d3.detach(), p2)
 
         f1, p1 = self.attention1(torch.cat([x1, self.ret(f2, x1)], dim=1), d2.detach(), p2.detach())
-        d1 = self.inspyre.rec(d2.detach(), p1) # 8h 8w
+        d1 = self.inspyre.rec(d2.detach(), p1)
 
         _, p = self.attention(self.res(f1, (H // 2, W // 2)), d1.detach(), p1.detach())
-        d = self.inspyre.rec(d1.detach(), p) # 32H X 32W
+        d = self.inspyre.rec(d1.detach(), p)
 
         if y is not None:       
-            py1, y1 = self.spyd.dec(y)
-            py2, y2 = self.spyd.dec(y1)
-            py3, y3 = self.spyd.dec(y2)
-            py4, y4 = self.spyd.dec(y3)
-            py5, y5 = self.spyd.dec(y4)
+            _, y1 = self.spyd.dec(y)
+            _, y2 = self.spyd.dec(y1)
+            _, y3 = self.spyd.dec(y2)
+            _, y4 = self.spyd.dec(y3)
 
             dd3 = self.inspyre.down(d2)
             dd2 = self.inspyre.down(d1)
@@ -118,6 +115,6 @@ class InSPyReNet_SwinB(nn.Module):
         else:
             d =  self.res(d, (H, W))
             loss = 0
-            debug = []
+            debug = [d3, p2, p1, p]
 
         return {'pred': d, 'loss': loss, 'debug': debug}

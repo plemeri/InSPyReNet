@@ -46,7 +46,6 @@ def test(opt, args):
         os.makedirs(save_path, exist_ok=True)
 
         test_dataset = eval(opt.Test.Dataset.type)(root=data_path, transform_list=opt.Test.Dataset.transform_list)
-
         test_loader = data.DataLoader(dataset=test_dataset,
                                     batch_size=1,
                                     num_workers=opt.Test.Dataloader.num_workers,
@@ -62,16 +61,8 @@ def test(opt, args):
             sample = to_cuda(sample)
             with torch.no_grad():
                 out = model(sample)
-            out['pred'] = F.interpolate(
-                out['pred'], sample['shape'], mode='bilinear', align_corners=True)
-
-            out['pred'] = out['pred'].data.cpu()
-            out['pred'] = torch.sigmoid(out['pred'])
-            out['pred'] = out['pred'].numpy().squeeze()
-            out['pred'] = (out['pred'] - out['pred'].min()) / \
-                (out['pred'].max() - out['pred'].min() + 1e-8)
-            Image.fromarray((out['pred'] * 255).astype(np.uint8)
-                            ).save(os.path.join(save_path, sample['name'][0]))
+            pred = to_numpy(out['pred'], out['shape'])
+            Image.fromarray((pred * 255).astype(np.uint8)).save(os.path.join(save_path, sample['name'][0]))
 
 
 if __name__ == "__main__":

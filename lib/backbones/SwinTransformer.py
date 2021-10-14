@@ -560,13 +560,6 @@ class SwinTransformer(nn.Module):
         if self.ape:
             x = x + self.absolute_pos_embed
         x = self.pos_drop(x)
-
-        # for layer in self.layers:
-        #     x = layer(x)
-
-        # x = self.norm(x)  # B L C
-        # x = self.avgpool(x.transpose(1, 2))  # B C 1
-        # x = torch.flatten(x, 1)
         return x
 
     def forward(self, x):
@@ -595,9 +588,9 @@ def SwinB(pretrained=True):
         
     return model
 
-def SwinB_224(pretrained=True):
-    model = SwinTransformer(img_size=224, embed_dim=128, depths=[2, 2, 18, 2], num_heads=[4, 8, 16, 32], window_size=7)
+def DSwinB(pretrained=True):
+    model = SwinTransformer(img_size=384, embed_dim=128, depths=[2, 2, 18, 2], num_heads=[4, 8, 16, 32], window_size=12)
     if pretrained:
-        model.load_state_dict(torch.load('data/backbone_ckpt/swin_base_patch4_window7_224_22kto1k.pth')['model'])
+        model.load_state_dict(torch.load('data/backbone_ckpt/swin_base_patch4_window12_384.pth')['model'])
         
     return model
