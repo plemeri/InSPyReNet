@@ -36,5 +36,5 @@ class InSPyReNet_Grid(nn.Module):
         d1 = self.model.inspyre.rec(d2.detach(), p1)
         d =  self.model.inspyre.rec(d1.detach(), p)
         d = self.res(d, (h, w))
-
+        
         return {'pred': d, 'debug': [d3, d2, d1, out['pred']]}
