@@ -61,7 +61,7 @@ def test(opt, args):
             sample = to_cuda(sample)
             with torch.no_grad():
                 out = model(sample)
-            pred = to_numpy(out['pred'], out['shape'])
+            pred = to_numpy(out['pred'], sample['shape'])
             Image.fromarray((pred * 255).astype(np.uint8)).save(os.path.join(save_path, sample['name'][0]))
 
 
