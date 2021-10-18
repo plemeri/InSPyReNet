@@ -110,7 +110,7 @@ def stitch_max(patches, target_shape, patch_size=256):
                 patch_pos = torch.max(F.relu(tgt), F.relu(src))
                 patch = patch_neg + patch_pos
                 
-                # patch = torch.max(out[:, :, i * stride: (i + 2) * stride, j * stride: (j + 2) * stride].abs(), patches[start:end])
+                patch = torch.max(out[:, :, i * stride: (i + 2) * stride, j * stride: (j + 2) * stride].abs(), patches[start:end])
                 out[:, :, i * stride: (i + 2) * stride, j * stride: (j + 2) * stride] = patch
     return out
 
@@ -164,7 +164,7 @@ def stitch_avg_mod(patches, target_shape, patch_size=256):
                     wstart = 0
                 if j == pw - 1:
                     wend = patch_size
-                
+                    
                 out[:, :, i * stride + hstart: i * stride + hend, j * stride + wstart: j * stride + wend] += patches[cstart:cend, :, hstart:hend, wstart:wend]
     return out # / wgt
 

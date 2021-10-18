@@ -24,7 +24,7 @@ def _args():
     parser.add_argument('--config', type=str, default='configs/InSPyReNet_SwinB.yaml')
     parser.add_argument('--source', type=str)
     parser.add_argument('--type', type=str, choices=['rgba', 'map', 'green'], default='map')
-    parser.add_argument('--grid', type=str, default=None)
+    parser.add_argument('--grid', action='store_true', default=False)
     parser.add_argument('--verbose', action='store_true', default=False)
     return parser.parse_args()
 
@@ -47,9 +47,8 @@ def inference(opt, args):
     model.cuda()
     model.eval()
     
-    if args.grid is not None:
-        model = InSPyReNet_Grid(model, opt.Test.Dataset.transform_list.resize.size[0])
-        opt.Test.Dataset.transform_list.resize.size = [int(i) for i in args.grid.split(',')]
+    if args.grid is True:
+        model = InSPyReNet_Grid(model, opt.Test.Dataset.transform_list.dynamic_resize.base_size)
 
     if os.path.isdir(args.source):
         save_dir = os.path.join('results', args.source.split(os.sep)[-1])
@@ -87,6 +86,9 @@ def inference(opt, args):
         with torch.no_grad():
             out = model(sample)
         pred = to_numpy(out['pred'], sample['shape'])
+        if args.grid is True:
+            og = to_numpy(out['og'], sample['shape'])
+            pred = np.maximum(pred, og)
         # pred = to_numpy(out['debug'][-1][0:1], [384, 384])
 
         if args.type == 'map':

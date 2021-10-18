@@ -20,6 +20,28 @@ class resize:
             sample['depth'] = sample['depth'].resize(self.size, Image.NEAREST)
 
         return sample
+    
+class dynamic_resize:
+    def __init__(self, base_size):
+        self.base_size = base_size
+
+    def __call__(self, sample):
+        if 'image' in sample.keys():
+            ar = sample['image'].size[0] / sample['image'].size[1]
+            if ar >= 1.5:
+                size = (self.base_size * 2, self.base_size)
+            elif ar <= (1 / 1.5):
+                size = (self.base_size, self.base_size * 2)
+            else:
+                size = (self.base_size, self.base_size)
+            
+            sample['image'] = sample['image'].resize(size, Image.BILINEAR)
+        if 'gt' in sample.keys():
+            raise AttributeError
+        if 'depth' in sample.keys():
+            raise AttributeError
+
+        return sample
 
 class random_scale_crop:
     def __init__(self, range=[0.75, 1.25]):

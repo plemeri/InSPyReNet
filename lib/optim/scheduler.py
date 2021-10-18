@@ -1,9 +1,3 @@
-import torch
-import numpy as np
-from thop import profile
-from thop import clever_format
-from scipy.ndimage import map_coordinates
-
 from torch.optim.lr_scheduler import _LRScheduler
 
 

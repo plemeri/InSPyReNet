@@ -625,7 +625,11 @@ class SwinTransformer(nn.Module):
 def SwinB(pretrained=True):
     model = SwinTransformer(embed_dim=128, depths=[2, 2, 18, 2], num_heads=[4, 8, 16, 32], window_size=12)
     if pretrained:
+<<<<<<< HEAD
         model.load_state_dict(torch.load('data/backbone_ckpt/swin_base_patch4_window12_384_22kto1k.pth')['model'], strict=False)
+=======
+        model.load_state_dict(torch.load('data/backbone_ckpt/swin_base_patch4_window12_384_22kto1k.pth')['model'])
+>>>>>>> origin/main
         
     return model
 
