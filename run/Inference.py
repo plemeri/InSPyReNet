@@ -25,6 +25,7 @@ def _args():
     parser.add_argument('--source', type=str)
     parser.add_argument('--type', type=str, choices=['rgba', 'map', 'green'], default='map')
     parser.add_argument('--grid', action='store_true', default=False)
+    parser.add_argument('--gpu', action='store_true', default=False)
     parser.add_argument('--verbose', action='store_true', default=False)
     return parser.parse_args()
 
@@ -44,7 +45,9 @@ def inference(opt, args):
                                 pretrained=opt.Model.pretrained)
     model.load_state_dict(torch.load(os.path.join(
         opt.Test.Checkpoint.checkpoint_dir, 'latest.pth')), strict=True)
-    model.cuda()
+    
+    if args.gpu is True:
+        model.cuda()
     model.eval()
     
     if args.grid is True:
@@ -80,8 +83,11 @@ def inference(opt, args):
             writer.release()
             writer = None
             continue
-            
-        sample = to_cuda(source)
+        
+        if args.gpu is True:
+            sample = to_cuda(source)
+        else:
+            sample = source
 
         with torch.no_grad():
             out = model(sample)

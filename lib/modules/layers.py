@@ -13,18 +13,18 @@ class InSPyRe:
 
         k = cv2.getGaussianKernel(ksize, sigma)
         k = np.outer(k, k)
-        k = torch.tensor(k).float().cuda()
+        k = torch.tensor(k).float()
         self.kernel = k.repeat(channels, 1, 1, 1)
 
     def up(self, x):
         z = torch.zeros_like(x)
         x = torch.cat([x, z, z, z], dim=1)
         x = F.pixel_shuffle(x, 2)
-        x = F.conv2d(x, self.kernel * 4, groups=self.channels, padding=self.ksize // 2)
+        x = F.conv2d(x, self.kernel.to(x.device) * 4, groups=self.channels, padding=self.ksize // 2)
         return x
 
     def down(self, x):
-        x = F.conv2d(x, self.kernel, groups=self.channels, padding=self.ksize // 2)
+        x = F.conv2d(x, self.kernel.to(x.device), groups=self.channels, padding=self.ksize // 2)
         return x[:, :, ::2, ::2]
 
     def dec(self, x):
