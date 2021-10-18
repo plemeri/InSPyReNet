@@ -42,7 +42,7 @@ def get_format(source):
 
 def inference(opt, args):
     model = eval(opt.Model.name)(channels=opt.Model.channels,
-                                pretrained=opt.Model.pretrained)
+                                pretrained=False)
     model.load_state_dict(torch.load(os.path.join(
         opt.Test.Checkpoint.checkpoint_dir, 'latest.pth')), strict=True)
     
