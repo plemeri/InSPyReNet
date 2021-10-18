@@ -86,9 +86,9 @@ def inference(opt, args):
         with torch.no_grad():
             out = model(sample)
         pred = to_numpy(out['pred'], sample['shape'])
-        # if args.grid is True:
-        #     og = to_numpy(out['og'], sample['shape'])
-        #     pred = pred * og            
+        if args.grid is True:
+            og = to_numpy(out['og'], sample['shape'])
+            pred = np.maximum(pred, og)
         # pred = to_numpy(out['debug'][-1][0:1], [384, 384])
 
         if args.type == 'map':
