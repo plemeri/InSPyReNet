@@ -44,7 +44,7 @@ def inference(opt, args):
     model = eval(opt.Model.name)(channels=opt.Model.channels,
                                 pretrained=False)
     model.load_state_dict(torch.load(os.path.join(
-        opt.Test.Checkpoint.checkpoint_dir, 'latest.pth')), strict=True)
+        opt.Test.Checkpoint.checkpoint_dir, 'latest.pth'), map_location=torch.device('cpu')), strict=True)
     
     if args.gpu is True:
         model.cuda()
@@ -53,7 +53,11 @@ def inference(opt, args):
     if args.grid is True:
         model = InSPyReNet_Grid(model, opt.Test.Dataset.transform_list.dynamic_resize.base_size)
 
-    if os.path.isdir(args.source):
+    if args.source.isnumeric() is True:
+        save_dir = None
+        _format = 'Webcam'
+
+    elif os.path.isdir(args.source):
         save_dir = os.path.join('results', args.source.split(os.sep)[-1])
         _format = get_format(os.listdir(args.source))
 
@@ -64,8 +68,9 @@ def inference(opt, args):
     else:
         return
 
-
-    os.makedirs(save_dir, exist_ok=True)
+    if save_dir is not None:
+        os.makedirs(save_dir, exist_ok=True)
+    
     source_list = eval(_format + 'Loader')(args.source, opt.Test.Dataset.transform_list)
 
     if args.verbose is True:
@@ -116,6 +121,8 @@ def inference(opt, args):
             Image.fromarray(img).save(os.path.join(save_dir, sample['name']))
         elif _format == 'Video':
             writer.write(img)
+        elif _format == 'Webcam':
+            cv2.imshow('InSPyReNet', img)
 
 
 if __name__ == "__main__":

@@ -5,6 +5,7 @@ import numpy as np
 import torch.utils.data as data
 
 from PIL import Image
+from threading import Thread
 
 from utils.custom_transforms import *
 from utils.utils import *
@@ -181,3 +182,46 @@ class VideoLoader:
 
     def __len__(self):
         return self.size
+    
+
+class WebcamLoader:
+    def __init__(self, ID, transform_list):
+        self.ID = int(ID)
+        self.cap = cv2.VideoCapture(self.ID)
+        self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+        self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+        self.transform = get_transform(transform_list)
+        self.imgs = []
+        self.imgs.append(self.cap.read()[1])
+        self.thread = Thread(target=self.update, daemon=True)
+        self.thread.start()
+        
+    def update(self):
+        while self.cap.isOpened():
+            ret, frame = self.cap.read()
+            if ret is True:
+                self.imgs.append(frame)
+            else:
+                break
+        
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        frame = self.imgs[-1]
+        if self.thread.is_alive() is False or cv2.waitKey(1) == ord('q'):
+            cv2.destroyAllWindows()
+            raise StopIteration
+        
+        else:
+            image = Image.fromarray(frame).convert('RGB')
+            shape = image.size[::-1]
+            sample = {'image': image, 'shape': shape, 'name': 'webcam', 'original': image}
+            sample = self.transform(sample)
+            sample['image'] = sample['image'].unsqueeze(0)
+        
+        self.imgs.clear()
+        return sample
+
+    def __len__(self):
+        return 0
