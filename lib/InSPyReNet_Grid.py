@@ -22,6 +22,8 @@ class InSPyReNet_Grid(nn.Module):
         self.des = lambda x, size: F.interpolate(x, size=size, mode='nearest')
         
     def forward(self, sample):
+        og = self.model({'image': self.res(sample['image'], (self.patch_size, self.patch_size))})
+        
         sample['image'], shape = patch_max(sample['image'], self.patch_size)
         b, c, h, w = shape
         out = self.model(sample)
@@ -36,5 +38,6 @@ class InSPyReNet_Grid(nn.Module):
         d1 = self.model.inspyre.rec(d2.detach(), p1)
         d =  self.model.inspyre.rec(d1.detach(), p)
         d = self.res(d, (h, w))
-
-        return {'pred': d, 'debug': [d3, d2, d1, out['pred']]}
+        og = self.res(og['pred'], (h, w))
+        
+        return {'pred': d, 'debug': [d3, d2, d1, out['pred']], 'og': og}
