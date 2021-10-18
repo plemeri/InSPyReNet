@@ -121,7 +121,8 @@ def inference(opt, args):
             Image.fromarray(img).save(os.path.join(save_dir, sample['name']))
         elif _format == 'Video':
             writer.write(img)
-        elif _format == 'Webcam':
+            
+        if _format == 'Webcam' or args.verbose is True:
             cv2.imshow('InSPyReNet', img)
 
 
