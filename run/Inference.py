@@ -49,6 +49,7 @@ def inference(opt, args):
     if args.gpu is True:
         model.cuda()
     model.eval()
+    # model.zero_grad(set_to_none=True)
     
     if args.grid is True:
         model = InSPyReNet_Grid(model, opt.Test.Dataset.transform_list.dynamic_resize.base_size)
@@ -112,7 +113,7 @@ def inference(opt, args):
         elif args.type == 'green':
             bg = np.stack([np.zeros_like(pred), np.ones_like(pred), np.zeros_like(pred)], axis=-1) * 255
             img = np.array(sample['original'])
-            img = img * pred[:, :, np.newaxis] + bg * (1 - pred[:, :, np.newaxis])
+            img = img * pred[..., np.newaxis] + bg * (1 - pred[..., np.newaxis])
             img = img.astype(np.uint8)
         else:
             img = None
@@ -121,10 +122,9 @@ def inference(opt, args):
             Image.fromarray(img).save(os.path.join(save_dir, sample['name']))
         elif _format == 'Video':
             writer.write(img)
-            
-        if _format == 'Webcam' or args.verbose is True:
+        elif _format == 'Webcam':
             cv2.imshow('InSPyReNet', img)
-
+            
 
 if __name__ == "__main__":
     args = _args()
