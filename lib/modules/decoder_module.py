@@ -97,3 +97,32 @@ class PAA_d(nn.Module):
         out = self.conv5(f3)
 
         return f3, out
+
+class PAA_d2(nn.Module):
+    def __init__(self, channel):
+        super(PAA_d2, self).__init__()
+        self.conv1 = conv(channel * 2 ,channel, 3)
+        self.conv2 = conv(channel, channel, 3)
+        self.conv3 = conv(channel, channel, 3)
+        self.conv4 = conv(channel, channel, 3)
+        self.conv5 = conv(channel, 1, 3, bn=False)
+
+        self.Hattn = self_attn(channel, mode='h')
+        self.Wattn = self_attn(channel, mode='w')
+
+        self.upsample = lambda img, size: F.interpolate(img, size=size, mode='bilinear', align_corners=True)
+        
+    def forward(self, f1, f2):
+        f1 = self.upsample(f1, f2.shape[-2:])
+        f2 = torch.cat([f1, f2], dim=1)
+        f2 = self.conv1(f2)
+
+        Hf2 = self.Hattn(f2)
+        Wf2 = self.Wattn(f2)
+
+        f2 = self.conv2(Hf2 + Wf2)
+        f2 = self.conv3(f2)
+        f2 = self.conv4(f2)
+        out = self.conv5(f2)
+
+        return f2, out

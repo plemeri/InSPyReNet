@@ -5,6 +5,8 @@ import copy
 import random
 import string
 
+LR = []
+
 def _args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--config', type=str, default='configs/InSPyReNet_SwinB.yaml')
@@ -32,6 +34,8 @@ if __name__ == "__main__":
         opt_c['Train']['Checkpoint']['checkpoint_dir'] = os.path.join(*os.path.split(ckpt_dir)[:-1], cfg_name)
         opt_c['Test']['Checkpoint']['checkpoint_dir'] = os.path.join(*os.path.split(ckpt_dir)[:-1], cfg_name)
         opt_c['Eval']['pred_root'] = os.path.join(*os.path.split(ckpt_dir)[:-1], cfg_name)
+        
+        opt_c['Train']['Optimizer']['lr'] = LR[i % len(LR)]
 
         yaml.dump(opt_c, open(os.path.join('temp', cfg_name + '.yaml'), 'w'), sort_keys=False)
         exp_tab.append((cfg_name, devices[i % len(devices)]))

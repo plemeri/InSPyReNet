@@ -1,6 +1,6 @@
 Model:
     name: "InSPyReNet_SwinB"
-    channels: 64
+    depth: 64
     pretrained: True
 
 Train:

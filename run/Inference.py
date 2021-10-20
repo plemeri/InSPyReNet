@@ -41,7 +41,7 @@ def get_format(source):
         return 'Video'
 
 def inference(opt, args):
-    model = eval(opt.Model.name)(channels=opt.Model.channels,
+    model = eval(opt.Model.name)(depth=opt.Model.depth,
                                 pretrained=opt.Model.pretrained)
     model.load_state_dict(torch.load(os.path.join(
         opt.Test.Checkpoint.checkpoint_dir, 'latest.pth')), strict=True)

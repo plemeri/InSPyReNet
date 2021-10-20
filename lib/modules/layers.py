@@ -4,8 +4,7 @@ import torch.nn.functional as F
 
 import cv2
 import numpy as np
-
-class InSPyRe:
+class Pyr:
     def __init__(self, ksize=5, sigma=1, channels=1):
         self.ksize = ksize
         self.sigma = sigma

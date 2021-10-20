@@ -52,7 +52,7 @@ def train(opt, args):
                                     pin_memory=opt.Train.Dataloader.pin_memory,
                                     drop_last=True)
 
-    model = eval(opt.Model.name)(channels=opt.Model.channels,
+    model = eval(opt.Model.name)(depth=opt.Model.depth,
                                  pretrained=opt.Model.pretrained)
 
     if device_num > 1:
