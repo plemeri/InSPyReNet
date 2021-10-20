@@ -5,7 +5,7 @@ import copy
 import random
 import string
 
-LR = []
+LR = [i * 1e-6 for i in range(1, 10)]
 
 def _args():
     parser = argparse.ArgumentParser()
