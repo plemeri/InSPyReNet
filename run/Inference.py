@@ -23,7 +23,7 @@ def _args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--config', type=str, default='configs/InSPyReNet_SwinB.yaml')
     parser.add_argument('--source', type=str)
-    parser.add_argument('--type', type=str, choices=['rgba', 'map', 'green'], default='map')
+    parser.add_argument('--type', type=str, choices=['rgba', 'map', 'green', 'blur'], default='map')
     parser.add_argument('--grid', action='store_true', default=False)
     parser.add_argument('--gpu', action='store_true', default=False)
     parser.add_argument('--verbose', action='store_true', default=False)
@@ -115,6 +115,11 @@ def inference(opt, args):
             img = np.array(sample['original'])
             img = img * pred[..., np.newaxis] + bg * (1 - pred[..., np.newaxis])
             img = img.astype(np.uint8)
+        elif args.type == 'blur':
+            img = np.array(sample['original'])
+            img = img * pred[..., np.newaxis] + cv2.GaussianBlur(img, (0, 0), 15) * (1 - pred[..., np.newaxis])
+            img = img.astype(np.uint8)
+            
         else:
             img = None
 
