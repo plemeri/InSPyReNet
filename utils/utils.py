@@ -145,27 +145,27 @@ def stitch_avg_mod(patches, target_shape, patch_size=256):
     
     out = torch.zeros(b, c, h, w).to(patches.device)
     for i in range(ph):
-            for j in range(pw):
-                cstart = (j + pw * i)# * stride
-                cend = cstart + c# + stride
+        for j in range(pw):
+            cstart = (j + pw * i)# * stride
+            cend = cstart + c# + stride
+            
+            hstart = stride // 2
+            hend = patch_size - (hstart)
+            
+            wstart = stride // 2
+            wend = patch_size - (wstart)
+            
+            if i == 0:
+                hstart = 0
+            if i == ph - 1:
+                hend = patch_size
+            
+            if j == 0:
+                wstart = 0
+            if j == pw - 1:
+                wend = patch_size
                 
-                hstart = stride // 2
-                hend = patch_size - (hstart)
-                
-                wstart = stride // 2
-                wend = patch_size - (wstart)
-                
-                if i == 0:
-                    hstart = 0
-                if i == ph - 1:
-                    hend = patch_size
-                
-                if j == 0:
-                    wstart = 0
-                if j == pw - 1:
-                    wend = patch_size
-                    
-                out[:, :, i * stride + hstart: i * stride + hend, j * stride + wstart: j * stride + wend] += patches[cstart:cend, :, hstart:hend, wstart:wend]
+            out[:, :, i * stride + hstart: i * stride + hend, j * stride + wstart: j * stride + wend] += patches[cstart:cend, :, hstart:hend, wstart:wend]
     return out # / wgt
 
 def debug_tile(out, size=(100, 100)):

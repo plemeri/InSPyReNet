@@ -32,7 +32,6 @@ def test(opt, args):
         opt.Test.Checkpoint.checkpoint_dir, 'latest.pth')), strict=True)
     model.cuda()
     model.eval()
-    model.zero_grad(set_to_none=True)
 
     if args.verbose is True:
         testsets = tqdm.tqdm(opt.Test.Dataset.testsets, desc='Total TestSet', total=len(
