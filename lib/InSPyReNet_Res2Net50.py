@@ -16,13 +16,12 @@ class InSPyReNet_Res2Net50(nn.Module):
         super(InSPyReNet_Res2Net50, self).__init__()
         self.backbone = res2net50_v1b_26w_4s(pretrained=pretrained)
 
-        self.context1 = PAA_e(64, channels)
-        self.context2 = PAA_e(256, channels)
-        self.context3 = PAA_e(512, channels)
-        self.context4 = PAA_e(1024, channels)
-        self.context5 = PAA_e(2048, channels)
+        self.context1 = PAA_e(256, channels)
+        self.context2 = PAA_e(512, channels)
+        self.context3 = PAA_e(1024, channels)
+        self.context4 = PAA_e(2048, channels)
 
-        self.decoder = PAA_d(channels)
+        self.decoder = PAA_d2(channels)
 
         self.attention =  ASCA(channels    , channels, lmap_in=True)
         self.attention1 = ASCA(channels * 2, channels, lmap_in=True)
@@ -49,21 +48,20 @@ class InSPyReNet_Res2Net50(nn.Module):
         B, _, H, W = x.shape
         x = self.backbone.conv1(x)
         x = self.backbone.bn1(x)
-        x1 = self.backbone.relu(x)
-        x2 = self.backbone.maxpool(x1)
+        x = self.backbone.relu(x)
+        x = self.backbone.maxpool(x)
 
-        x2 = self.backbone.layer1(x2)
-        x3 = self.backbone.layer2(x2)
-        x4 = self.backbone.layer3(x3)
-        x5 = self.backbone.layer4(x4)
+        x1 = self.backbone.layer1(x) #4
+        x2 = self.backbone.layer2(x1) #8
+        x3 = self.backbone.layer3(x2) #16
+        x4 = self.backbone.layer4(x3) #32
 
         x1 = self.context1(x1)
         x2 = self.context2(x2)
         x3 = self.context3(x3)
         x4 = self.context4(x4)
-        x5 = self.context5(x5)
 
-        f3, d3 = self.decoder(x5, x4, x3)
+        f3, d3 = self.decoder(x4, x3)
 
         f2, p2 = self.attention2(torch.cat([x2, self.ret(f3, x2)], dim=1), d3.detach()) 
         d2 = self.inspyre.rec(d3.detach(), p2)
@@ -71,9 +69,9 @@ class InSPyReNet_Res2Net50(nn.Module):
         f1, p1 = self.attention1(torch.cat([x1, self.ret(f2, x1)], dim=1), d2.detach(), p2.detach())
         d1 = self.inspyre.rec(d2.detach(), p1)
 
-        _, p = self.attention(self.res(f1, (H, W)), d1.detach(), p1.detach())
+        _, p = self.attention(self.res(f1, (H // 2, W // 2)), d1.detach(), p1.detach())
         d = self.inspyre.rec(d1.detach(), p)
-
+        
         if y is not None:       
             _, y1 = self.spyd.dec(y)
             _, y2 = self.spyd.dec(y1)
@@ -96,13 +94,15 @@ class InSPyReNet_Res2Net50(nn.Module):
             ploss2 = self.pyramidal_consistency_loss_fn(d2, dd2.detach()) * 0.0001
             ploss3 = self.pyramidal_consistency_loss_fn(d1, dd1.detach()) * 0.0001
 
+            d =  self.res(d, (H, W))
+
+            y4 = self.des(y4, (H, W))
             y3 = self.des(y3, (H, W))
             y2 = self.des(y2, (H, W))
-            y1 = self.des(y1, (H, W))
 
-            closs =  self.loss_fn(d3, y3)
-            closs += self.loss_fn(d2, y2)
-            closs += self.loss_fn(d1, y1)
+            closs =  self.loss_fn(d3, y4)
+            closs += self.loss_fn(d2, y3)
+            closs += self.loss_fn(d1, y2)
             closs += self.loss_fn(d,  y)
             
             loss = ploss1 + ploss2 + ploss3 + closs

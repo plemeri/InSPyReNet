@@ -7,7 +7,6 @@ import torch.utils.data as data
 from PIL import Image
 from threading import Thread
 
-from utils.custom_transforms import *
 from utils.utils import *
 
 class RGB_Dataset(data.Dataset):
