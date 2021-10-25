@@ -2,8 +2,9 @@ import os
 import argparse
 import yaml
 import copy
-import random
-import string
+import datetime
+
+from utils.utils import *
 
 LR = [i * 1e-6 for i in range(1, 10)]
 
@@ -12,20 +13,28 @@ def _args():
     parser.add_argument('--config', type=str, default='configs/InSPyReNet_SwinB.yaml')
     parser.add_argument('--devices', type=str, default='0')
     parser.add_argument('--exprs', type=int, default=4)
+    parser.add_argument('--hyp-tune', action='store_true', default=False)
     parser.add_argument('--verbose', action='store_true', default=False)
+    parser.add_argument('--debug', action='store_true', default=False)
     return parser.parse_args()
 
+def rep_dict(x, klist, val):
+    if len(klist) == 1:
+        x[klist[0]] = val
+    else:
+        rep_dict(x[klist[0]], klist[1:], val)
 
 if __name__ == "__main__":
     args = _args()
-    exp_key = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(10))    
+    exp_key = datetime.datetime.now().strftime('%Y-%m-%d-%H:%M')
     exp_name = os.path.splitext(os.path.split(args.config)[-1])[0]
+    
     devices = args.devices.split(',')
-    opt = yaml.load(open(args.config), yaml.FullLoader)
+    opt = load_config(args.config, easy=False)
 
     os.makedirs('temp', exist_ok=True)
     exp_tab = []
-
+    
     for i in range(args.exprs):
         opt_c = copy.deepcopy(opt)
         cfg_name = exp_name + '_expr_' + exp_key + '_' + str(i + 1)
@@ -35,7 +44,9 @@ if __name__ == "__main__":
         opt_c['Test']['Checkpoint']['checkpoint_dir'] = os.path.join(*os.path.split(ckpt_dir)[:-1], cfg_name)
         opt_c['Eval']['pred_root'] = os.path.join(*os.path.split(ckpt_dir)[:-1], cfg_name)
         
-        opt_c['Train']['Optimizer']['lr'] = LR[i % len(LR)]
+        if args.hyp_tune is True:
+            rep_dict(opt_c, opt_c['Train']['HyperTune']['HyperParameter'], np.linspace(*opt_c['Train']['HyperTune']['Range'])[i % opt_c['Train']['HyperTune']['Range'][-1]].item())
+            print(np.linspace(*opt_c['Train']['HyperTune']['Range'])[i % opt_c['Train']['HyperTune']['Range'][-1]])
 
         yaml.dump(opt_c, open(os.path.join('temp', cfg_name + '.yaml'), 'w'), sort_keys=False)
         exp_tab.append((cfg_name, devices[i % len(devices)]))
@@ -47,5 +58,7 @@ if __name__ == "__main__":
                 command += '&& CUDA_VISIBLE_DEVICES={} python Expr.py --config {} '.format(device, os.path.join('temp', exp[0] + '.yaml'))
                 if args.verbose is True:
                     command += '--verbose '
+                if args.debug is True:
+                    command += '--debug '
         command += '\"'
         os.system(command)

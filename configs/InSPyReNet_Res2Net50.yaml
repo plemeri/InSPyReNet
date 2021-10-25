@@ -43,6 +43,10 @@ Train:
     Checkpoint:
         checkpoint_epoch: 20
         checkpoint_dir: "snapshots/InSPyReNet_Res2Net50"
+    HyperTune:
+        HyperParameter: ['Train', 'Optimizer', 'lr']
+        Range: [1.0e-6, 2.4e-5, 24]
+
     
 Test:
     Dataset:

@@ -26,8 +26,11 @@ def get_transform(transform_list):
         tfs.append(tf)
     return transforms.Compose(tfs)
 
-def load_config(config_dir):
-    return ed(yaml.load(open(config_dir), yaml.FullLoader))
+def load_config(config_dir, easy=True):
+    cfg = yaml.load(open(config_dir), yaml.FullLoader)
+    if easy is True:
+        cfg = ed(cfg)
+    return cfg
 
 def to_cuda(sample):
     for key in sample.keys():
