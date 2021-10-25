@@ -25,7 +25,7 @@ class InSPyReNet(nn.Module):
 
         self.decoder = PAA_d2(depth)
 
-        self.attention =  ASCA(depth    , depth, lmap_in=True)
+        self.attention0 = ASCA(depth    , depth, lmap_in=True)
         self.attention1 = ASCA(depth * 2, depth, lmap_in=True)
         self.attention2 = ASCA(depth * 2, depth, lmap_in=True)
         self.attention3 = ASCA(depth * 2, depth)
@@ -58,10 +58,13 @@ class InSPyReNet(nn.Module):
         f2, p2 = self.attention2(torch.cat([x2, self.res(f3, (H // 4,  W // 4 ))], dim=1), d3.detach(), p3.detach()) #4
         d2 = self.pyr.rec(d3.detach(), p2) #4
 
-        _, p1 = self.attention1(torch.cat([self.res(x1, (H // 2, W // 2)), self.res(f2, (H // 2, W // 2))], dim=1), d2.detach(), p2.detach()) #2
+        f1, p1 = self.attention1(torch.cat([self.res(x1, (H // 2, W // 2)), self.res(f2, (H // 2, W // 2))], dim=1), d2.detach(), p2.detach()) #2
         d1 = self.pyr.rec(d2.detach(), p1) #2
         
-        d =  self.res(d1, (H, W))
+        _, p0 = self.attention0(self.res(f1, (H, W)), d2.detach(), p2.detach()) #2
+        d0 = self.pyr.rec(d1.detach(), p0) #2
+        
+        # d =  self.res(d1, (H, W))
 
         if sample['gt'] is not None:
             y = sample['gt']
@@ -72,12 +75,12 @@ class InSPyReNet(nn.Module):
 
             ploss =  self.pyramidal_consistency_loss_fn(self.des(d3, (H, W)), self.des(self.pyr.down(d2), (H, W)).detach()) * 0.0001
             ploss += self.pyramidal_consistency_loss_fn(self.des(d2, (H, W)), self.des(self.pyr.down(d1), (H, W)).detach()) * 0.0001
-            # ploss += self.pyramidal_consistency_loss_fn(self.des(d1, (H, W)), self.des(self.pyr.down(d), (H, W)).detach()) * 0.0001
+            ploss += self.pyramidal_consistency_loss_fn(self.des(d1, (H, W)), self.des(self.pyr.down(d0), (H, W)).detach()) * 0.0001
 
             closs =  self.loss_fn(self.des(d3, (H, W)), self.des(y3, (H, W)))
             closs += self.loss_fn(self.des(d2, (H, W)), self.des(y2, (H, W)))
             closs += self.loss_fn(self.des(d1, (H, W)), self.des(y1, (H, W)))
-            # closs += self.loss_fn(self.des(d, (H, W)), self.des(y, (H, W)))
+            closs += self.loss_fn(self.des(d0, (H, W)), self.des(y, (H, W)))
             
             loss = ploss + closs
 
@@ -86,7 +89,7 @@ class InSPyReNet(nn.Module):
             loss = 0
             debug = [d3, p2, p1]
 
-        return {'pred': d, 'loss': loss, 'debug': debug}
+        return {'pred': d0, 'loss': loss, 'debug': debug}
     
     
 def InSPyReNet_SwinB(depth, pretrained):
