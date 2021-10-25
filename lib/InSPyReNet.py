@@ -23,12 +23,12 @@ class InSPyReNet(nn.Module):
         self.context4 = PAA_e(in_channels[3], depth)
         self.context5 = PAA_e(in_channels[4], depth)
 
-        self.decoder = PAA_d2(depth)
+        self.decoder = PAA_d(depth)
 
         self.attention0 = ASCA(depth    , depth, lmap_in=True)
         self.attention1 = ASCA(depth * 2, depth, lmap_in=True)
-        self.attention2 = ASCA(depth * 2, depth, lmap_in=True)
-        self.attention3 = ASCA(depth * 2, depth)
+        self.attention2 = ASCA(depth * 2, depth)
+        # self.attention3 = ASCA(depth * 2, depth)
 
         self.loss_fn = lambda x, y: weighted_tversky_bce_loss(x, y, alpha=0.2, beta=0.8, gamma=2)
         self.pyramidal_consistency_loss_fn = nn.L1Loss()
@@ -50,12 +50,14 @@ class InSPyReNet(nn.Module):
         x4 = self.context4(x4) #16
         x5 = self.context5(x5) #32
 
-        f4, d4 = self.decoder(x5, x4) #16
+        # f4, d4 = self.decoder(x5, x4) #16
 
-        f3, p3 = self.attention3(torch.cat([x3, self.res(f4, (H // 8,  W // 8 ))], dim=1), d4.detach()) #8
-        d3 = self.pyr.rec(d4.detach(), p3) #8
+        # f3, p3 = self.attention3(torch.cat([x3, self.res(f4, (H // 8,  W // 8 ))], dim=1), d4.detach()) #8
+        # d3 = self.pyr.rec(d4.detach(), p3) #8
 
-        f2, p2 = self.attention2(torch.cat([x2, self.res(f3, (H // 4,  W // 4 ))], dim=1), d3.detach(), p3.detach()) #4
+        f3, d3 = self.decoder(x5, x4, x3) #16
+
+        f2, p2 = self.attention2(torch.cat([x2, self.res(f3, (H // 4,  W // 4 ))], dim=1), d3.detach()) #, p3.detach()) #4
         d2 = self.pyr.rec(d3.detach(), p2) #4
 
         f1, p1 = self.attention1(torch.cat([self.res(x1, (H // 2, W // 2)), self.res(f2, (H // 2, W // 2))], dim=1), d2.detach(), p2.detach()) #2
