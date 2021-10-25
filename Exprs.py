@@ -46,7 +46,6 @@ if __name__ == "__main__":
         
         if args.hyp_tune is True:
             rep_dict(opt_c, opt_c['Train']['HyperTune']['HyperParameter'], np.linspace(*opt_c['Train']['HyperTune']['Range'])[i % opt_c['Train']['HyperTune']['Range'][-1]].item())
-            print(np.linspace(*opt_c['Train']['HyperTune']['Range'])[i % opt_c['Train']['HyperTune']['Range'][-1]])
 
         yaml.dump(opt_c, open(os.path.join('temp', cfg_name + '.yaml'), 'w'), sort_keys=False)
         exp_tab.append((cfg_name, devices[i % len(devices)]))
