@@ -61,11 +61,9 @@ class InSPyReNet(nn.Module):
         f1, p1 = self.attention1(torch.cat([self.res(x1, (H // 2, W // 2)), self.res(f2, (H // 2, W // 2))], dim=1), d2.detach(), p2.detach()) #2
         d1 = self.pyr.rec(d2.detach(), p1) #2
         
-        _, p0 = self.attention0(self.res(f1, (H, W)), d2.detach(), p2.detach()) #2
+        _, p0 = self.attention0(self.res(f1, (H, W)), d1.detach(), p1.detach()) #2
         d0 = self.pyr.rec(d1.detach(), p0) #2
         
-        # d =  self.res(d1, (H, W))
-
         if sample['gt'] is not None:
             y = sample['gt']
             
@@ -76,7 +74,7 @@ class InSPyReNet(nn.Module):
             ploss =  self.pyramidal_consistency_loss_fn(self.des(d3, (H, W)), self.des(self.pyr.down(d2), (H, W)).detach()) * 0.0001
             ploss += self.pyramidal_consistency_loss_fn(self.des(d2, (H, W)), self.des(self.pyr.down(d1), (H, W)).detach()) * 0.0001
             ploss += self.pyramidal_consistency_loss_fn(self.des(d1, (H, W)), self.des(self.pyr.down(d0), (H, W)).detach()) * 0.0001
-
+            
             closs =  self.loss_fn(self.des(d3, (H, W)), self.des(y3, (H, W)))
             closs += self.loss_fn(self.des(d2, (H, W)), self.des(y2, (H, W)))
             closs += self.loss_fn(self.des(d1, (H, W)), self.des(y1, (H, W)))
@@ -84,10 +82,10 @@ class InSPyReNet(nn.Module):
             
             loss = ploss + closs
 
-            debug = [p1, d2, p2, d3, y]
+            debug = [y, d0, p0, d1, p1, d2, p2, d3]
         else:
             loss = 0
-            debug = [d3, p2, p1]
+            debug = [d3, p2, p1, p0]
 
         return {'pred': d0, 'loss': loss, 'debug': debug}
     

@@ -33,47 +33,11 @@ class Pyr:
         if x.shape != up.shape:
             up = F.interpolate(up, x.shape[-2:])
 
-        pyd = x - up
-        return pyd, down
+        lap = x - up
+        return down, lap
 
-    def rec(self, down, pyd):
-        return self.up(down) + pyd
-    
-class SPyD:
-    def __init__(self, ksize=5, sigma=1, channels=1):
-        self.ksize = ksize
-        self.sigma = sigma
-        self.channels = channels
-
-        k = cv2.getGaussianKernel(ksize, sigma)
-        k = np.outer(k, k)
-        k = torch.tensor(k).float().cuda()
-        self.kernel = k.repeat(channels, 1, 1, 1)
-
-    def up(self, x):
-        z = torch.zeros_like(x)
-        x = torch.cat([x, z, z, z], dim=1)
-        x = F.pixel_shuffle(x, 2)
-        x = F.conv2d(x, self.kernel * 4, groups=self.channels, padding=self.ksize // 2)
-        return x
-
-    def down(self, x):
-        x = F.conv2d(x, self.kernel, groups=self.channels, padding=self.ksize // 2)
-        return x[:, :, ::2, ::2]
-
-    def dec(self, x):
-        down = self.down(x)
-        up = self.up(down)
-
-        if x.shape != up.shape:
-            up = F.interpolate(up, x.shape[-2:])
-
-        pyd = x - up
-        return pyd, down
-
-    def rec(self, down, pyd):
-        return self.up(down) + pyd
-        
+    def rec(self, down, lap):
+        return self.up(down) + lap
 
 class conv(nn.Module):
     def __init__(self, in_channels, out_channels, kernel_size, stride=1, dilation=1, groups=1, padding='same', bias=False, bn=True, relu=False):
