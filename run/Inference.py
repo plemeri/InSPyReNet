@@ -42,7 +42,7 @@ def get_format(source):
 
 def inference(opt, args):
     model = eval(opt.Model.name)(depth=opt.Model.depth,
-                                pretrained=opt.Model.pretrained)
+                                pretrained=False)
     model.load_state_dict(torch.load(os.path.join(
         opt.Test.Checkpoint.checkpoint_dir, 'latest.pth')), strict=True)
     
@@ -63,7 +63,6 @@ def inference(opt, args):
         
     else:
         return
-
 
     os.makedirs(save_dir, exist_ok=True)
     source_list = eval(_format + 'Loader')(args.source, opt.Test.Dataset.transform_list)
@@ -86,13 +85,12 @@ def inference(opt, args):
         
         if args.gpu is True:
             sample = to_cuda(source)
+        else:
+            sample = source
 
         with torch.no_grad():
             out = model(sample)
         pred = to_numpy(out['pred'], sample['shape'])
-        if args.grid is True:
-            og = to_numpy(out['og'], sample['shape'])
-            pred = np.maximum(pred, og)
         # pred = to_numpy(out['debug'][-1][0:1], [384, 384])
 
         if args.type == 'map':

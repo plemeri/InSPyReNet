@@ -53,8 +53,10 @@ Test:
         root: "data/RGB_Dataset/Test_Dataset"
         testsets: ['DUTS-TE', 'DUT-OMRON', 'ECSSD', 'HKU-IS', 'PASCAL-S']
         transform_list:
-            resize: 
-                size: [384, 384]
+            # resize: 
+                # size: [384, 384]
+            dynamic_resize:
+                base_size: 384
             tonumpy: NULL
             normalize: 
                 mean: [0.485, 0.456, 0.406]

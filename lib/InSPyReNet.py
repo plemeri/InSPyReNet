@@ -3,6 +3,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
 
+from lib.InSPyReNet_Grid import InSPyReNet_Grid
+
 from .optim import *
 from .modules.layers import *
 from .modules.context_module import *
@@ -16,18 +18,20 @@ class InSPyReNet(nn.Module):
     def __init__(self, backbone, in_channels, depth=64):
         super(InSPyReNet, self).__init__()
         self.backbone = backbone
+        self.in_channels = in_channels
+        self.depth = depth
         
-        self.context1 = PAA_e(in_channels[0], depth)
-        self.context2 = PAA_e(in_channels[1], depth)
-        self.context3 = PAA_e(in_channels[2], depth)
-        self.context4 = PAA_e(in_channels[3], depth)
-        self.context5 = PAA_e(in_channels[4], depth)
+        self.context1 = PAA_e(self.in_channels[0], self.depth)
+        self.context2 = PAA_e(self.in_channels[1], self.depth)
+        self.context3 = PAA_e(self.in_channels[2], self.depth)
+        self.context4 = PAA_e(self.in_channels[3], self.depth)
+        self.context5 = PAA_e(self.in_channels[4], self.depth)
 
-        self.decoder = PAA_d(depth)
+        self.decoder = PAA_d(self.depth)
 
-        self.attention0 = ASCA(depth    , depth, lmap_in=True)
-        self.attention1 = ASCA(depth * 2, depth, lmap_in=True)
-        self.attention2 = ASCA(depth * 2, depth)
+        self.attention0 = ASCA(self.depth    , depth, lmap_in=True)
+        self.attention1 = ASCA(self.depth * 2, depth, lmap_in=True)
+        self.attention2 = ASCA(self.depth * 2, depth)
         # self.attention3 = ASCA(depth * 2, depth)
 
         self.loss_fn = lambda x, y: weighted_tversky_bce_loss(x, y, alpha=0.2, beta=0.8, gamma=2)
@@ -38,8 +42,12 @@ class InSPyReNet(nn.Module):
         self.des = lambda x, size: F.interpolate(x, size=size, mode='nearest')
         
         self.pyr = Pyr(7, 1)
-
-
+        
+    def cuda(self):
+        self.pyr = self.pyr.cuda()
+        self = super(InSPyReNet, self).cuda()
+        return self
+    
     def forward(self, sample):
         B, _, H, W = sample['image'].shape
         x1, x2, x3, x4, x5 = self.backbone(sample['image'])
@@ -66,7 +74,7 @@ class InSPyReNet(nn.Module):
         _, p0 = self.attention0(self.res(f1, (H, W)), d1.detach(), p1.detach()) #2
         d0 = self.pyr.rec(d1.detach(), p0) #2
         
-        if sample['gt'] is not None:
+        if 'gt' in sample.keys() and sample['gt'] is not None:
             y = sample['gt']
             
             y1 = self.pyr.down(y)

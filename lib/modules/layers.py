@@ -12,8 +12,12 @@ class Pyr:
 
         k = cv2.getGaussianKernel(ksize, sigma)
         k = np.outer(k, k)
-        k = torch.tensor(k).float().cuda()
+        k = torch.tensor(k).float()
         self.kernel = k.repeat(channels, 1, 1, 1)
+        
+    def cuda(self):
+        self.kernel = self.kernel.cuda()
+        return self
 
     def up(self, x):
         z = torch.zeros_like(x)
