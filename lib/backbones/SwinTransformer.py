@@ -581,16 +581,17 @@ class SwinTransformer(nn.Module):
         flops += self.num_features * self.num_classes
         return flops
 
+def SwinT(pretrained=True):
+    model = SwinTransformer(img_size=224, embed_dim=96, depths=[2, 2, 6, 2], num_heads=[3, 6, 12, 24], window_size=7)
+    if pretrained:
+        model.load_state_dict(torch.load('data/backbone_ckpt/swin_tiny_patch4_window7_224.pth')['model'])
+        
+    return model
+
+
 def SwinB(pretrained=True):
     model = SwinTransformer(img_size=384, embed_dim=128, depths=[2, 2, 18, 2], num_heads=[4, 8, 16, 32], window_size=12)
     if pretrained:
         model.load_state_dict(torch.load('data/backbone_ckpt/swin_base_patch4_window12_384_22kto1k.pth')['model'])
-        
-    return model
-
-def DSwinB(pretrained=True):
-    model = SwinTransformer(img_size=384, embed_dim=128, depths=[2, 2, 18, 2], num_heads=[4, 8, 16, 32], window_size=12)
-    if pretrained:
-        model.load_state_dict(torch.load('data/backbone_ckpt/swin_base_patch4_window12_384.pth')['model'])
         
     return model
