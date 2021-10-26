@@ -207,25 +207,6 @@ class WebcamLoader:
     def __iter__(self):
         return self
 
-    # def __next__(self):
-    #     if len(self.imgs) > 0:
-    #         frame = self.imgs[-1]
-    #     else:
-    #         frame = np.zeros((480, 640, 3)).astype(np.uint8)
-    #     if self.thread.is_alive() is False or cv2.waitKey(1) == ord('q'):
-    #         cv2.destroyAllWindows()
-    #         raise StopIteration
-        
-    #     else:
-    #         image = Image.fromarray(frame).convert('RGB')
-    #         shape = image.size[::-1]
-    #         sample = {'image': image, 'shape': shape, 'name': 'webcam', 'original': image}
-    #         sample = self.transform(sample)
-    #         sample['image'] = sample['image'].unsqueeze(0)
-        
-    #     self.imgs.clear()
-    #     return sample
-    
     def __next__(self):
         if len(self.imgs) > 0:
             frame = self.imgs[-1]
@@ -244,6 +225,7 @@ class WebcamLoader:
         
         self.imgs.clear()
         return sample
+
 
     def __len__(self):
         return 0
