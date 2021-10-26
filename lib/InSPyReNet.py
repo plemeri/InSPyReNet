@@ -96,7 +96,7 @@ def InSPyReNet_SwinB(depth, pretrained):
     return InSPyReNet(SwinB(pretrained=pretrained), [128, 128, 256, 512, 1024], depth)
 
 def InSPyReNet_SwinT(depth, pretrained):
-    return InSPyReNet(SwinT(pretrained=pretrained), [96, 96, 192, 384, 786], depth)
+    return InSPyReNet(SwinT(pretrained=pretrained), [96, 96, 192, 384, 768], depth)
 
 def InSPyReNet_Res2Net50(depth, pretrained):
     return InSPyReNet(res2net50_v1b_26w_4s(pretrained=pretrained), [64, 256, 512, 1024, 2048], depth)
