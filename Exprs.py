@@ -14,6 +14,7 @@ def _args():
     parser.add_argument('--devices', type=str, default='0')
     parser.add_argument('--exprs', type=int, default=4)
     parser.add_argument('--hyp-tune', action='store_true', default=False)
+    parser.add_argument('--resume', type=str, default=None)
     parser.add_argument('--verbose', action='store_true', default=False)
     parser.add_argument('--debug', action='store_true', default=False)
     return parser.parse_args()
@@ -26,8 +27,14 @@ def rep_dict(x, klist, val):
 
 if __name__ == "__main__":
     args = _args()
-    exp_key = datetime.datetime.now().strftime('%Y-%m-%d-%H:%M')
+    
+    if args.resume is not None:
+        exp_key = args.resume
+    else:
+        exp_key = datetime.datetime.now().strftime('%Y-%m-%d-%H:%M')
     exp_name = os.path.splitext(os.path.split(args.config)[-1])[0]
+    
+    print('Expr key:', exp_key)
     
     devices = args.devices.split(',')
     opt = load_config(args.config, easy=False)
@@ -36,18 +43,19 @@ if __name__ == "__main__":
     exp_tab = []
     
     for i in range(args.exprs):
-        opt_c = copy.deepcopy(opt)
         cfg_name = exp_name + '_expr_' + exp_key + '_' + str(i + 1)
-
-        ckpt_dir = opt_c['Train']['Checkpoint']['checkpoint_dir']
-        opt_c['Train']['Checkpoint']['checkpoint_dir'] = os.path.join(*os.path.split(ckpt_dir)[:-1], cfg_name)
-        opt_c['Test']['Checkpoint']['checkpoint_dir'] = os.path.join(*os.path.split(ckpt_dir)[:-1], cfg_name)
-        opt_c['Eval']['pred_root'] = os.path.join(*os.path.split(ckpt_dir)[:-1], cfg_name)
         
-        if args.hyp_tune is True:
-            rep_dict(opt_c, opt_c['Train']['HyperTune']['HyperParameter'], np.linspace(*opt_c['Train']['HyperTune']['Range'])[i % opt_c['Train']['HyperTune']['Range'][-1]].item())
+        if args.resume is None:
+            opt_c = copy.deepcopy(opt)
+            ckpt_dir = opt_c['Train']['Checkpoint']['checkpoint_dir']
+            opt_c['Train']['Checkpoint']['checkpoint_dir'] = os.path.join(*os.path.split(ckpt_dir)[:-1], cfg_name)
+            opt_c['Test']['Checkpoint']['checkpoint_dir'] = os.path.join(*os.path.split(ckpt_dir)[:-1], cfg_name)
+            opt_c['Eval']['pred_root'] = os.path.join(*os.path.split(ckpt_dir)[:-1], cfg_name)
+            
+            if args.hyp_tune is True:
+                rep_dict(opt_c, opt_c['Train']['HyperTune']['HyperParameter'], np.linspace(*opt_c['Train']['HyperTune']['Range'])[i % opt_c['Train']['HyperTune']['Range'][-1]].item())
 
-        yaml.dump(opt_c, open(os.path.join('temp', cfg_name + '.yaml'), 'w'), sort_keys=False)
+            yaml.dump(opt_c, open(os.path.join('temp', cfg_name + '.yaml'), 'w'), sort_keys=False)
         exp_tab.append((cfg_name, devices[i % len(devices)]))
 
     for device in devices:
@@ -59,5 +67,7 @@ if __name__ == "__main__":
                     command += '--verbose '
                 if args.debug is True:
                     command += '--debug '
+                if args.resume is not None:
+                    command += '--resume '
         command += '\"'
         os.system(command)
