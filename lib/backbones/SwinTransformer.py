@@ -629,7 +629,7 @@ def SwinT(pretrained='1K'):
         
     return model
 
-def SwinT(pretrained='1K'):
+def SwinS(pretrained='1K'):
     model = SwinTransformer(embed_dim=96, depths=[2, 2, 18, 2], num_heads=[3, 6, 12, 24], window_size=7)
     if pretrained == '1K':
         model.load_state_dict(torch.load('data/backbone_ckpt/swin_small_patch4_window7_224.pth')['model'], strict=False)
