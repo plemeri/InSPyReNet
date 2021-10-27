@@ -8,6 +8,7 @@ import cv2
 import torch.nn as nn
 import torch.distributed as dist
 
+from torch.utils.data import DataLoader
 from torch.optim import Adam, SGD
 from torch.cuda.amp import GradScaler, autocast
 
@@ -24,6 +25,7 @@ def _args():
     parser.add_argument('--config', type=str,
                         default='configs/InSPyReNet_SwinB.yaml')
     parser.add_argument('--local_rank', type=int, default=-1)
+    parser.add_argument('--resume', action='store_true', default=False)
     parser.add_argument('--verbose', action='store_true', default=False)
     parser.add_argument('--debug', action='store_true',   default=False)
     return parser.parse_args()
@@ -32,9 +34,20 @@ def _args():
 def train(opt, args):
     device_ids = os.environ["CUDA_VISIBLE_DEVICES"].split(',')
     device_num = len(device_ids)
+    
+    if args.resume is True:
+        print('Resume from checkpoint')
+        model_ckpt = torch.load(os.path.join(opt.Train.Checkpoint.checkpoint_dir, 'latest.pth'), map_location='cpu')
+        state_ckpt = torch.load(os.path.join(opt.Train.Checkpoint.checkpoint_dir, 'state.pth'), map_location='cpu')
+        
+    else:
+        model_ckpt = None
+        state_ckpt = None
 
     train_dataset = eval(opt.Train.Dataset.type)(
-        root=opt.Train.Dataset.root, transform_list=opt.Train.Dataset.transform_list)
+        root=opt.Train.Dataset.root, 
+        sets=opt.Train.Dataset.sets,
+        transform_list=opt.Train.Dataset.transform_list)
 
     if device_num > 1:
         torch.cuda.set_device(args.local_rank)
@@ -44,16 +57,17 @@ def train(opt, args):
     else:
         train_sampler = None
 
-    train_loader = data.DataLoader(dataset=train_dataset,
-                                    batch_size=opt.Train.Dataloader.batch_size,
-                                    shuffle=train_sampler is None,
-                                    sampler=train_sampler,
-                                    num_workers=opt.Train.Dataloader.num_workers,
-                                    pin_memory=opt.Train.Dataloader.pin_memory,
-                                    drop_last=True)
+    train_loader = DataLoader(dataset=train_dataset,
+                                batch_size=opt.Train.Dataloader.batch_size,
+                                shuffle=train_sampler is None,
+                                sampler=train_sampler,
+                                num_workers=opt.Train.Dataloader.num_workers,
+                                pin_memory=opt.Train.Dataloader.pin_memory,
+                                drop_last=True)
 
-    model = eval(opt.Model.name)(depth=opt.Model.depth,
-                                 pretrained=opt.Model.pretrained)
+    model = eval(opt.Model.name)(depth=opt.Model.depth, pretrained=opt.Model.pretrained)
+    if model_ckpt is not None:
+        model.load_state_dict(model_ckpt)
 
     if device_num > 1:
         model = nn.SyncBatchNorm.convert_sync_batchnorm(model)
@@ -68,34 +82,42 @@ def train(opt, args):
 
     for name, param in model.named_parameters():
         if 'backbone' in name:
-            if 'backbone.layer' in name:
-                backbone_params.append(param)
-            else:
-                pass
+            backbone_params.append(param)
         else:
             decoder_params.append(param)
 
     params_list = [{'params': backbone_params}, {
         'params': decoder_params, 'lr': opt.Train.Optimizer.lr * 10}]
+    
     optimizer = eval(opt.Train.Optimizer.type)(
         params_list, opt.Train.Optimizer.lr, weight_decay=opt.Train.Optimizer.weight_decay)
+    
+    if state_ckpt is not None:
+        optimizer.load_state_dict(state_ckpt['optimizer'])
+    
     if opt.Train.Optimizer.mixed_precision is True:
         scaler = GradScaler()
     else:
         scaler = None
 
     scheduler = eval(opt.Train.Scheduler.type)(optimizer, gamma=opt.Train.Scheduler.gamma,
-                                               minimum_lr=opt.Train.Scheduler.minimum_lr,
-                                               max_iteration=len(
-                                                   train_loader) * opt.Train.Scheduler.epoch,
-                                               warmup_iteration=opt.Train.Scheduler.warmup_iteration)
+                                                minimum_lr=opt.Train.Scheduler.minimum_lr,
+                                                max_iteration=len(train_loader) * opt.Train.Scheduler.epoch,
+                                                warmup_iteration=opt.Train.Scheduler.warmup_iteration)
+    if state_ckpt is not None:
+        scheduler.load_state_dict(state_ckpt['scheduler'])
+
     model.train()
 
+    start = 1
+    if state_ckpt is not None:
+        start = state_ckpt['epoch']
+        
+    epoch_iter = range(start, opt.Train.Scheduler.epoch + 1)
     if args.local_rank <= 0 and args.verbose is True:
-        epoch_iter = tqdm.tqdm(range(1, opt.Train.Scheduler.epoch + 1), desc='Epoch', total=opt.Train.Scheduler.epoch,
-                               position=0, bar_format='{desc:<5.5}{percentage:3.0f}%|{bar:40}{r_bar}')
-    else:
-        epoch_iter = range(1, opt.Train.Scheduler.epoch + 1)
+        epoch_iter = tqdm.tqdm(epoch_iter, desc='Epoch', total=opt.Train.Scheduler.epoch - start + 1,
+                                position=0, bar_format='{desc:<5.5}{percentage:3.0f}%|{bar:40}{r_bar}')
+    
 
     for epoch in epoch_iter:
         if args.local_rank <= 0 and args.verbose is True:
@@ -126,17 +148,25 @@ def train(opt, args):
 
             if args.local_rank <= 0 and args.verbose is True:
                 step_iter.set_postfix({'loss': out['loss'].item()})
-
         if args.local_rank <= 0:
             os.makedirs(opt.Train.Checkpoint.checkpoint_dir, exist_ok=True)
             os.makedirs(os.path.join(
                 opt.Train.Checkpoint.checkpoint_dir, 'debug'), exist_ok=True)
             if epoch % opt.Train.Checkpoint.checkpoint_epoch == 0:
-                torch.save(model.module.state_dict() if device_num > 1 else model.state_dict(
-                ), os.path.join(opt.Train.Checkpoint.checkpoint_dir, 'latest.pth'))
-
+                if device_num > 1:
+                    model_ckpt = model.module.state_dict()  
+                else:
+                    model_ckpt = model.state_dict()
+                    
+                state_ckpt = {'epoch': epoch + 1,
+                            'optimizer': optimizer.state_dict(),
+                            'scheduler': scheduler.state_dict()}
+                
+                torch.save(model_ckpt, os.path.join(opt.Train.Checkpoint.checkpoint_dir, 'latest.pth'))
+                torch.save(state_ckpt, os.path.join(opt.Train.Checkpoint.checkpoint_dir, 'state.pth'))
+                
             if args.debug is True:
-                debout = debug_tile(out)
+                debout = debug_tile(out['gaussian'] + out['laplacian'])
                 cv2.imwrite(os.path.join(
                     opt.Train.Checkpoint.checkpoint_dir, 'debug', str(epoch) + '.png'), debout)
 

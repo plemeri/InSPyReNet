@@ -1,3 +1,4 @@
+from turtle import back
 import torch
 import os
 import argparse
@@ -22,16 +23,16 @@ from utils.custom_transforms import *
 def _args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--config', type=str, default='configs/InSPyReNet_SwinB.yaml')
-    parser.add_argument('--source', type=str)
-    parser.add_argument('--type', type=str, choices=['rgba', 'map', 'green'], default='map')
-    parser.add_argument('--grid', action='store_true', default=False)
-    parser.add_argument('--gpu', action='store_true', default=False)
+    parser.add_argument('--source', type=str, default='test')
+    parser.add_argument('--type',   type=str,   default='map')
+    parser.add_argument('--grid',    action='store_true', default=False)
+    parser.add_argument('--gpu',     action='store_true', default=False)
     parser.add_argument('--verbose', action='store_true', default=False)
     return parser.parse_args()
 
 def get_format(source):
-    img_count = len([i for i in source if i.endswith(('.jpg', '.png', '.jpeg'))])
-    vid_count = len([i for i in source if i.endswith(('.mp4', '.avi', '.mov'))])
+    img_count = len([i for i in source if i.lower().endswith(('.jpg', '.png', '.jpeg'))])
+    vid_count = len([i for i in source if i.lower().endswith(('.mp4', '.avi', '.mov' ))])
     
     if img_count * vid_count != 0:
         return None
@@ -44,7 +45,7 @@ def inference(opt, args):
     model = eval(opt.Model.name)(depth=opt.Model.depth,
                                 pretrained=False)
     model.load_state_dict(torch.load(os.path.join(
-        opt.Test.Checkpoint.checkpoint_dir, 'latest.pth')), strict=True)
+        opt.Test.Checkpoint.checkpoint_dir, 'latest.pth'), map_location=torch.device('cpu')), strict=True)
     
     if args.gpu is True:
         model.cuda()
@@ -53,7 +54,11 @@ def inference(opt, args):
     if args.grid is True:
         model = InSPyReNet_Grid(model, opt.Test.Dataset.transform_list.dynamic_resize.base_size)
 
-    if os.path.isdir(args.source):
+    if args.source.isnumeric() is True:
+        save_dir = None
+        _format = 'Webcam'
+
+    elif os.path.isdir(args.source):
         save_dir = os.path.join('results', args.source.split(os.sep)[-1])
         _format = get_format(os.listdir(args.source))
 
@@ -64,20 +69,24 @@ def inference(opt, args):
     else:
         return
 
-    os.makedirs(save_dir, exist_ok=True)
+    if save_dir is not None:
+        os.makedirs(save_dir, exist_ok=True)
+    
     source_list = eval(_format + 'Loader')(args.source, opt.Test.Dataset.transform_list)
 
     if args.verbose is True:
         sources = tqdm.tqdm(source_list, desc='Inference', total=len(
-            source_list), position=1, leave=False, bar_format='{desc:<30}{percentage:3.0f}%|{bar:50}{r_bar}')
+            source_list), position=0, leave=False, bar_format='{desc:<30}{percentage:3.0f}%|{bar:50}{r_bar}')
     else:
         sources = source_list
         
     writer = None
+    background = None
         
     for source in sources:
         if _format == 'Video' and writer is None:
-            writer = cv2.VideoWriter(os.path.join(save_dir, source['name']), cv2.VideoWriter_fourcc(*'mp4v'), source_list.fps, source['shape'][::-1])            
+            writer = cv2.VideoWriter(os.path.join(save_dir, source['name']), cv2.VideoWriter_fourcc(*'mp4v'), source_list.fps, source['shape'][::-1])
+            sources.total += int(source_list.cap.get(cv2.CAP_PROP_FRAME_COUNT))
         if _format == 'Video' and source['image'] is None:
             writer.release()
             writer = None
@@ -91,7 +100,6 @@ def inference(opt, args):
         with torch.no_grad():
             out = model(sample)
         pred = to_numpy(out['pred'], sample['shape'])
-        # pred = to_numpy(out['debug'][-1][0:1], [384, 384])
 
         if args.type == 'map':
             img = (np.stack([pred] * 3, axis=-1) * 255).astype(np.uint8)
@@ -103,8 +111,22 @@ def inference(opt, args):
         elif args.type == 'green':
             bg = np.stack([np.zeros_like(pred), np.ones_like(pred), np.zeros_like(pred)], axis=-1) * 255
             img = np.array(sample['original'])
-            img = img * pred[:, :, np.newaxis] + bg * (1 - pred[:, :, np.newaxis])
+            img = img * pred[..., np.newaxis] + bg * (1 - pred[..., np.newaxis])
             img = img.astype(np.uint8)
+        elif args.type == 'blur':
+            img = np.array(sample['original'])
+            img = img * pred[..., np.newaxis] + cv2.GaussianBlur(img, (0, 0), 15) * (1 - pred[..., np.newaxis])
+            img = img.astype(np.uint8)
+        elif args.type.lower().endswith(('.jpg', '.jpeg', '.png')):
+            img = np.array(sample['original'])
+            if background is None:
+                background = cv2.imread(args.type)
+                background = cv2.resize(background, img.shape[:2][::-1])
+            img = np.array(sample['original'])
+            img = img * pred[..., np.newaxis] + background * (1 - pred[..., np.newaxis])
+            img = img.astype(np.uint8)
+                
+            
         else:
             img = None
 
@@ -112,7 +134,9 @@ def inference(opt, args):
             Image.fromarray(img).save(os.path.join(save_dir, sample['name']))
         elif _format == 'Video':
             writer.write(img)
-
+        elif _format == 'Webcam':
+            cv2.imshow('InSPyReNet', img)
+            
 
 if __name__ == "__main__":
     args = _args()

@@ -11,8 +11,6 @@ model_urls = {
     'res2net50_v1b_26w_4s': 'https://shanghuagao.oss-cn-beijing.aliyuncs.com/res2net/res2net50_v1b_26w_4s-3cf99910.pth',
     'res2net101_v1b_26w_4s': 'https://shanghuagao.oss-cn-beijing.aliyuncs.com/res2net/res2net101_v1b_26w_4s-0812c246.pth',
 }
-
-
 class Bottle2neck(nn.Module):
     expansion = 4
 
@@ -240,9 +238,9 @@ def res2net101_v1b(pretrained=False, **kwargs):
     return model
 
 
-def res2net50_v1b_26w_4s(pretrained=False, **kwargs):
+def res2net50_v1b_26w_4s(pretrained='1K', **kwargs):
     model = Res2Net(Bottle2neck, [3, 4, 6, 3], baseWidth=26, scale=4, **kwargs)
-    if pretrained:
+    if pretrained == '1K':
         model.load_state_dict(torch.load('data/backbone_ckpt/res2net50_v1b_26w_4s-3cf99910.pth'))
     return model
 

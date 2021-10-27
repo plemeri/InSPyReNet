@@ -37,10 +37,6 @@ class dynamic_resize:
             size = (int(self.base_size * hx), int(self.base_size * wx))
             
             sample['image'] = sample['image'].resize(size, Image.BILINEAR)
-        if 'gt' in sample.keys():
-            raise AttributeError
-        if 'depth' in sample.keys():
-            raise AttributeError
 
         return sample
 

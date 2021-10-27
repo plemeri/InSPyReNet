@@ -1,12 +1,13 @@
 Model:
     name: "InSPyReNet_SwinT"
     depth: 64
-    pretrained: True
+    pretrained: '1K'
 
 Train:
     Dataset:
         type: "RGB_Dataset"
-        root: "data/RGB_Dataset/Train_Dataset/DUTS-TR"
+        root: "data/RGB_Dataset/Train_Dataset"
+        sets: ['DUTS-TR']
         transform_list:
             resize: 
                 size: [224, 224]
@@ -41,17 +42,17 @@ Train:
         minimum_lr: 1.0e-07
         warmup_iteration: 12000
     Checkpoint:
-        checkpoint_epoch: 20
+        checkpoint_epoch: 1
         checkpoint_dir: "snapshots/InSPyReNet_SwinT"
     
 Test:
     Dataset:
         type: "RGB_Dataset"
         root: "data/RGB_Dataset/Test_Dataset"
-        testsets: ['DUTS-TE', 'DUT-OMRON', 'ECSSD', 'HKU-IS', 'PASCAL-S']
+        sets: ['DUTS-TE', 'DUT-OMRON', 'ECSSD', 'HKU-IS', 'PASCAL-S']
         transform_list:
-            resize: 
-                size: [224, 224]
+            dynamic_resize: 
+                base_size: 224
             tonumpy: NULL
             normalize: 
                 mean: [0.485, 0.456, 0.406]

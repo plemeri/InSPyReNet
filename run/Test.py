@@ -9,6 +9,7 @@ import numpy as np
 
 from PIL import Image
 from torch.nn import modules
+from torch.utils.data import DataLoader
 
 filepath = os.path.split(__file__)[0]
 repopath = os.path.split(filepath)[0]
@@ -34,25 +35,24 @@ def test(opt, args):
     model.eval()
 
     if args.verbose is True:
-        testsets = tqdm.tqdm(opt.Test.Dataset.testsets, desc='Total TestSet', total=len(
-            opt.Test.Dataset.testsets), position=0, bar_format='{desc:<30}{percentage:3.0f}%|{bar:50}{r_bar}')
+        sets = tqdm.tqdm(opt.Test.Dataset.sets, desc='Total TestSet', total=len(
+            opt.Test.Dataset.sets), position=0, bar_format='{desc:<30}{percentage:3.0f}%|{bar:50}{r_bar}')
     else:
-        testsets = opt.Test.Dataset.testsets
+        sets = opt.Test.Dataset.sets
 
-    for testset in testsets:
-        data_path = os.path.join(opt.Test.Dataset.root, testset)
-        save_path = os.path.join(opt.Test.Checkpoint.checkpoint_dir, testset)
+    for set in sets:
+        save_path = os.path.join(opt.Test.Checkpoint.checkpoint_dir, set)
 
         os.makedirs(save_path, exist_ok=True)
 
-        test_dataset = eval(opt.Test.Dataset.type)(root=data_path, transform_list=opt.Test.Dataset.transform_list)
-        test_loader = data.DataLoader(dataset=test_dataset,
-                                    batch_size=1,
-                                    num_workers=opt.Test.Dataloader.num_workers,
-                                    pin_memory=opt.Test.Dataloader.pin_memory)
+        test_dataset = eval(opt.Test.Dataset.type)(root=opt.Test.Dataset.root, sets=[set], transform_list=opt.Test.Dataset.transform_list)
+        test_loader = DataLoader(dataset=test_dataset,
+                                batch_size=1,
+                                num_workers=opt.Test.Dataloader.num_workers,
+                                pin_memory=opt.Test.Dataloader.pin_memory)
 
         if args.verbose is True:
-            samples = tqdm.tqdm(test_loader, desc=testset + ' - Test', total=len(test_loader),
+            samples = tqdm.tqdm(test_loader, desc=set + ' - Test', total=len(test_loader),
                                 position=1, leave=False, bar_format='{desc:<30}{percentage:3.0f}%|{bar:50}{r_bar}')
         else:
             samples = test_loader

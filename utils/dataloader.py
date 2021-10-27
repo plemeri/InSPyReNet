@@ -1,38 +1,43 @@
 import os
 import cv2
-import sys
 
 import numpy as np
 import torch.utils.data as data
 
 from PIL import Image
-
-filepath = os.path.split(__file__)[0]
-repopath = os.path.split(filepath)[0]
-sys.path.append(repopath)
+from threading import Thread
 
 from utils.utils import *
-class RGB_Dataset(data.Dataset):
-    def __init__(self, root, transform_list):
-        image_root, gt_root = os.path.join(root, 'images'), os.path.join(root, 'masks')
 
-        self.images = [os.path.join(image_root, f) for f in os.listdir(image_root) if f.endswith(('.jpg', '.png'))]
-        self.images = sorted(self.images)
+class RGB_Dataset(data.Dataset):
+    def __init__(self, root, sets, transform_list):
+        self.images, self.gts = [], []
         
-        self.gts = [os.path.join(gt_root, f) for f in os.listdir(gt_root) if f.endswith('.png')]
-        self.gts = sorted(self.gts)
+        for set in sets:
+            image_root, gt_root = os.path.join(root, set, 'images'), os.path.join(root, set, 'masks')
+
+            images = [os.path.join(image_root, f) for f in os.listdir(image_root) if f.lower().endswith(('.jpg', '.png'))]
+            images = sorted(images)
+            
+            gts = [os.path.join(gt_root, f) for f in os.listdir(gt_root) if f.lower().endswith('.png')]
+            gts = sorted(gts)
+            
+            self.images.extend(images)
+            self.gts.extend(gts)
         
         self.filter_files()
         
         self.size = len(self.images)
         self.transform = get_transform(transform_list)
+        
+        print('Total {} sample loaded'.format(self.size))
 
     def __getitem__(self, index):
         image = Image.open(self.images[index]).convert('RGB')
         gt = Image.open(self.gts[index]).convert('L')
         shape = gt.size[::-1]
         name = self.images[index].split(os.sep)[-1]
-        if name.endswith('.jpg'):
+        if name.lower().endswith('.jpg'):
             name = name.split('.jpg')[0] + '.png'
             
         sample = {'image': image, 'gt': gt, 'name': name, 'shape': shape}
@@ -59,13 +64,13 @@ class RGBD_Dataset(data.Dataset):
         gt_root = os.path.join(root, 'GT')
         depth_root = os.path.join(root, 'depth')
 
-        self.images = [os.path.join(image_root, f) for f in os.listdir(image_root) if f.endswith(('.jpg', '.png'))]
+        self.images = [os.path.join(image_root, f) for f in os.listdir(image_root) if f.lower().endswith(('.jpg', '.png'))]
         self.images = sorted(self.images)
         
-        self.depths = [os.path.join(depth_root, f) for f in os.listdir(depth_root) if f.endswith(('.jpg', '.png'))]
+        self.depths = [os.path.join(depth_root, f) for f in os.listdir(depth_root) if f.lower().endswith(('.jpg', '.png'))]
         self.depths = sorted(self.depths)
         
-        self.gts = [os.path.join(gt_root, f) for f in os.listdir(gt_root) if f.endswith('.png')]
+        self.gts = [os.path.join(gt_root, f) for f in os.listdir(gt_root) if f.lower().endswith('.png')]
         self.gts = sorted(self.gts)
         
         self.filter_files()
@@ -79,7 +84,7 @@ class RGBD_Dataset(data.Dataset):
         depth = Image.open(self.depths[index]).convert('L')
         shape = gt.size[::-1]
         name = self.images[index].split(os.sep)[-1]
-        if name.endswith('.jpg'):
+        if name.lower().endswith('.jpg'):
             name = name.split('.jpg')[0] + '.png'
                 
         sample = {'image': image, 'gt': gt, 'depth': depth, 'name': name, 'shape': shape}
@@ -113,7 +118,7 @@ class RGBD_Dataset(data.Dataset):
 class ImageLoader:
     def __init__(self, root, transform_list):
         if os.path.isdir(root):
-            self.images = [os.path.join(root, f) for f in os.listdir(root) if f.endswith(('.jpg', '.png', '.jpeg'))]
+            self.images = [os.path.join(root, f) for f in os.listdir(root) if f.lower().endswith(('.jpg', '.png', '.jpeg'))]
             self.images = sorted(self.images)
         elif os.path.isfile(root):
             self.images = [root]
@@ -130,7 +135,7 @@ class ImageLoader:
         image = Image.open(self.images[self.index]).convert('RGB')
         shape = image.size[::-1]
         name = self.images[self.index].split(os.sep)[-1]
-        if name.endswith('.jpg'):
+        if name.lower().endswith('.jpg'):
             name = name.split('.jpg')[0] + '.png'
             
         sample = {'image': image, 'name': name, 'shape': shape, 'original': image}
@@ -146,7 +151,7 @@ class ImageLoader:
 class VideoLoader:
     def __init__(self, root, transform_list):
         if os.path.isdir(root):
-            self.videos = [os.path.join(root, f) for f in os.listdir(root) if f.endswith(('.mp4', '.avi', 'mov'))]
+            self.videos = [os.path.join(root, f) for f in os.listdir(root) if f.lower().endswith(('.mp4', '.avi', 'mov'))]
         elif os.path.isfile(root):
             self.videos = [root]
         self.size = len(self.videos)
@@ -181,6 +186,53 @@ class VideoLoader:
             sample['image'] = sample['image'].unsqueeze(0)
             
         return sample
-
+    
     def __len__(self):
         return self.size
+    
+
+class WebcamLoader:
+    def __init__(self, ID, transform_list):
+        self.ID = int(ID)
+        self.cap = cv2.VideoCapture(self.ID)
+        self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+        self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+        self.transform = get_transform(transform_list)
+        self.imgs = []
+        self.imgs.append(self.cap.read()[1])
+        self.thread = Thread(target=self.update, daemon=True)
+        self.thread.start()
+        
+    def update(self):
+        while self.cap.isOpened():
+            ret, frame = self.cap.read()
+            if ret is True:
+                self.imgs.append(frame)
+            else:
+                break
+        
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        if len(self.imgs) > 0:
+            frame = self.imgs[-1]
+        else:
+            frame = np.zeros((480, 640, 3)).astype(np.uint8)
+        if self.thread.is_alive() is False or cv2.waitKey(1) == ord('q'):
+            cv2.destroyAllWindows()
+            raise StopIteration
+        
+        else:
+            image = Image.fromarray(frame).convert('RGB')
+            shape = image.size[::-1]
+            sample = {'image': image, 'shape': shape, 'name': 'webcam', 'original': image}
+            sample = self.transform(sample)
+            sample['image'] = sample['image'].unsqueeze(0)
+        
+        del self.imgs[:-1]
+        return sample
+
+
+    def __len__(self):
+        return 0

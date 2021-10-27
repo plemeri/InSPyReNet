@@ -22,22 +22,25 @@ class InSPyReNet_Grid(nn.Module):
         self.des = lambda x, size: F.interpolate(x, size=size, mode='nearest')
         
     def forward(self, sample):
-        print(sample['image'].shape)
-        sample['image'], shape = patch_max(sample['image'], self.patch_size)
-        print(sample['image'].shape)
+        sample['image'], shape = patch(sample['image'], self.patch_size)
         b, c, h, w = shape
         out = self.model(sample)
         
-        dd3, pp2, pp1, pp = out['debug']
+        pd3, pd2, pd1, pd0 = out['gaussian']
+        pp2, pp1, pp0 = out['laplacian']
         
-        d3 = stitch_avg_mod(dd3, (b, 1, h // 8, w // 8), self.patch_size // 8)
-        p2 = stitch_avg_mod(pp2, (b, 1, h // 4, w // 4), self.patch_size // 4)
-        p1 = stitch_avg_mod(pp1, (b, 1, h // 2, w // 2), self.patch_size // 2)
-        p =  stitch_avg_mod(pp,  (b, 1, h, w), self.patch_size)
+        d3, i3 = unpatch(pd3, (b, 1, h // 8, w // 8), self.patch_size // 8)
         
+        _, i2  = unpatch(pd2, (b, 1, h // 4, w // 4), self.patch_size // 4)
+        p2, _  = unpatch(pp2, (b, 1, h // 4, w // 4), self.patch_size // 4, indice_map = i2)
         d2 = self.model.pyr.rec(d3.detach(), p2)
-        d1 = self.model.pyr.rec(d2.detach(), p1)
-        d =  self.model.pyr.rec(d1.detach(), p)
-        d = self.res(d, (h, w))
         
-        return {'pred': d, 'debug': [d3, d2, d1, out['pred']]}
+        _, i1  = unpatch(pd1, (b, 1, h // 2, w // 2), self.patch_size // 2)
+        p1, _  = unpatch(pp1, (b, 1, h // 2, w // 2), self.patch_size // 2, indice_map = i1)
+        d1 = self.model.pyr.rec(d2.detach(), p1)
+        
+        _, i0  = unpatch(pd0, (b, 1, h     , w     ), self.patch_size)
+        p0, _  = unpatch(pp0, (b, 1, h     , w     ), self.patch_size,      indice_map = i0)
+        d0 =  self.model.pyr.rec(d1.detach(), p0)
+        
+        return {'pred': d0, 'debug': [d3, d2, d1, d0]}
