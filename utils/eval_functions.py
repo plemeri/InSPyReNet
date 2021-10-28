@@ -3,10 +3,12 @@ import numpy as np
 from scipy.ndimage.morphology import distance_transform_edt
 from scipy.ndimage.filters import convolve
 
+EPS = np.finfo(np.float64).eps
+
 def Object(pred, gt):
     x = np.mean(pred[gt == 1])
     sigma_x = np.std(pred[gt == 1])
-    score = 2.0 * x / (x ** 2 + 1 + sigma_x + np.finfo(np.float64).eps)
+    score = 2.0 * x / (x ** 2 + 1 + sigma_x + EPS)
 
     return score
 
@@ -50,16 +52,16 @@ def ssim(pred, gt):
     y = np.mean(gt)
     N = pred.size
 
-    sigma_x2 = np.sum((pred - x) ** 2 / (N - 1 + np.finfo(np.float64).eps))
-    sigma_y2 = np.sum((gt - y) ** 2 / (N - 1 + np.finfo(np.float64).eps))
+    sigma_x2 = np.sum((pred - x) ** 2 / (N - 1 + EPS))
+    sigma_y2 = np.sum((gt - y) ** 2 / (N - 1 + EPS))
 
-    sigma_xy = np.sum((pred - x) * (gt - y) / (N - 1 + np.finfo(np.float64).eps))
+    sigma_xy = np.sum((pred - x) * (gt - y) / (N - 1 + EPS))
 
     alpha = 4 * x * y * sigma_xy
     beta = (x ** 2 + y ** 2) * (sigma_x2 + sigma_y2)
 
     if alpha != 0:
-        Q = alpha / (beta + np.finfo(np.float64).eps)
+        Q = alpha / (beta + EPS)
     elif alpha == 0 and beta == 0:
         Q = 1
     else:
@@ -118,12 +120,12 @@ def thresholdBased_HR_FR(pred, thresholds, gt):
     targetHist = np.cumsum(targetHist)
     nontargetHist = np.cumsum(nontargetHist)
 
-    Pre = targetHist / (targetHist + nontargetHist + np.finfo(np.float64).eps)
-    Recall = targetHist / (gtPxlNum + np.finfo(np.float64).eps)
+    Pre = targetHist / (targetHist + nontargetHist + EPS)
+    Recall = targetHist / (gtPxlNum + EPS)
     TPR = Recall
     FPR = nontargetHist / (totalNum - gtPxlNum)
     IoU = targetHist / (gtPxlNum + nontargetHist)
-    hitRate = targetHist / (gtPxlNum + np.finfo(np.float64).eps)
+    hitRate = targetHist / (gtPxlNum + EPS)
     falseAlarm = 1 - ((totalNum - gtPxlNum) - nontargetHist) / (totalNum - gtPxlNum)
 
     return IoU, TPR, FPR, Pre, Recall, hitRate, falseAlarm
@@ -165,8 +167,8 @@ def wFmeasure_calu(pred, gt):
     FPw = np.sum(Ew[gt != 1])
 
     R = 1 - np.mean(Ew[gt == 1])
-    P = TPw / (TPw + FPw + np.finfo(np.float64).eps)
-    Q = 2 * R * P / (R + P + np.finfo(np.float64).eps)
+    P = TPw / (TPw + FPw + EPS)
+    Q = 2 * R * P / (R + P + EPS)
 
     return Q
 
@@ -177,7 +179,7 @@ def AlignmentTerm(pred, gt):
     align_pred = pred - mu_pred
     align_gt = gt - mu_gt
 
-    align_mat = 2 * (align_gt * align_pred) / (align_gt ** 2 + align_pred ** 2 + np.finfo(np.float64).eps)
+    align_mat = 2 * (align_gt * align_pred) / (align_gt ** 2 + align_pred ** 2 + EPS)
     
     return align_mat
 
@@ -197,5 +199,5 @@ def Emeasure_calu(pred, gt):
         align_mat = AlignmentTerm(pred, gt)
         enhanced_mat = EnhancedAlighmentTerm(align_mat)
     
-    score = np.sum(enhanced_mat) / (gt.size - 1 + np.finfo(np.float64).eps)
+    score = np.sum(enhanced_mat) / (gt.size - 1 + EPS)
     return score
