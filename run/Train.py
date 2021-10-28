@@ -8,37 +8,42 @@ import cv2
 import torch.nn as nn
 import torch.distributed as dist
 
-from torch.utils.data import DataLoader
+from torch.utils.data.dataloader import DataLoader
+from torch.utils.data.distributed import DistributedSampler
 from torch.optim import Adam, SGD
-from torch.cuda.amp import GradScaler, autocast
+from torch.cuda.amp.grad_scaler import GradScaler
+from torch.cuda.amp.autocast_mode import autocast
 
 filepath = os.path.split(__file__)[0]
 repopath = os.path.split(filepath)[0]
 sys.path.append(repopath)
 
-from utils.dataloader import *
-from lib.optim import *
 from lib import *
+from lib.optim import *
+from data.dataloader import *
+
 
 def _args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--config', type=str,
-                        default='configs/InSPyReNet_SwinB.yaml')
+    parser.add_argument('--config',     type=str, default='configs/InSPyReNet_SwinB.yaml')
     parser.add_argument('--local_rank', type=int, default=-1)
-    parser.add_argument('--resume', action='store_true', default=False)
+    parser.add_argument('--resume',  action='store_true', default=False)
     parser.add_argument('--verbose', action='store_true', default=False)
-    parser.add_argument('--debug', action='store_true',   default=False)
+    parser.add_argument('--debug',   action='store_true', default=False)
     return parser.parse_args()
 
 
 def train(opt, args):
-    device_ids = os.environ["CUDA_VISIBLE_DEVICES"].split(',')
+    if "CUDA_VISIBLE_DEVICES" not in os.environ.keys():
+        device_ids = ['0']
+    else:
+        device_ids = os.environ["CUDA_VISIBLE_DEVICES"].split(',')
     device_num = len(device_ids)
     
     if args.resume is True:
         print('Resume from checkpoint')
         model_ckpt = torch.load(os.path.join(opt.Train.Checkpoint.checkpoint_dir, 'latest.pth'), map_location='cpu')
-        state_ckpt = torch.load(os.path.join(opt.Train.Checkpoint.checkpoint_dir, 'state.pth'), map_location='cpu')
+        state_ckpt = torch.load(os.path.join(opt.Train.Checkpoint.checkpoint_dir,  'state.pth'), map_location='cpu')
         
     else:
         model_ckpt = None
@@ -52,18 +57,17 @@ def train(opt, args):
     if device_num > 1:
         torch.cuda.set_device(args.local_rank)
         dist.init_process_group(backend='nccl')
-        train_sampler = torch.utils.data.distributed.DistributedSampler(
-            train_dataset, shuffle=True)
+        train_sampler = DistributedSampler(train_dataset, shuffle=True)
     else:
         train_sampler = None
 
     train_loader = DataLoader(dataset=train_dataset,
-                                batch_size=opt.Train.Dataloader.batch_size,
-                                shuffle=train_sampler is None,
-                                sampler=train_sampler,
-                                num_workers=opt.Train.Dataloader.num_workers,
-                                pin_memory=opt.Train.Dataloader.pin_memory,
-                                drop_last=True)
+                            batch_size=opt.Train.Dataloader.batch_size,
+                            shuffle=train_sampler is None,
+                            sampler=train_sampler,
+                            num_workers=opt.Train.Dataloader.num_workers,
+                            pin_memory=opt.Train.Dataloader.pin_memory,
+                            drop_last=True)
 
     model = eval(opt.Model.name)(depth=opt.Model.depth, pretrained=opt.Model.pretrained)
     if model_ckpt is not None:
@@ -163,16 +167,15 @@ def train(opt, args):
                             'scheduler': scheduler.state_dict()}
                 
                 torch.save(model_ckpt, os.path.join(opt.Train.Checkpoint.checkpoint_dir, 'latest.pth'))
-                torch.save(state_ckpt, os.path.join(opt.Train.Checkpoint.checkpoint_dir, 'state.pth'))
+                torch.save(state_ckpt, os.path.join(opt.Train.Checkpoint.checkpoint_dir,  'state.pth'))
                 
             if args.debug is True:
                 debout = debug_tile(out['gaussian'] + out['laplacian'])
-                cv2.imwrite(os.path.join(
-                    opt.Train.Checkpoint.checkpoint_dir, 'debug', str(epoch) + '.png'), debout)
+                cv2.imwrite(os.path.join(opt.Train.Checkpoint.checkpoint_dir, 'debug', str(epoch) + '.png'), debout)
 
     if args.local_rank <= 0:
-        torch.save(model.module.state_dict() if device_num > 1 else model.state_dict(
-        ), os.path.join(opt.Train.Checkpoint.checkpoint_dir, 'latest.pth'))
+        torch.save(model.module.state_dict() if device_num > 1 else model.state_dict(),
+                    os.path.join(opt.Train.Checkpoint.checkpoint_dir, 'latest.pth'))
 
 
 if __name__ == '__main__':

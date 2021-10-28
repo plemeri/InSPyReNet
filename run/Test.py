@@ -9,15 +9,16 @@ import numpy as np
 
 from PIL import Image
 from torch.nn import modules
-from torch.utils.data import DataLoader
+from torch.utils.data.dataloader import DataLoader
 
 filepath = os.path.split(__file__)[0]
 repopath = os.path.split(filepath)[0]
 sys.path.append(repopath)
 
-from utils.utils import *
-from utils.dataloader import *
 from lib import *
+from utils.utils import *
+from data.dataloader import *
+
 
 def _args():
     parser = argparse.ArgumentParser()

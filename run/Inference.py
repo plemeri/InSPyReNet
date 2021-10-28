@@ -5,6 +5,7 @@ import argparse
 import tqdm
 import sys
 import cv2
+import pyfakewebcam
 
 import torch.nn.functional as F
 import numpy as np
@@ -17,8 +18,8 @@ sys.path.append(repopath)
 
 from lib import *
 from utils.utils import *
-from utils.dataloader import *
-from utils.custom_transforms import *
+from data.dataloader import *
+from data.custom_transforms import *
 
 def _args():
     parser = argparse.ArgumentParser()
@@ -35,7 +36,7 @@ def get_format(source):
     vid_count = len([i for i in source if i.lower().endswith(('.mp4', '.avi', '.mov' ))])
     
     if img_count * vid_count != 0:
-        return None
+        return ''
     elif img_count != 0:
         return 'Image'
     elif vid_count != 0:
@@ -82,7 +83,7 @@ def inference(opt, args):
         
     writer = None
     background = None
-        
+
     for source in sources:
         if _format == 'Video' and writer is None:
             writer = cv2.VideoWriter(os.path.join(save_dir, source['name']), cv2.VideoWriter_fourcc(*'mp4v'), source_list.fps, source['shape'][::-1])
@@ -101,42 +102,31 @@ def inference(opt, args):
             out = model(sample)
         pred = to_numpy(out['pred'], sample['shape'])
 
+        img = np.array(sample['original'])
         if args.type == 'map':
             img = (np.stack([pred] * 3, axis=-1) * 255).astype(np.uint8)
         elif args.type == 'rgba':
-            img = np.array(sample['original'])
             r, g, b = cv2.split(img)
             pred = (pred * 255).astype(np.uint8)
             img = cv2.merge([r, g, b, pred])
         elif args.type == 'green':
             bg = np.stack([np.zeros_like(pred), np.ones_like(pred), np.zeros_like(pred)], axis=-1) * 255
-            img = np.array(sample['original'])
             img = img * pred[..., np.newaxis] + bg * (1 - pred[..., np.newaxis])
-            img = img.astype(np.uint8)
         elif args.type == 'blur':
-            img = np.array(sample['original'])
             img = img * pred[..., np.newaxis] + cv2.GaussianBlur(img, (0, 0), 15) * (1 - pred[..., np.newaxis])
-            img = img.astype(np.uint8)
         elif args.type.lower().endswith(('.jpg', '.jpeg', '.png')):
-            img = np.array(sample['original'])
             if background is None:
                 background = cv2.imread(args.type)
                 background = cv2.resize(background, img.shape[:2][::-1])
-            img = np.array(sample['original'])
             img = img * pred[..., np.newaxis] + background * (1 - pred[..., np.newaxis])
-            img = img.astype(np.uint8)
-                
-            
-        else:
-            img = None
-
+        img = img.astype(np.uint8)
+        
         if _format == 'Image':
             Image.fromarray(img).save(os.path.join(save_dir, sample['name']))
         elif _format == 'Video':
             writer.write(img)
         elif _format == 'Webcam':
             cv2.imshow('InSPyReNet', img)
-            
 
 if __name__ == "__main__":
     args = _args()

@@ -1,7 +1,6 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import numpy as np
 
 from operator import xor
 from lib.modules.layers import *
@@ -61,7 +60,7 @@ class ASCA(nn.Module):
         self.conv_query = nn.Sequential(conv(in_channel, channel, 3, relu=True),
                                         conv(channel, channel, 3, relu=True))
         self.conv_key = nn.Sequential(conv(in_channel, channel, 1, relu=True),
-                                      conv(channel, channel, 1, relu=True))
+                                    conv(channel, channel, 1, relu=True))
         self.conv_value = nn.Sequential(conv(in_channel, channel, 1, relu=True),
                                         conv(channel, channel, 1, relu=True))
 

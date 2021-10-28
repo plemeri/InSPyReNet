@@ -137,11 +137,11 @@ def CalMAE(pred, gt):
     return mae
 
 def fspecial_gauss(size, sigma):
-       """Function to mimic the 'fspecial' gaussian MATLAB function
-       """
-       x, y = np.mgrid[-size//2 + 1:size//2 + 1, -size//2 + 1:size//2 + 1]
-       g = np.exp(-((x**2 + y**2)/(2.0*sigma**2)))
-       return g/g.sum()
+    """Function to mimic the 'fspecial' gaussian MATLAB function
+    """
+    x, y = np.mgrid[-size//2 + 1:size//2 + 1, -size//2 + 1:size//2 + 1]
+    g = np.exp(-((x**2 + y**2)/(2.0*sigma**2)))
+    return g/g.sum()
 
 def wFmeasure_calu(pred, gt):
     if np.max(gt) == 0:

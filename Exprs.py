@@ -53,7 +53,8 @@ if __name__ == "__main__":
             opt_c['Eval']['pred_root'] = os.path.join(*os.path.split(ckpt_dir)[:-1], cfg_name)
             
             if args.hyp_tune is True:
-                rep_dict(opt_c, opt_c['Train']['HyperTune']['HyperParameter'], np.linspace(*opt_c['Train']['HyperTune']['Range'])[i % opt_c['Train']['HyperTune']['Range'][-1]].item())
+                rep_dict(opt_c, opt_c['Train']['HyperTune']['HyperParameter'], 
+                        np.linspace(*opt_c['Train']['HyperTune']['Range'])[i % opt_c['Train']['HyperTune']['Range'][-1]].item())
 
             yaml.dump(opt_c, open(os.path.join('temp', cfg_name + '.yaml'), 'w'), sort_keys=False)
         exp_tab.append((cfg_name, devices[i % len(devices)]))

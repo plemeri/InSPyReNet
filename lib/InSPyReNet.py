@@ -48,8 +48,13 @@ class InSPyReNet(nn.Module):
         return self
     
     def forward(self, sample):
-        B, _, H, W = sample['image'].shape
-        x1, x2, x3, x4, x5 = self.backbone(sample['image'])
+        if type(sample) == dict:
+            x = sample['image']
+        else:
+            x = sample
+            
+        B, _, H, W = x.shape
+        x1, x2, x3, x4, x5 = self.backbone(x)
         
         x1 = self.context1(x1) #4
         x2 = self.context2(x2) #4
@@ -93,7 +98,14 @@ class InSPyReNet(nn.Module):
         else:
             loss = 0
 
-        return {'pred': d0, 'loss': loss, 'gaussian': [d3, d2, d1, d0], 'laplacian': [p2, p1, p0]}
+        if type(sample) == dict:
+            return {'pred': d0, 
+                    'loss': loss, 
+                    'gaussian': [d3, d2, d1, d0], 
+                    'laplacian': [p2, p1, p0]}
+        
+        else:
+            return d0
     
     
 def InSPyReNet_Res2Net50(depth, pretrained):
