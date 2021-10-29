@@ -32,7 +32,7 @@ Train:
         pin_memory: False
     Optimizer:
         type: "Adam"
-        lr: 1.0e-05
+        lr: 1.3e-05
         weight_decay: 0.0
         mixed_precision: False
     Scheduler:
