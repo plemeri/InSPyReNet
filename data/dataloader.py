@@ -40,8 +40,7 @@ class RGB_Dataset(Dataset):
         gt = Image.open(self.gts[index]).convert('L')
         shape = gt.size[::-1]
         name = self.images[index].split(os.sep)[-1]
-        if name.lower().endswith('.jpg'):
-            name = name.split('.jpg')[0] + '.png'
+        name = os.path.splitext(name)[0]
             
         sample = {'image': image, 'gt': gt, 'name': name, 'shape': shape}
 
@@ -87,8 +86,7 @@ class RGBD_Dataset(Dataset):
         depth = Image.open(self.depths[index]).convert('L')
         shape = gt.size[::-1]
         name = self.images[index].split(os.sep)[-1]
-        if name.lower().endswith('.jpg'):
-            name = name.split('.jpg')[0] + '.png'
+        name = os.path.splitext(name)[0]
                 
         sample = {'image': image, 'gt': gt, 'depth': depth, 'name': name, 'shape': shape}
         sample = self.transform(sample)
@@ -138,8 +136,7 @@ class ImageLoader:
         image = Image.open(self.images[self.index]).convert('RGB')
         shape = image.size[::-1]
         name = self.images[self.index].split(os.sep)[-1]
-        if name.lower().endswith('.jpg'):
-            name = name.split('.jpg')[0] + '.png'
+        name = os.path.splitext(name)[0]
             
         sample = {'image': image, 'name': name, 'shape': shape, 'original': image}
         sample = self.transform(sample)

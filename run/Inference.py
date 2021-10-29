@@ -73,21 +73,21 @@ def inference(opt, args):
     if save_dir is not None:
         os.makedirs(save_dir, exist_ok=True)
     
-    source_list = eval(_format + 'Loader')(args.source, opt.Test.Dataset.transform_list)
+    sample_list = eval(_format + 'Loader')(args.source, opt.Test.Dataset.transform_list)
 
     if args.verbose is True:
-        sources = tqdm.tqdm(source_list, desc='Inference', total=len(
-            source_list), position=0, leave=False, bar_format='{desc:<30}{percentage:3.0f}%|{bar:50}{r_bar}')
+        samples = tqdm.tqdm(sample_list, desc='Inference', total=len(
+            sample_list), position=0, leave=False, bar_format='{desc:<30}{percentage:3.0f}%|{bar:50}{r_bar}')
     else:
-        sources = source_list
+        samples = sample_list
         
     writer = None
     background = None
 
-    for source in sources:
+    for source in samples:
         if _format == 'Video' and writer is None:
-            writer = cv2.VideoWriter(os.path.join(save_dir, source['name']), cv2.VideoWriter_fourcc(*'mp4v'), source_list.fps, source['shape'][::-1])
-            sources.total += int(source_list.cap.get(cv2.CAP_PROP_FRAME_COUNT))
+            writer = cv2.VideoWriter(os.path.join(save_dir, sample['name'] + '.mp4'), cv2.VideoWriter_fourcc(*'mp4v'), sample_list.fps, source['shape'][::-1])
+            samples.total += int(sample_list.cap.get(cv2.CAP_PROP_FRAME_COUNT))
         if _format == 'Video' and source['image'] is None:
             writer.release()
             writer = None
@@ -116,13 +116,13 @@ def inference(opt, args):
             img = img * pred[..., np.newaxis] + cv2.GaussianBlur(img, (0, 0), 15) * (1 - pred[..., np.newaxis])
         elif args.type.lower().endswith(('.jpg', '.jpeg', '.png')):
             if background is None:
-                background = cv2.imread(args.type)
+                background = cv2.cvtColor(cv2.imread(args.type), cv2.COLOR_BGR2RGB)
                 background = cv2.resize(background, img.shape[:2][::-1])
             img = img * pred[..., np.newaxis] + background * (1 - pred[..., np.newaxis])
         img = img.astype(np.uint8)
         
         if _format == 'Image':
-            Image.fromarray(img).save(os.path.join(save_dir, sample['name']))
+            Image.fromarray(img).save(os.path.join(save_dir, sample['name'] + '.png'))
         elif _format == 'Video':
             writer.write(img)
         elif _format == 'Webcam':

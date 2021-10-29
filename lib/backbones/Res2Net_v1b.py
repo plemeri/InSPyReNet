@@ -245,12 +245,11 @@ def res2net50_v1b_26w_4s(pretrained='1K', **kwargs):
     return model
 
 
-def res2net101_v1b_26w_4s(pretrained=False, **kwargs):
+def res2net101_v1b_26w_4s(pretrained='1K', **kwargs):
     model = Res2Net(Bottle2neck, [3, 4, 23, 3],
                     baseWidth=26, scale=4, **kwargs)
-    if pretrained:
-        model.load_state_dict(model_zoo.load_url(
-            model_urls['res2net101_v1b_26w_4s']))
+    if pretrained == '1K':
+        model.load_state_dict(torch.load('data/backbone_ckpt/res2net101_v1b_26w_4s-0812c246.pth'))
     return model
 
 

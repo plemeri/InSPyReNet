@@ -8,8 +8,6 @@ import torch.nn.functional as F
 import numpy as np
 
 from PIL import Image
-from torch.nn import modules
-from torch.utils.data.dataloader import DataLoader
 
 filepath = os.path.split(__file__)[0]
 repopath = os.path.split(filepath)[0]
@@ -45,12 +43,7 @@ def test(opt, args):
         save_path = os.path.join(opt.Test.Checkpoint.checkpoint_dir, set)
 
         os.makedirs(save_path, exist_ok=True)
-
-        test_dataset = eval(opt.Test.Dataset.type)(root=opt.Test.Dataset.root, sets=[set], transform_list=opt.Test.Dataset.transform_list)
-        test_loader = DataLoader(dataset=test_dataset,
-                                batch_size=1,
-                                num_workers=opt.Test.Dataloader.num_workers,
-                                pin_memory=opt.Test.Dataloader.pin_memory)
+        test_loader = ImageLoader(os.path.join(opt.Test.Dataset.root, set, 'images'), opt.Test.Dataset.transform_list)
 
         if args.verbose is True:
             samples = tqdm.tqdm(test_loader, desc=set + ' - Test', total=len(test_loader),
@@ -63,7 +56,7 @@ def test(opt, args):
             with torch.no_grad():
                 out = model(sample)
             pred = to_numpy(out['pred'], sample['shape'])
-            Image.fromarray((pred * 255).astype(np.uint8)).save(os.path.join(save_path, sample['name'][0]))
+            Image.fromarray((pred * 255).astype(np.uint8)).save(os.path.join(save_path, os.path.splitext(sample['name'])[0] + '.png'))
 
 
 if __name__ == "__main__":
