@@ -622,34 +622,30 @@ class SwinTransformer(nn.Module):
         super(SwinTransformer, self).train(mode)
         self._freeze_stages()
 
-def SwinT(pretrained='1K'):
+def SwinT(pretrained=True):
     model = SwinTransformer(embed_dim=96, depths=[2, 2, 6, 2], num_heads=[3, 6, 12, 24], window_size=7)
-    if pretrained == '1K':
+    if pretrained is True:
         model.load_state_dict(torch.load('data/backbone_ckpt/swin_tiny_patch4_window7_224.pth')['model'], strict=False)
         
     return model
 
-def SwinS(pretrained='1K'):
+def SwinS(pretrained=True):
     model = SwinTransformer(embed_dim=96, depths=[2, 2, 18, 2], num_heads=[3, 6, 12, 24], window_size=7)
-    if pretrained == '1K':
+    if pretrained is True:
         model.load_state_dict(torch.load('data/backbone_ckpt/swin_small_patch4_window7_224.pth')['model'], strict=False)
         
     return model
 
-def SwinB(pretrained='1K'):
+def SwinB(pretrained=True):
     model = SwinTransformer(embed_dim=128, depths=[2, 2, 18, 2], num_heads=[4, 8, 16, 32], window_size=12)
-    if pretrained == '1K':
-        model.load_state_dict(torch.load('data/backbone_ckpt/swin_base_patch4_window12_384.pth')['model'], strict=False)
-    elif pretrained == '22K':
+    if pretrained is True:
         model.load_state_dict(torch.load('data/backbone_ckpt/swin_base_patch4_window12_384_22kto1k.pth')['model'], strict=False)
         
     return model
 
-def SwinL(pretrained='1K'):
+def SwinL(pretrained=True):
     model = SwinTransformer(embed_dim=192, depths=[2, 2, 18, 2], num_heads=[6, 12, 24, 48], window_size=12)
-    if pretrained == '1K':
-        model.load_state_dict(torch.load('data/backbone_ckpt/swin_large_patch4_window12_384.pth')['model'], strict=False)
-    elif pretrained == '22K':
+    if pretrained is True:
         model.load_state_dict(torch.load('data/backbone_ckpt/swin_large_patch4_window12_384_22kto1k.pth')['model'], strict=False)
 
     return model

@@ -79,7 +79,7 @@ def patch(x, patch_size=256, stride=None):
     b, c, h, w = x.shape
     
     if stride is None:
-        stride = patch_size // 4
+        stride = patch_size // 2
     assert stride != 0
     assert h // stride != 0
     assert w // stride != 0
@@ -98,7 +98,7 @@ def unpatch(patches, target_shape, patch_size=256, stride=None, indice_map=None)
     b, c, h, w = target_shape
     
     if stride is None:
-        stride = patch_size // 4
+        stride = patch_size // 2
     assert stride != 0
     assert h // stride != 0
     assert w // stride != 0

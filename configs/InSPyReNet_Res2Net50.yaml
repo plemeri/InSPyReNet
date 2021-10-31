@@ -1,7 +1,7 @@
 Model:
     name: "InSPyReNet_Res2Net50"
     depth: 64
-    pretrained: '1K'
+    pretrained: True
 
 Train:
     Dataset:

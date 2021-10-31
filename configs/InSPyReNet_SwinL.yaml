@@ -1,7 +1,7 @@
 Model:
     name: "InSPyReNet_SwinL"
     depth: 64
-    pretrained: '22K'
+    pretrained: True
 
 Train:
     Dataset:
