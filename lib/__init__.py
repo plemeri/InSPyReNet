@@ -1,4 +1,2 @@
-from lib.InSPyReNet_Res2Net50 import InSPyReNet_Res2Net50
-from lib.InSPyReNet_SwinB import InSPyReNet_SwinB
-from lib.InSPyReNet_SwinT import InSPyReNet_SwinT
+from lib.InSPyReNet import InSPyReNet_Res2Net50, InSPyReNet_Res2Net101, InSPyReNet_SwinT, InSPyReNet_SwinS, InSPyReNet_SwinB, InSPyReNet_SwinL
 from lib.InSPyReNet_Grid import InSPyReNet_Grid

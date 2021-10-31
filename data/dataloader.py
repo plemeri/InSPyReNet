@@ -1,37 +1,46 @@
 import os
 import cv2
+import sys
 
 import numpy as np
-import torch.utils.data as data
+from torch.utils.data.dataset import Dataset
 
 from PIL import Image
 from threading import Thread
 
-from utils.custom_transforms import *
+filepath = os.path.split(__file__)[0]
+repopath = os.path.split(filepath)[0]
+sys.path.append(repopath)
+
 from utils.utils import *
 
-class RGB_Dataset(data.Dataset):
-    def __init__(self, root, transform_list):
-        image_root, gt_root = os.path.join(root, 'images'), os.path.join(root, 'masks')
-
-        self.images = [os.path.join(image_root, f) for f in os.listdir(image_root) if f.endswith(('.jpg', '.png'))]
-        self.images = sorted(self.images)
+class RGB_Dataset(Dataset):
+    def __init__(self, root, sets, transform_list):
+        self.images, self.gts = [], []
         
-        self.gts = [os.path.join(gt_root, f) for f in os.listdir(gt_root) if f.endswith('.png')]
-        self.gts = sorted(self.gts)
+        for set in sets:
+            image_root, gt_root = os.path.join(root, set, 'images'), os.path.join(root, set, 'masks')
+
+            images = [os.path.join(image_root, f) for f in os.listdir(image_root) if f.lower().endswith(('.jpg', '.png'))]
+            images = sorted(images)
+            
+            gts = [os.path.join(gt_root, f) for f in os.listdir(gt_root) if f.lower().endswith('.png')]
+            gts = sorted(gts)
+            
+            self.images.extend(images)
+            self.gts.extend(gts)
         
         self.filter_files()
         
         self.size = len(self.images)
         self.transform = get_transform(transform_list)
-
+        
     def __getitem__(self, index):
         image = Image.open(self.images[index]).convert('RGB')
         gt = Image.open(self.gts[index]).convert('L')
         shape = gt.size[::-1]
         name = self.images[index].split(os.sep)[-1]
-        if name.endswith('.jpg'):
-            name = name.split('.jpg')[0] + '.png'
+        name = os.path.splitext(name)[0]
             
         sample = {'image': image, 'gt': gt, 'name': name, 'shape': shape}
 
@@ -51,19 +60,19 @@ class RGB_Dataset(data.Dataset):
     def __len__(self):
         return self.size
 
-class RGBD_Dataset(data.Dataset):
+class RGBD_Dataset(Dataset):
     def __init__(self, root, transform_list):
         image_root = os.path.join(root, 'RGB')
         gt_root = os.path.join(root, 'GT')
         depth_root = os.path.join(root, 'depth')
 
-        self.images = [os.path.join(image_root, f) for f in os.listdir(image_root) if f.endswith(('.jpg', '.png'))]
+        self.images = [os.path.join(image_root, f) for f in os.listdir(image_root) if f.lower().endswith(('.jpg', '.png'))]
         self.images = sorted(self.images)
         
-        self.depths = [os.path.join(depth_root, f) for f in os.listdir(depth_root) if f.endswith(('.jpg', '.png'))]
+        self.depths = [os.path.join(depth_root, f) for f in os.listdir(depth_root) if f.lower().endswith(('.jpg', '.png'))]
         self.depths = sorted(self.depths)
         
-        self.gts = [os.path.join(gt_root, f) for f in os.listdir(gt_root) if f.endswith('.png')]
+        self.gts = [os.path.join(gt_root, f) for f in os.listdir(gt_root) if f.lower().endswith('.png')]
         self.gts = sorted(self.gts)
         
         self.filter_files()
@@ -77,8 +86,7 @@ class RGBD_Dataset(data.Dataset):
         depth = Image.open(self.depths[index]).convert('L')
         shape = gt.size[::-1]
         name = self.images[index].split(os.sep)[-1]
-        if name.endswith('.jpg'):
-            name = name.split('.jpg')[0] + '.png'
+        name = os.path.splitext(name)[0]
                 
         sample = {'image': image, 'gt': gt, 'depth': depth, 'name': name, 'shape': shape}
         sample = self.transform(sample)
@@ -111,7 +119,7 @@ class RGBD_Dataset(data.Dataset):
 class ImageLoader:
     def __init__(self, root, transform_list):
         if os.path.isdir(root):
-            self.images = [os.path.join(root, f) for f in os.listdir(root) if f.endswith(('.jpg', '.png', '.jpeg'))]
+            self.images = [os.path.join(root, f) for f in os.listdir(root) if f.lower().endswith(('.jpg', '.png', '.jpeg'))]
             self.images = sorted(self.images)
         elif os.path.isfile(root):
             self.images = [root]
@@ -128,8 +136,7 @@ class ImageLoader:
         image = Image.open(self.images[self.index]).convert('RGB')
         shape = image.size[::-1]
         name = self.images[self.index].split(os.sep)[-1]
-        if name.endswith('.jpg'):
-            name = name.split('.jpg')[0] + '.png'
+        name = os.path.splitext(name)[0]
             
         sample = {'image': image, 'name': name, 'shape': shape, 'original': image}
         sample = self.transform(sample)
@@ -144,7 +151,7 @@ class ImageLoader:
 class VideoLoader:
     def __init__(self, root, transform_list):
         if os.path.isdir(root):
-            self.videos = [os.path.join(root, f) for f in os.listdir(root) if f.endswith(('.mp4', '.avi', 'mov'))]
+            self.videos = [os.path.join(root, f) for f in os.listdir(root) if f.lower().endswith(('.mp4', '.avi', 'mov'))]
         elif os.path.isfile(root):
             self.videos = [root]
         self.size = len(self.videos)
@@ -179,7 +186,7 @@ class VideoLoader:
             sample['image'] = sample['image'].unsqueeze(0)
             
         return sample
-
+    
     def __len__(self):
         return self.size
     
@@ -223,7 +230,7 @@ class WebcamLoader:
             sample = self.transform(sample)
             sample['image'] = sample['image'].unsqueeze(0)
         
-        self.imgs.clear()
+        del self.imgs[:-1]
         return sample
 
 

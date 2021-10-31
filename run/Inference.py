@@ -1,9 +1,11 @@
+from turtle import back
 import torch
 import os
 import argparse
 import tqdm
 import sys
 import cv2
+import pyfakewebcam
 
 import torch.nn.functional as F
 import numpy as np
@@ -16,32 +18,32 @@ sys.path.append(repopath)
 
 from lib import *
 from utils.utils import *
-from utils.dataloader import *
-from utils.custom_transforms import *
+from data.dataloader import *
+from data.custom_transforms import *
 
 def _args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--config', type=str, default='configs/InSPyReNet_SwinB.yaml')
-    parser.add_argument('--source', type=str)
-    parser.add_argument('--type', type=str, choices=['rgba', 'map', 'green', 'blur'], default='map')
-    parser.add_argument('--grid', action='store_true', default=False)
-    parser.add_argument('--gpu', action='store_true', default=False)
+    parser.add_argument('--source', type=str, default='test')
+    parser.add_argument('--type',   type=str,   default='map')
+    parser.add_argument('--grid',    action='store_true', default=False)
+    parser.add_argument('--gpu',     action='store_true', default=False)
     parser.add_argument('--verbose', action='store_true', default=False)
     return parser.parse_args()
 
 def get_format(source):
-    img_count = len([i for i in source if i.endswith(('.jpg', '.png', '.jpeg'))])
-    vid_count = len([i for i in source if i.endswith(('.mp4', '.avi', '.mov'))])
+    img_count = len([i for i in source if i.lower().endswith(('.jpg', '.png', '.jpeg'))])
+    vid_count = len([i for i in source if i.lower().endswith(('.mp4', '.avi', '.mov' ))])
     
     if img_count * vid_count != 0:
-        return None
+        return ''
     elif img_count != 0:
         return 'Image'
     elif vid_count != 0:
         return 'Video'
 
 def inference(opt, args):
-    model = eval(opt.Model.name)(channels=opt.Model.channels,
+    model = eval(opt.Model.name)(depth=opt.Model.depth,
                                 pretrained=False)
     model.load_state_dict(torch.load(os.path.join(
         opt.Test.Checkpoint.checkpoint_dir, 'latest.pth'), map_location=torch.device('cpu')), strict=True)
@@ -71,19 +73,21 @@ def inference(opt, args):
     if save_dir is not None:
         os.makedirs(save_dir, exist_ok=True)
     
-    source_list = eval(_format + 'Loader')(args.source, opt.Test.Dataset.transform_list)
+    sample_list = eval(_format + 'Loader')(args.source, opt.Test.Dataset.transform_list)
 
     if args.verbose is True:
-        sources = tqdm.tqdm(source_list, desc='Inference', total=len(
-            source_list), position=1, leave=False, bar_format='{desc:<30}{percentage:3.0f}%|{bar:50}{r_bar}')
+        samples = tqdm.tqdm(sample_list, desc='Inference', total=len(
+            sample_list), position=0, leave=False, bar_format='{desc:<30}{percentage:3.0f}%|{bar:50}{r_bar}')
     else:
-        sources = source_list
+        samples = sample_list
         
     writer = None
-        
-    for source in sources:
+    background = None
+
+    for source in samples:
         if _format == 'Video' and writer is None:
-            writer = cv2.VideoWriter(os.path.join(save_dir, source['name']), cv2.VideoWriter_fourcc(*'mp4v'), source_list.fps, source['shape'][::-1])            
+            writer = cv2.VideoWriter(os.path.join(save_dir, sample['name'] + '.mp4'), cv2.VideoWriter_fourcc(*'mp4v'), sample_list.fps, source['shape'][::-1])
+            samples.total += int(sample_list.cap.get(cv2.CAP_PROP_FRAME_COUNT))
         if _format == 'Video' and source['image'] is None:
             writer.release()
             writer = None
@@ -98,33 +102,31 @@ def inference(opt, args):
             out = model(sample)
         pred = to_numpy(out['pred'], sample['shape'])
 
+        img = np.array(sample['original'])
         if args.type == 'map':
             img = (np.stack([pred] * 3, axis=-1) * 255).astype(np.uint8)
         elif args.type == 'rgba':
-            img = np.array(sample['original'])
             r, g, b = cv2.split(img)
             pred = (pred * 255).astype(np.uint8)
             img = cv2.merge([r, g, b, pred])
         elif args.type == 'green':
             bg = np.stack([np.zeros_like(pred), np.ones_like(pred), np.zeros_like(pred)], axis=-1) * 255
-            img = np.array(sample['original'])
             img = img * pred[..., np.newaxis] + bg * (1 - pred[..., np.newaxis])
-            img = img.astype(np.uint8)
         elif args.type == 'blur':
-            img = np.array(sample['original'])
             img = img * pred[..., np.newaxis] + cv2.GaussianBlur(img, (0, 0), 15) * (1 - pred[..., np.newaxis])
-            img = img.astype(np.uint8)
-            
-        else:
-            img = None
-
+        elif args.type.lower().endswith(('.jpg', '.jpeg', '.png')):
+            if background is None:
+                background = cv2.cvtColor(cv2.imread(args.type), cv2.COLOR_BGR2RGB)
+                background = cv2.resize(background, img.shape[:2][::-1])
+            img = img * pred[..., np.newaxis] + background * (1 - pred[..., np.newaxis])
+        img = img.astype(np.uint8)
+        
         if _format == 'Image':
-            Image.fromarray(img).save(os.path.join(save_dir, sample['name']))
+            Image.fromarray(img).save(os.path.join(save_dir, sample['name'] + '.png'))
         elif _format == 'Video':
             writer.write(img)
         elif _format == 'Webcam':
             cv2.imshow('InSPyReNet', img)
-            
 
 if __name__ == "__main__":
     args = _args()

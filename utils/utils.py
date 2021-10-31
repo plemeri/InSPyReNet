@@ -14,7 +14,7 @@ filepath = os.path.split(__file__)[0]
 repopath = os.path.split(filepath)[0]
 sys.path.append(repopath)
 
-from utils.custom_transforms import *
+from data.custom_transforms import *
 
 def get_transform(transform_list):
     tfs = []
@@ -26,8 +26,11 @@ def get_transform(transform_list):
         tfs.append(tf)
     return transforms.Compose(tfs)
 
-def load_config(config_dir):
-    return ed(yaml.load(open(config_dir), yaml.FullLoader))
+def load_config(config_dir, easy=True):
+    cfg = yaml.load(open(config_dir), yaml.FullLoader)
+    if easy is True:
+        cfg = ed(cfg)
+    return cfg
 
 def to_cuda(sample):
     for key in sample.keys():
@@ -43,7 +46,7 @@ def to_numpy(pred, shape):
     pred = (pred - pred.min()) / (pred.max() - pred.min() + 1e-8)
     return pred
 
-def patch(x, patch_size=256):
+def unfold(x, patch_size=256):
     b, c, h, w = x.shape
     stride = patch_size // 2
     unfold = nn.Unfold(kernel_size=(patch_size,) * 2, stride=stride)
@@ -55,7 +58,7 @@ def patch(x, patch_size=256):
     return patches, (b, c, h, w)
 
 
-def stitch(patches, target_shape, patch_size=256):
+def fold(patches, target_shape, patch_size=256):
     b, c, h, w = target_shape
     stride = patch_size // 2
     fold = nn.Fold(output_size=(h, w), kernel_size=(
@@ -72,111 +75,57 @@ def stitch(patches, target_shape, patch_size=256):
 
     return out
 
-def patch_max(x, patch_size=256):
-    stride = patch_size // 2
-    assert stride != 0
+def patch(x, patch_size=256, stride=None):
     b, c, h, w = x.shape
+    
+    if stride is None:
+        stride = patch_size // 2
+    assert stride != 0
     assert h // stride != 0
     assert w // stride != 0
     
-    ph, pw = h // stride - 1, w // stride - 1
+    ph, pw = (h - (patch_size - 1) - 1) // stride + 1, (w - (patch_size - 1) - 1) // stride + 1
     patches = torch.zeros(b * ph * pw, c, patch_size, patch_size).to(x.device)
+    
     for i in range(ph):
         for j in range(pw):
-            start = (j + pw * i)# * stride
-            end = start + c# + stride
-            patches[start:end] = x[:, :, i * stride: (i + 2) * stride, j * stride: (j + 2) * stride]
+            start = pw * i + j
+            end = start + 1
+            patches[start:end] = x[:, :, i * stride: i * stride + patch_size, j * stride: j * stride + patch_size]
     return patches, (b, c, h, w)
 
-def stitch_max(patches, target_shape, patch_size=256):
+def unpatch(patches, target_shape, patch_size=256, stride=None, indice_map=None):
     b, c, h, w = target_shape
-    stride = patch_size // 2
+    
+    if stride is None:
+        stride = patch_size // 2
     assert stride != 0
     assert h // stride != 0
     assert w // stride != 0
     
-    ph, pw = h // stride - 1, w // stride - 1
-      
-    out = torch.zeros(b, c, h, w).to(patches.device)
-    for i in range(ph):
-            for j in range(pw):
-                start = (j + pw * i)# * stride
-                end = start + c# + stride
-                
-                tgt = out[:, :, i * stride: (i + 2) * stride, j * stride: (j + 2) * stride]
-                src = patches[start:end]
-                
-                patch_neg = -torch.max(F.relu(-tgt), F.relu(-src))
-                patch_pos = torch.max(F.relu(tgt), F.relu(src))
-                patch = patch_neg + patch_pos
-                
-                patch = torch.max(out[:, :, i * stride: (i + 2) * stride, j * stride: (j + 2) * stride].abs(), patches[start:end])
-                out[:, :, i * stride: (i + 2) * stride, j * stride: (j + 2) * stride] = patch
-    return out
-
-def stitch_avg(patches, target_shape, patch_size=256):
-    b, c, h, w = target_shape
-    stride = patch_size // 2
-    assert stride != 0
-    assert h // stride != 0
-    assert w // stride != 0
+    ph, pw = (h - (patch_size - 1) - 1) // stride + 1, (w - (patch_size - 1) - 1) // stride + 1
+    out = - torch.ones(ph * pw, b, c, h, w).to(patches.device) * float('inf')
     
-    ph, pw = h // stride - 1, w // stride - 1
-    
-    out = torch.zeros(b, c, h, w).to(patches.device)
-    wgt = torch.zeros(b, c, h, w).to(patches.device)
-    for i in range(ph):
-            for j in range(pw):
-                start = (j + pw * i)# * stride
-                end = start + c# + stride
-                out[:, :, i * stride: (i + 2) * stride, j * stride: (j + 2) * stride] += patches[start:end]
-                wgt[:, :, i * stride: (i + 2) * stride, j * stride: (j + 2) * stride] += torch.ones_like(patches[start:end]).to(patches.device)
-    return out# / wgt
-
-
-def stitch_avg_mod(patches, target_shape, patch_size=256):
-    b, c, h, w = target_shape
-    stride = patch_size // 2
-    assert stride != 0
-    assert h // stride != 0
-    assert w // stride != 0
-    
-    ph, pw = h // stride - 1, w // stride - 1
-    
-    out = torch.zeros(b, c, h, w).to(patches.device)
     for i in range(ph):
         for j in range(pw):
-            cstart = (j + pw * i)# * stride
-            cend = cstart + c# + stride
-            
-            hstart = stride // 2
-            hend = patch_size - (hstart)
-            
-            wstart = stride // 2
-            wend = patch_size - (wstart)
-            
-            if i == 0:
-                hstart = 0
-            if i == ph - 1:
-                hend = patch_size
-            
-            if j == 0:
-                wstart = 0
-            if j == pw - 1:
-                wend = patch_size
-                
-            out[:, :, i * stride + hstart: i * stride + hend, j * stride + wstart: j * stride + wend] += patches[cstart:cend, :, hstart:hend, wstart:wend]
-    return out # / wgt
+            start = pw * i + j
+            end = start + 1
+            out[start:end, :, :, i * stride:i * stride + patch_size, j * stride: j * stride + patch_size] = patches[start:end]
+    
+    if indice_map is None:
+        out, ind = torch.max(out, dim=0)
+    else:
+        ind = indice_map
+        out = torch.gather(out, 0, ind.unsqueeze(0)).squeeze(0)
+    return out, ind
 
-def debug_tile(out, size=(100, 100)):
+def debug_tile(deblist, size=(100, 100)):
     debugs = []
-    for debs in out['debug']:
+    for debs in deblist:
         debug = []
         for deb in debs:
             log = torch.sigmoid(deb).cpu().detach().numpy().squeeze()
-            log = (log - log.min()) / (log.max() - log.min())
-            log *= 255
-            log = log.astype(np.uint8)
+            log = ((log - log.min()) / (log.max() - log.min()) * 255).astype(np.uint8)
             log = cv2.cvtColor(log, cv2.COLOR_GRAY2RGB)
             log = cv2.resize(log, size)
             debug.append(log)
@@ -185,8 +134,8 @@ def debug_tile(out, size=(100, 100)):
 
 if __name__ == "__main__":
     x = torch.rand(4, 3, 576, 576)
-    y, shape = patch_max(x, 384)
-    x_ = stitch_max(y, shape, 384)
+    y, shape = patch(x, 384)
+    x_ = unpatch(y, shape, 384)
     
     print(x == x_)
     

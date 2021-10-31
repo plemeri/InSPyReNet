@@ -1,12 +1,13 @@
 Model:
-    name: "InSPyReNet_Res2Net50"
-    channels: 64
+    name: "InSPyReNet_SwinS"
+    depth: 64
     pretrained: True
 
 Train:
     Dataset:
         type: "RGB_Dataset"
-        root: "data/RGB_Dataset/Train_Dataset/DUTS-TR"
+        root: "data/RGB_Dataset/Train_Dataset"
+        sets: ['DUTS-TR']
         transform_list:
             resize: 
                 size: [384, 384]
@@ -31,7 +32,7 @@ Train:
         pin_memory: False
     Optimizer:
         type: "Adam"
-        lr: 1.0e-05
+        lr: 1.3e-05
         weight_decay: 0.0
         mixed_precision: False
     Scheduler:
@@ -41,17 +42,20 @@ Train:
         minimum_lr: 1.0e-07
         warmup_iteration: 12000
     Checkpoint:
-        checkpoint_epoch: 20
-        checkpoint_dir: "snapshots/InSPyReNet_SwinB"
+        checkpoint_epoch: 1
+        checkpoint_dir: "snapshots/InSPyReNet_SwinS"
+    HyperTune:
+        HyperParameter: ['Train', 'Optimizer', 'lr']
+        Range: [1.0e-6, 2.4e-5, 24]
     
 Test:
     Dataset:
         type: "RGB_Dataset"
         root: "data/RGB_Dataset/Test_Dataset"
-        testsets: ['DUTS-TE', 'DUT-OMRON', 'ECSSD', 'HKU-IS', 'PASCAL-S']
+        sets: ['DUTS-TE', 'DUT-OMRON', 'ECSSD', 'HKU-IS', 'PASCAL-S']
         transform_list:
-            dynamic_resize: 
-                base_size: 384
+            resize:
+                size: [384, 384]
             tonumpy: NULL
             normalize: 
                 mean: [0.485, 0.456, 0.406]
@@ -61,11 +65,11 @@ Test:
         num_workers: 8
         pin_memory: True
     Checkpoint:
-        checkpoint_dir: "snapshots/InSPyReNet_Res2Net50"
+        checkpoint_dir: "snapshots/InSPyReNet_SwinS"
 
 Eval:
     gt_root: "data/RGB_Dataset/Test_Dataset"
-    pred_root: "snapshots/InSPyReNet_SwinB"
+    pred_root: "snapshots/InSPyReNet_SwinS"
     result_path: "results"
     datasets: ['DUTS-TE', 'DUT-OMRON', 'ECSSD', 'HKU-IS', 'PASCAL-S']
     metrics: ['Sm', 'mae', 'Em', 'maxF', 'avgF', 'wFm', 'IoUmaxF', 'maxIoU', 'meanIoU']

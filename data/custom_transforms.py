@@ -1,11 +1,16 @@
 import numpy as np
 from PIL import Image
-import cv2
+import os
+import sys
 import torch
 import torch.nn.functional as F
 from PIL import Image, ImageOps, ImageFilter, ImageEnhance
 
-from .utils import *
+filepath = os.path.split(__file__)[0]
+repopath = os.path.split(filepath)[0]
+sys.path.append(repopath)
+
+from utils.utils import *
 
 class resize:
     def __init__(self, size):
@@ -28,18 +33,15 @@ class dynamic_resize:
     def __call__(self, sample):
         if 'image' in sample.keys():
             ar = sample['image'].size[0] / sample['image'].size[1]
-            if ar >= 1.5:
-                size = (self.base_size * 2, self.base_size)
-            elif ar <= (1 / 1.5):
-                size = (self.base_size, self.base_size * 2)
+            hx, wx = 1, 1
+            if ar > 1:
+                hx = round(2 * ar) / 2
             else:
-                size = (self.base_size, self.base_size)
+                wx = round(2 / ar) / 2
+            
+            size = (int(self.base_size * hx), int(self.base_size * wx))
             
             sample['image'] = sample['image'].resize(size, Image.BILINEAR)
-        if 'gt' in sample.keys():
-            raise AttributeError
-        if 'depth' in sample.keys():
-            raise AttributeError
 
         return sample
 

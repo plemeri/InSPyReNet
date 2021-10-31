@@ -127,7 +127,8 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-data/*
+data/backbone_ckpt
+data/RGB_Dataset
 results/*
 snapshots/*
 temp/*
