@@ -4,6 +4,8 @@ import torch.nn.functional as F
 
 from torch.nn.parameter import Parameter
 from operator import xor
+from typing import Optional
+
 from lib.modules.layers import *
 from utils.misc import *
 
@@ -80,7 +82,7 @@ class ASCA(nn.Module):
         if self.lmap_in is True:
             self.lthreshold = Parameter(torch.tensor([0.5]))
 
-    def forward(self, x, smap, lmap=None):
+    def forward(self, x, smap, lmap: Optional[torch.Tensor]=None):
         assert not xor(self.lmap_in is True, lmap is not None)
         b, c, h, w = x.shape
         
@@ -93,7 +95,7 @@ class ASCA(nn.Module):
         bg = torch.clip(-p, 0, 1) # background
         cg = self.threshold - torch.abs(p) # confusion area
 
-        if self.lmap_in is True:
+        if self.lmap_in is True and lmap is not None:
             lmap = F.interpolate(lmap, size=x.shape[-2:], mode='bilinear', align_corners=False)
             lmap = torch.sigmoid(lmap)
             lp = lmap - self.lthreshold

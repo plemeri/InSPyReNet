@@ -1,3 +1,4 @@
+from optparse import Option
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -6,6 +7,7 @@ import cv2
 import numpy as np
 
 from torch.nn.parameter import Parameter
+from typing import Optional
 class Pyr:
     def __init__(self, ksize=5, sigma=1, channels=1):
         self.ksize = ksize
@@ -134,7 +136,7 @@ class self_attn(nn.Module):
         out = self.gamma * out + x
         return out
 
-def patch(x, patch_size=256, stride=None):
+def patch(x, patch_size=256, stride: Optional[int]=None):
     b, c, h, w = x.shape
     
     if stride is None:
@@ -154,7 +156,7 @@ def patch(x, patch_size=256, stride=None):
     return patches, (b, c, h, w)
 
 class Patch(nn.Module):
-    def __init__(self, patch_size, stride=None):
+    def __init__(self, patch_size, stride: Optional[int]=None):
         super(Patch, self).__init__()
 
         self.patch_size = patch_size
@@ -167,7 +169,7 @@ class Patch(nn.Module):
         return patch(x, self.patch_size, self.stride)
 
 
-def unpatch(patches, target_shape, patch_size=256, stride=None, indice_map=None):
+def unpatch(patches, target_shape, patch_size=256, stride: Optional[int]=None, indice_map: Optional[torch.Tensor]=None):
     b, c, h, w = target_shape
     
     if stride is None:
@@ -193,7 +195,7 @@ def unpatch(patches, target_shape, patch_size=256, stride=None, indice_map=None)
     return out, ind
 
 class UnPatch(nn.Module):
-    def __init__(self, patch_size, target_shape, stride=None):
+    def __init__(self, patch_size, target_shape, stride: Optional[int]=None):
         super(UnPatch, self).__init__()
 
         self.patch_size = patch_size

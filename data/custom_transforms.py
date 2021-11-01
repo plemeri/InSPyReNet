@@ -5,6 +5,7 @@ import sys
 import torch
 import torch.nn.functional as F
 from PIL import Image, ImageOps, ImageFilter, ImageEnhance
+from typing import Optional
 
 filepath = os.path.split(__file__)[0]
 repopath = os.path.split(filepath)[0]
@@ -166,7 +167,7 @@ class tonumpy:
         return sample
 
 class normalize:
-    def __init__(self, mean=None, std=None, div=255):
+    def __init__(self, mean: Optional[list]=None, std: Optional[list]=None, div=255):
         self.mean = mean if mean is not None else 0.0
         self.std = std if std is not None else 1.0
         self.div = div

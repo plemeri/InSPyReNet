@@ -7,6 +7,9 @@ class PolyLr(_LRScheduler):
         self.max_iteration = max_iteration
         self.minimum_lr = minimum_lr
         self.warmup_iteration = warmup_iteration
+        
+        self.last_epoch = None
+        self.base_lrs = []
 
         super(PolyLr, self).__init__(optimizer, last_epoch)
 

@@ -25,7 +25,7 @@ def _args():
     parser.add_argument('--dest',   type=str, default=None)
     parser.add_argument('--type',   type=str,   default='map')
     parser.add_argument('--gpu',     action='store_true', default=True)
-    parser.add_argument('--jit',     action='store_true', default=True)
+    parser.add_argument('--jit',     action='store_true', default=False)
     parser.add_argument('--verbose', action='store_true', default=True)
     parser.add_argument('--grid',    action='store_true', default=False)
     return parser.parse_args()
