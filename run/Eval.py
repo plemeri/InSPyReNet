@@ -14,7 +14,7 @@ repopath = os.path.split(filepath)[0]
 sys.path.append(repopath)
 
 from utils.eval_functions import *
-from utils.utils import *
+from utils.misc import *
 
 BETA = 1.0
 

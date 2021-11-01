@@ -133,3 +133,76 @@ class self_attn(nn.Module):
 
         out = self.gamma * out + x
         return out
+
+def patch(x, patch_size=256, stride=None):
+    b, c, h, w = x.shape
+    
+    if stride is None:
+        stride = patch_size // 4
+    assert stride != 0
+    assert h // stride != 0
+    assert w // stride != 0
+    
+    ph, pw = (h - (patch_size - 1) - 1) // stride + 1, (w - (patch_size - 1) - 1) // stride + 1
+    patches = torch.zeros(b * ph * pw, c, patch_size, patch_size).to(x.device)
+    
+    for i in range(ph):
+        for j in range(pw):
+            start = pw * i + j
+            end = start + 1
+            patches[start:end] = x[:, :, i * stride: i * stride + patch_size, j * stride: j * stride + patch_size]
+    return patches, (b, c, h, w)
+
+class Patch(nn.Module):
+    def __init__(self, patch_size, stride=None):
+        super(Patch, self).__init__()
+
+        self.patch_size = patch_size
+        if stride is None:
+            self.stride = patch_size // 4
+        else:
+            self.stride = stride
+
+    def forward(self, x):
+        return patch(x, self.patch_size, self.stride)
+
+
+def unpatch(patches, target_shape, patch_size=256, stride=None, indice_map=None):
+    b, c, h, w = target_shape
+    
+    if stride is None:
+        stride = patch_size // 4
+    assert stride != 0
+    assert h // stride != 0
+    assert w // stride != 0
+    
+    ph, pw = (h - (patch_size - 1) - 1) // stride + 1, (w - (patch_size - 1) - 1) // stride + 1
+    out = - torch.ones(ph * pw, b, c, h, w).to(patches.device) * float('inf')
+    
+    for i in range(ph):
+        for j in range(pw):
+            start = pw * i + j
+            end = start + 1
+            out[start:end, :, :, i * stride:i * stride + patch_size, j * stride: j * stride + patch_size] = patches[start:end]
+    
+    if indice_map is None:
+        out, ind = torch.max(out, dim=0)
+    else:
+        ind = indice_map
+        out = torch.gather(out, 0, ind.unsqueeze(0)).squeeze(0)
+    return out, ind
+
+class UnPatch(nn.Module):
+    def __init__(self, patch_size, target_shape, stride=None):
+        super(UnPatch, self).__init__()
+
+        self.patch_size = patch_size
+        self.target_shape = target_shape
+        
+        if stride is None:
+            self.stride = patch_size // 4
+        else:
+            self.stride = stride
+
+    def forward(self, x, indice_map=None):
+        return unpatch(x, self.target_shape, self.patch_size, self.stride, indice_map)

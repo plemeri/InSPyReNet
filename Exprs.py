@@ -4,7 +4,7 @@ import yaml
 import copy
 import datetime
 
-from utils.utils import *
+from utils.misc import *
 
 def _args():
     parser = argparse.ArgumentParser()

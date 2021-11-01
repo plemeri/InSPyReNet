@@ -1,4 +1,3 @@
-from turtle import back
 import torch
 import os
 import argparse
@@ -6,7 +5,6 @@ import tqdm
 import sys
 import cv2
 
-import torch.nn.functional as F
 import numpy as np
 
 from PIL import Image
@@ -16,7 +14,7 @@ repopath = os.path.split(filepath)[0]
 sys.path.append(repopath)
 
 from lib import *
-from utils.utils import *
+from utils.misc import *
 from data.dataloader import *
 from data.custom_transforms import *
 

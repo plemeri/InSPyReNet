@@ -22,7 +22,7 @@ sys.path.append(repopath)
 from lib import *
 from lib.optim import *
 from data.dataloader import *
-from utils.utils import *
+from utils.misc import *
 
 def _args():
     parser = argparse.ArgumentParser()
@@ -120,7 +120,7 @@ def train(opt, args):
         
     epoch_iter = range(start, opt.Train.Scheduler.epoch + 1)
     if args.local_rank <= 0 and args.verbose is True:
-        epoch_iter = tqdm.tqdm(epoch_iter, desc='Epoch', total=opt.Train.Scheduler.epoch - start + 1,
+        epoch_iter = tqdm.tqdm(epoch_iter, desc='Epoch', total=opt.Train.Scheduler.epoch, initial=start - 1,
                                 position=0, bar_format='{desc:<5.5}{percentage:3.0f}%|{bar:40}{r_bar}')
 
     for epoch in epoch_iter:
@@ -170,7 +170,7 @@ def train(opt, args):
                 torch.save(state_ckpt, os.path.join(opt.Train.Checkpoint.checkpoint_dir,  'state.pth'))
                 
             if args.debug is True:
-                debout = debug_tile(out['gaussian'] + out['laplacian'])
+                debout = debug_tile(sum([out[k] for k in opt.Train.Debug.keys], []))
                 cv2.imwrite(os.path.join(opt.Train.Checkpoint.checkpoint_dir, 'debug', str(epoch) + '.png'), debout)
 
     if args.local_rank <= 0:

@@ -1,6 +1,6 @@
 import argparse
 
-from utils.utils import *
+from utils.misc import *
 from run import *
 
 

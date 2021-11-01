@@ -10,7 +10,7 @@ filepath = os.path.split(__file__)[0]
 repopath = os.path.split(filepath)[0]
 sys.path.append(repopath)
 
-from utils.utils import *
+from utils.misc import *
 
 class resize:
     def __init__(self, size):

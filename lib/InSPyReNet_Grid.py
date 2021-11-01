@@ -1,15 +1,11 @@
-import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import numpy as np
 
 from .optim import *
 from .modules.layers import *
 from .modules.context_module import *
 from .modules.attention_module import *
 from .modules.decoder_module import *
-
-from utils.utils import *
 
 class InSPyReNet_Grid(nn.Module):
     def __init__(self, model, patch_size):
@@ -29,7 +25,7 @@ class InSPyReNet_Grid(nn.Module):
         pd3, pd2, pd1, pd0 = out['gaussian']
         pp2, pp1, pp0 = out['laplacian']
         
-        d3,_ = unpatch(pd3, (b, 1, h // 8, w // 8), self.patch_size // 8)
+        d3, _  = unpatch(pd3, (b, 1, h // 8, w // 8), self.patch_size // 8)
         
         _, i2  = unpatch(pd2, (b, 1, h // 4, w // 4), self.patch_size // 4)
         p2, _  = unpatch(pp2, (b, 1, h // 4, w // 4), self.patch_size // 4, indice_map = i2)

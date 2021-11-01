@@ -44,6 +44,8 @@ Train:
     Checkpoint:
         checkpoint_epoch: 1
         checkpoint_dir: "snapshots/InSPyReNet_SwinT"
+    Debug:
+        keys: ['gaussian', 'laplacian']
     HyperTune:
         HyperParameter: ['Train', 'Optimizer', 'lr']
         Range: [1.0e-6, 2.4e-5, 24]

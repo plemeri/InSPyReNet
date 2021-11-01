@@ -1,20 +1,16 @@
 import os
 import argparse
-import tqdm
 import sys
 import pickle
 import matplotlib.pyplot as plt
 
 import numpy as np
 
-from PIL import Image
-from tabulate import tabulate
-
 filepath = os.path.split(__file__)[0]
 repopath = os.path.split(filepath)[0]
 sys.path.append(repopath)
 
-from utils import *
+from utils.misc import *
 
 
 def _args():

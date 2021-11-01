@@ -14,7 +14,7 @@ repopath = os.path.split(filepath)[0]
 sys.path.append(repopath)
 
 from lib import *
-from utils.utils import *
+from utils.misc import *
 from data.dataloader import *
 
 
