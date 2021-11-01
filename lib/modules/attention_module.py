@@ -1,8 +1,8 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import numpy as np
 
+from torch.nn.parameter import Parameter
 from operator import xor
 from lib.modules.layers import *
 from utils.utils import *
@@ -12,7 +12,7 @@ class reverse_attention(nn.Module):
         super(reverse_attention, self).__init__()
         self.conv_in = conv(in_channel, channel, 1)
         self.conv_mid = nn.ModuleList()
-        for i in range(depth):
+        for _ in range(depth):
             self.conv_mid.append(conv(channel, channel, kernel_size))
         self.conv_out = conv(channel, 1, 3 if kernel_size == 3 else 1)
 
@@ -34,7 +34,7 @@ class simple_attention(nn.Module):
         super(simple_attention, self).__init__()
         self.conv_in = conv(in_channel, channel, 1)
         self.conv_mid = nn.ModuleList()
-        for i in range(depth):
+        for _ in range(depth):
             self.conv_mid.append(conv(channel, channel, kernel_size))
         self.conv_out = conv(channel, 1, 1)
 
@@ -60,8 +60,8 @@ class ASCA(nn.Module):
         
         self.conv_query = nn.Sequential(conv(in_channel, channel, 3, relu=True),
                                         conv(channel, channel, 3, relu=True))
-        self.conv_key = nn.Sequential(conv(in_channel, channel, 1, relu=True),
-                                      conv(channel, channel, 1, relu=True))
+        self.conv_key   = nn.Sequential(conv(in_channel, channel, 1, relu=True),
+                                        conv(channel, channel, 1, relu=True))
         self.conv_value = nn.Sequential(conv(in_channel, channel, 1, relu=True),
                                         conv(channel, channel, 1, relu=True))
 
@@ -75,11 +75,10 @@ class ASCA(nn.Module):
         self.conv_out3 = conv(channel, channel, 3, relu=True)
         self.conv_out4 = conv(channel, 1, 1)
 
-        self.threshold = nn.Parameter(torch.tensor([0.5]))
+        self.threshold = Parameter(torch.tensor([0.5]))
         
         if self.lmap_in is True:
-            self.lthreshold = nn.Parameter(torch.tensor([0.5]))
-
+            self.lthreshold = Parameter(torch.tensor([0.5]))
 
     def forward(self, x, smap, lmap=None):
         assert not xor(self.lmap_in is True, lmap is not None)

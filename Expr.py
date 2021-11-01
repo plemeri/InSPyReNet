@@ -6,11 +6,11 @@ from run import *
 
 def _args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--config', type=str,
-                        default='configs/InSPyReNet_SwinB.yaml')
+    parser.add_argument('--config', type=str, default='configs/InSPyReNet_SwinB.yaml')
     parser.add_argument('--local_rank', type=int, default=-1)
-    parser.add_argument('--verbose', action='store_true', default=False)
-    parser.add_argument('--debug', action='store_true', default=False)
+    parser.add_argument('--resume', action='store_true', default=False)
+    parser.add_argument('--verbose', action='store_true', default=True)
+    parser.add_argument('--debug', action='store_true', default=True)
     return parser.parse_args()
 
 
