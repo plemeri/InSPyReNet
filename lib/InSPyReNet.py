@@ -25,10 +25,7 @@ class InSPyReNet(nn.Module):
         self.context4 = PAA_e(self.in_channels[3], self.depth)
         self.context5 = PAA_e(self.in_channels[4], self.depth)
 
-        self.decoder3 = PAA_d(self.depth * 3, self.depth)
-        self.decoder2 = PAA_d(self.depth * 3, self.depth)
-        self.decoder1 = PAA_d(self.depth * 3, self.depth)
-        self.decoder0 = PAA_d(self.depth * 2, self.depth)
+        self.decoder = PAA_d(self.depth)
 
         self.attention0 = ASCA(self.depth    , depth, lmap_in=True)
         self.attention1 = ASCA(self.depth * 2, depth, lmap_in=True)
@@ -63,19 +60,20 @@ class InSPyReNet(nn.Module):
         x4 = self.context4(x4) #16
         x5 = self.context5(x5) #32
 
-        f3, d3 = self.decoder3([x5, x4, x3], shape=(H // 8, W // 8)) #16
-        
-        f2 =     self.attention2([x2, f3], d3.detach(), shape=(H // 4, W // 4))
-        f2, p2 = self.decoder2([x2, f3, f2],            shape=(H // 4, W // 4))
-        d2 =     self.pyr.rec(d3.detach(), p2) #4
+        f3, d3 = self.decoder(x5, x4, x3) #16
 
-        f1 =     self.attention1([x1, f2], d2.detach(), p2.detach(), shape=(H // 2, W // 2))
-        f1, p1 = self.decoder1([x1, f2, f1],                         shape=(H // 2, W // 2))
-        d1 =     self.pyr.rec(d2.detach(), p1) #4        
+        f3 = self.res(f3, (H // 4,  W // 4 ))
+        f2, p2 = self.attention2(torch.cat([x2, f3], dim=1), d3.detach())
+        d2 = self.pyr.rec(d3.detach(), p2) #4
+
+        x1 = self.res(x1, (H // 2, W // 2))
+        f2 = self.res(f2, (H // 2, W // 2))
+        f1, p1 = self.attention1(torch.cat([x1, f2], dim=1), d2.detach(), p2.detach()) #2
+        d1 = self.pyr.rec(d2.detach(), p1) #2
         
-        f0 =     self.attention0([f1], d1.detach(), p1.detach(), shape=(H, W)) #2
-        _,  p0 = self.decoder0([f1, f0],                         shape=(H, W))
-        d0 =     self.pyr.rec(d1.detach(), p0) #2
+        f1 = self.res(f1, (H, W))
+        _, p0 = self.attention0(f1, d1.detach(), p1.detach()) #2
+        d0 = self.pyr.rec(d1.detach(), p0) #2
         
         if type(sample) == dict and 'gt' in sample.keys() and sample['gt'] is not None:
             y = sample['gt']
@@ -91,7 +89,7 @@ class InSPyReNet(nn.Module):
             closs =  self.loss_fn(self.des(d3, (H, W)), self.des(y3, (H, W)))
             closs += self.loss_fn(self.des(d2, (H, W)), self.des(y2, (H, W)))
             closs += self.loss_fn(self.des(d1, (H, W)), self.des(y1, (H, W)))
-            closs += self.loss_fn(self.des(d0, (H, W)), self.des(y,  (H, W)))
+            closs += self.loss_fn(self.des(d0, (H, W)), self.des(y, (H, W)))
             
             loss = ploss + closs
 

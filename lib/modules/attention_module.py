@@ -70,20 +70,18 @@ class ASCA(nn.Module):
         else:
             self.ctx = 3
 
-        self.conv_out = conv(channel, channel, 3, relu=True)
+        self.conv_out1 = conv(channel, channel, 3, relu=True)
+        self.conv_out2 = conv(in_channel + channel, channel, 3, relu=True)
+        self.conv_out3 = conv(channel, channel, 3, relu=True)
+        self.conv_out4 = conv(channel, 1, 1)
+
         self.threshold = Parameter(torch.tensor([0.5]))
         
         if self.lmap_in is True:
             self.lthreshold = Parameter(torch.tensor([0.5]))
-            
-        self.upsample = lambda img, size: F.interpolate(img, size=size, mode='bilinear', align_corners=True)
 
-    def forward(self, feat_maps, smap, lmap=None, shape=None):
+    def forward(self, x, smap, lmap=None):
         assert not xor(self.lmap_in is True, lmap is not None)
-        for i, f in enumerate(feat_maps):
-            if f.shape[-2:] != shape:
-                feat_maps[i] = self.upsample(f, shape)
-        x = torch.cat(feat_maps, dim=1)
         b, c, h, w = x.shape
         
         # compute class probability
@@ -127,5 +125,11 @@ class ASCA(nn.Module):
 
         # compute refined feature
         context = torch.bmm(sim, value).permute(0, 2, 1).contiguous().view(b, -1, h, w)
-        out = self.conv_out(context)
-        return out
+        context = self.conv_out1(context)
+        
+        x = torch.cat([x, context], dim=1)
+        x = self.conv_out2(x)
+        x = self.conv_out3(x)
+        out = self.conv_out4(x)
+
+        return x, out
