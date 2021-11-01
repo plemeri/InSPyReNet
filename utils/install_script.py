@@ -1,4 +1,3 @@
-#!/bin/bash
 import os
 import argparse
 
