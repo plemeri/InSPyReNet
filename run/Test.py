@@ -27,9 +27,8 @@ def _args():
 
 def test(opt, args):
     model = eval(opt.Model.name)(depth=opt.Model.depth,
-                                pretrained=opt.Model.pretrained)
-    model.load_state_dict(torch.load(os.path.join(
-        opt.Test.Checkpoint.checkpoint_dir, 'latest.pth')), strict=True)
+                                pretrained=False)
+    model.load_state_dict(torch.load(os.path.join(opt.Test.Checkpoint.checkpoint_dir, 'latest.pth')), strict=True)
     model.cuda()
     model.eval()
 

@@ -9,3 +9,4 @@ from lib.SotA.EGNet import EGNet_ResNet
 from lib.SotA.F3Net import F3Net
 from lib.SotA.MINet import MINet_Res50
 from lib.SotA.LDF import LDF
+from lib.SotA.VST import VST
