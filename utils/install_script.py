@@ -13,7 +13,7 @@ def unzip(file, dest):
 
 def _args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--verbose', action='store_true', default=False)
+    parser.add_argument('-y', action='store_true', default=False)
     return parser.parse_args()
 
 download_list = {'dataset':   {'filename': 'RGB_Dataset.zip',   'dest': 'data/RGB_Dataset',   'key': '1QKYG58WLDdq4ar690H5qCNiSgI1twKie'},
