@@ -8,23 +8,6 @@ import cv2
 import numpy as np
 
 from easydict import EasyDict as ed
-import torchvision.transforms as transforms
-
-filepath = os.path.split(__file__)[0]
-repopath = os.path.split(filepath)[0]
-sys.path.append(repopath)
-
-from data.custom_transforms import *
-
-def get_transform(transform_list):
-    tfs = []
-    for key, value in zip(transform_list.keys(), transform_list.values()):
-        if value is not None:
-            tf = eval(key)(**value)
-        else:
-            tf = eval(key)()
-        tfs.append(tf)
-    return transforms.Compose(tfs)
 
 def load_config(config_dir, easy=True):
     cfg = yaml.load(open(config_dir), yaml.FullLoader)
@@ -79,7 +62,7 @@ def patch(x, patch_size=256, stride=None):
     b, c, h, w = x.shape
     
     if stride is None:
-        stride = patch_size // 2
+        stride = patch_size // 4
     assert stride != 0
     assert h // stride != 0
     assert w // stride != 0
@@ -98,7 +81,7 @@ def unpatch(patches, target_shape, patch_size=256, stride=None, indice_map=None)
     b, c, h, w = target_shape
     
     if stride is None:
-        stride = patch_size // 2
+        stride = patch_size // 4
     assert stride != 0
     assert h // stride != 0
     assert w // stride != 0

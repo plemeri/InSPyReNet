@@ -3,8 +3,9 @@ import cv2
 import sys
 
 import numpy as np
-from torch.utils.data.dataset import Dataset
+import torchvision.transforms as transforms
 
+from torch.utils.data.dataset import Dataset
 from PIL import Image
 from threading import Thread
 
@@ -12,7 +13,17 @@ filepath = os.path.split(__file__)[0]
 repopath = os.path.split(filepath)[0]
 sys.path.append(repopath)
 
-from utils.utils import *
+from data.custom_transforms import *
+
+def get_transform(transform_list):
+    tfs = []
+    for key, value in zip(transform_list.keys(), transform_list.values()):
+        if value is not None:
+            tf = eval(key)(**value)
+        else:
+            tf = eval(key)()
+        tfs.append(tf)
+    return transforms.Compose(tfs)
 
 class RGB_Dataset(Dataset):
     def __init__(self, root, sets, transform_list):

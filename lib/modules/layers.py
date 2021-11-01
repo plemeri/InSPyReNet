@@ -4,6 +4,8 @@ import torch.nn.functional as F
 
 import cv2
 import numpy as np
+
+from torch.nn.parameter import Parameter
 class Pyr:
     def __init__(self, ksize=5, sigma=1, channels=1):
         self.ksize = ksize
@@ -105,7 +107,7 @@ class self_attn(nn.Module):
         self.key_conv = conv(in_channels, in_channels // 8, kernel_size=(1, 1))
         self.value_conv = conv(in_channels, in_channels, kernel_size=(1, 1))
 
-        self.gamma = nn.Parameter(torch.zeros(1))
+        self.gamma = Parameter(torch.zeros(1))
         self.softmax = nn.Softmax(dim=-1)
 
     def forward(self, x):

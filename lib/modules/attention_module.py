@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+from torch.nn.parameter import Parameter
 from operator import xor
 from lib.modules.layers import *
 from utils.utils import *
@@ -74,10 +75,10 @@ class ASCA(nn.Module):
         self.conv_out3 = conv(channel, channel, 3, relu=True)
         self.conv_out4 = conv(channel, 1, 1)
 
-        self.threshold = nn.Parameter(torch.tensor([0.5]))
+        self.threshold = Parameter(torch.tensor([0.5]))
         
         if self.lmap_in is True:
-            self.lthreshold = nn.Parameter(torch.tensor([0.5]))
+            self.lthreshold = Parameter(torch.tensor([0.5]))
 
     def forward(self, x, smap, lmap=None):
         assert not xor(self.lmap_in is True, lmap is not None)

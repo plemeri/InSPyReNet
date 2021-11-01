@@ -21,7 +21,7 @@ from data.dataloader import *
 def _args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--config', type=str, default='configs/InSPyReNet_SwinB.yaml')
-    parser.add_argument('--verbose', action='store_true', default=False)
+    parser.add_argument('--verbose', action='store_true', default=True)
     return parser.parse_args()
 
 
@@ -54,8 +54,8 @@ def test(opt, args):
         for sample in samples:
             sample = to_cuda(sample)
             with torch.no_grad():
-                out = model(sample)
-            pred = to_numpy(out['pred'], sample['shape'])
+                out = model(sample['image'])
+            pred = to_numpy(out, sample['shape'])
             Image.fromarray((pred * 255).astype(np.uint8)).save(os.path.join(save_path, os.path.splitext(sample['name'])[0] + '.png'))
 
 

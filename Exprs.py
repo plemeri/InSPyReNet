@@ -6,8 +6,6 @@ import datetime
 
 from utils.utils import *
 
-LR = [i * 1e-6 for i in range(1, 10)]
-
 def _args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--config', type=str, default='configs/InSPyReNet_SwinB.yaml')
@@ -15,8 +13,8 @@ def _args():
     parser.add_argument('--exprs', type=int, default=4)
     parser.add_argument('--hyp-tune', action='store_true', default=False)
     parser.add_argument('--resume', type=str, default=None)
-    parser.add_argument('--verbose', action='store_true', default=False)
-    parser.add_argument('--debug', action='store_true', default=False)
+    parser.add_argument('--verbose', action='store_true', default=True)
+    parser.add_argument('--debug', action='store_true', default=True)
     return parser.parse_args()
 
 def rep_dict(x, klist, val):

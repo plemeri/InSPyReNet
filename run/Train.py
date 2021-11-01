@@ -7,6 +7,7 @@ import sys
 import cv2
 import torch.nn as nn
 import torch.distributed as dist
+import torch.cuda as cuda
 
 from torch.utils.data.dataloader import DataLoader
 from torch.utils.data.distributed import DistributedSampler
@@ -21,15 +22,15 @@ sys.path.append(repopath)
 from lib import *
 from lib.optim import *
 from data.dataloader import *
-
+from utils.utils import *
 
 def _args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--config',     type=str, default='configs/InSPyReNet_SwinB.yaml')
     parser.add_argument('--local_rank', type=int, default=-1)
     parser.add_argument('--resume',  action='store_true', default=False)
-    parser.add_argument('--verbose', action='store_true', default=False)
-    parser.add_argument('--debug',   action='store_true', default=False)
+    parser.add_argument('--verbose', action='store_true', default=True)
+    parser.add_argument('--debug',   action='store_true', default=True)
     return parser.parse_args()
 
 
@@ -55,7 +56,7 @@ def train(opt, args):
         transform_list=opt.Train.Dataset.transform_list)
 
     if device_num > 1:
-        torch.cuda.set_device(args.local_rank)
+        cuda.set_device(args.local_rank)
         dist.init_process_group(backend='nccl')
         train_sampler = DistributedSampler(train_dataset, shuffle=True)
     else:
@@ -121,20 +122,19 @@ def train(opt, args):
     if args.local_rank <= 0 and args.verbose is True:
         epoch_iter = tqdm.tqdm(epoch_iter, desc='Epoch', total=opt.Train.Scheduler.epoch - start + 1,
                                 position=0, bar_format='{desc:<5.5}{percentage:3.0f}%|{bar:40}{r_bar}')
-    
 
     for epoch in epoch_iter:
         if args.local_rank <= 0 and args.verbose is True:
             step_iter = tqdm.tqdm(enumerate(train_loader, start=1), desc='Iter', total=len(
                 train_loader), position=1, leave=False, bar_format='{desc:<5.5}{percentage:3.0f}%|{bar:40}{r_bar}')
-            if device_num > 1:
+            if device_num > 1 and train_sampler is not None:
                 train_sampler.set_epoch(epoch)
         else:
             step_iter = enumerate(train_loader, start=1)
 
         for i, sample in step_iter:
             optimizer.zero_grad()
-            if opt.Train.Optimizer.mixed_precision is True:
+            if opt.Train.Optimizer.mixed_precision is True and scaler is not None:
                 with autocast():
                     sample = to_cuda(sample)
                     out = model(sample)

@@ -2,6 +2,7 @@ import os
 import argparse
 import tqdm
 import sys
+import pickle
 
 import numpy as np
 
@@ -20,14 +21,18 @@ BETA = 1.0
 
 def _args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--config', type=str, default='configs/MINet.yaml')
-    parser.add_argument('--verbose', action='store_true', default=False)
+    parser.add_argument('--config', type=str, default='configs/InSPyReNet_SwinB.yaml')
+    parser.add_argument('--save-stat', action='store_true', default=False)
+    parser.add_argument('--verbose', action='store_true', default=True)
     return parser.parse_args()
 
 
 def evaluate(opt, args):
     if os.path.isdir(opt.Eval.result_path) is False:
         os.makedirs(opt.Eval.result_path)
+        
+    if args.save_stat is True and os.path.isdir(os.path.join(opt.Eval.pred_root, 'stat')) is False:
+        os.makedirs(os.path.join(opt.Eval.pred_root, 'stat'))
 
     method = os.path.split(opt.Eval.pred_root)[-1]
     Thresholds = np.linspace(1, 0, 256)
@@ -140,8 +145,14 @@ def evaluate(opt, args):
 
         csv.write(out_str)
         csv.close()
-    tab = tabulate(results, headers=['dataset', *headers], floatfmt=".3f")
+        
+        if args.save_stat is True:
+            stat = {'Pre': Pre, 'Recall': Recall, 'Fmeasure_Curve': Fmeasure_Curve}
+            with open(os.path.join(opt.Eval.pred_root, 'stat', dataset + '.pkl'), 'wb') as f:
+                pickle.dump(stat, f)
 
+    tab = tabulate(results, headers=['dataset', *headers], floatfmt=".3f")
+    
     if args.verbose is True:
         print(tab)
         print("#"*20, "End Evaluation", "#"*20)

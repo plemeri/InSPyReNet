@@ -26,6 +26,15 @@ class resize:
 
         return sample
     
+class cvtcolor:
+    def __init__(self):
+        pass
+    def __call__(self, sample):
+        if 'image' in sample.keys():
+            sample['image'] = Image.fromarray(np.array(sample['image'])[:, :, ::-1])
+
+        return sample
+    
 class dynamic_resize:
     def __init__(self, base_size):
         self.base_size = base_size
@@ -157,23 +166,25 @@ class tonumpy:
         return sample
 
 class normalize:
-    def __init__(self, mean, std):
-        self.mean = mean
-        self.std = std
-
+    def __init__(self, mean=None, std=None, div=255):
+        self.mean = mean if mean is not None else 0.0
+        self.std = std if std is not None else 1.0
+        self.div = div
+        
     def __call__(self, sample):
         if 'image' in sample.keys():
-            sample['image'] /= 255
+            sample['image'] /= self.div
             sample['image'] -= self.mean
             sample['image'] /= self.std
 
         if 'gt' in sample.keys():
-            sample['gt'] /= 255
+            sample['gt'] /= self.div
 
         if 'depth' in sample.keys():
-            sample['depth'] /= 255
+            sample['depth'] /= self.div
 
         return sample
+
 
 class totensor:
     def __init__(self):

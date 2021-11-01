@@ -3,15 +3,13 @@ import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
 
-from lib.InSPyReNet_Grid import InSPyReNet_Grid
+from lib.optim import *
+from lib.modules.layers import *
+from lib.modules.context_module import *
+from lib.modules.attention_module import *
+from lib.modules.decoder_module import *
 
-from .optim import *
-from .modules.layers import *
-from .modules.context_module import *
-from .modules.attention_module import *
-from .modules.decoder_module import *
-
-from .backbones.Res2Net_v1b import res2net50_v1b_26w_4s, res2net101_v1b_26w_4s
+from lib.backbones.Res2Net_v1b import res2net50_v1b_26w_4s, res2net101_v1b_26w_4s
 from lib.backbones.SwinTransformer import SwinT, SwinS, SwinB, SwinL
 
 class InSPyReNet(nn.Module):
@@ -77,7 +75,7 @@ class InSPyReNet(nn.Module):
         _, p0 = self.attention0(f1, d1.detach(), p1.detach()) #2
         d0 = self.pyr.rec(d1.detach(), p0) #2
         
-        if 'gt' in sample.keys() and sample['gt'] is not None:
+        if type(sample) == dict and 'gt' in sample.keys() and sample['gt'] is not None:
             y = sample['gt']
             
             y1 = self.pyr.down(y)
