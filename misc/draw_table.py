@@ -7,6 +7,9 @@ datasets = ['DUTS-TE', 'DUT-OMRON', 'ECSSD', 'HKU-IS', 'PASCAL-S']
 metrics = {'Sm': 'max', 'avgEm': 'max', 'maxFm': 'max', 'mae': 'min'}
 
 cnn = ['PoolNet', 'PFAN', 'BASNet', 'EGNet', 'CPD', 'MINet', 'F3Net', 'GateNet', 'LDF', 'PA_KRN', 'InSPyReNet_Res2Net50', 'InSPyReNet_Res2Net101']
+cnn_macs = [128.4, 33.5, 286.6, 350.2, 21.1, 125.3, 19.6, 162.1, 18.5, 256.5, 59.4, ]
+cnn_params = [69.5, 16.4, 87.1, 111.7, 47.9 , 162.4, 25.5, 128.6, 25.2, 141.1, 28.1, ]
+
 trn = ['VST', 'TTSOD', 'InSPyReNet_SwinT', 'InSPyReNet_SwinS', 'InSPyReNet_SwinB',  'InSPyReNet_SwinL']
 
 dat = []
