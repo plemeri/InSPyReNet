@@ -18,9 +18,14 @@ class InSPyReNet_Grid(nn.Module):
         self.des = lambda x, size: F.interpolate(x, size=size, mode='nearest')
         
     def forward(self, sample):
-        sample['image'], shape = patch(sample['image'], self.patch_size)
+        if type(sample) == dict:
+            x = sample['image']
+        else:
+            x = sample
+        
+        x, shape = patch(x, self.patch_size)
         b, c, h, w = shape
-        out = self.model(sample)
+        out = self.model({'image': x})
         
         pd3, pd2, pd1, pd0 = out['gaussian']
         pp2, pp1, pp0 = out['laplacian']
@@ -39,4 +44,11 @@ class InSPyReNet_Grid(nn.Module):
         p0, _  = unpatch(pp0, (b, 1, h     , w     ), self.patch_size,      indice_map = i0)
         d0 =  self.model.pyr.rec(d1.detach(), p0)
         
-        return {'pred': d0, 'debug': [d3, d2, d1, d0]}
+        if type(sample) == dict:
+            return {'pred': d0, 
+                    'loss': 0, 
+                    'gaussian': [d3, d2, d1, d0], 
+                    'laplacian': [p2, p1, p0]}
+        
+        else:
+            return d0

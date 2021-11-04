@@ -5,6 +5,6 @@ easydict
 pyyaml
 opencv-python
 thop
-tabulate
+pandas
 scipy
 timm

@@ -140,7 +140,7 @@ def patch(x, patch_size=256, stride: Optional[int]=None):
     b, c, h, w = x.shape
     
     if stride is None:
-        stride = patch_size // 4
+        stride = patch_size // 2
     assert stride != 0
     assert h // stride != 0
     assert w // stride != 0
@@ -161,7 +161,7 @@ class Patch(nn.Module):
 
         self.patch_size = patch_size
         if stride is None:
-            self.stride = patch_size // 4
+            self.stride = patch_size // 2
         else:
             self.stride = stride
 
@@ -173,7 +173,7 @@ def unpatch(patches, target_shape, patch_size=256, stride: Optional[int]=None, i
     b, c, h, w = target_shape
     
     if stride is None:
-        stride = patch_size // 4
+        stride = patch_size // 2
     assert stride != 0
     assert h // stride != 0
     assert w // stride != 0
@@ -202,7 +202,7 @@ class UnPatch(nn.Module):
         self.target_shape = target_shape
         
         if stride is None:
-            self.stride = patch_size // 4
+            self.stride = patch_size // 2
         else:
             self.stride = stride
 

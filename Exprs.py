@@ -15,6 +15,7 @@ def _args():
     parser.add_argument('--resume', type=str, default=None)
     parser.add_argument('--verbose', action='store_true', default=True)
     parser.add_argument('--debug', action='store_true', default=True)
+    parser.add_argument('--stat', action='store_true', default=False)
     return parser.parse_args()
 
 def rep_dict(x, klist, val):
@@ -68,5 +69,7 @@ if __name__ == "__main__":
                     command += '--debug '
                 if args.resume is not None:
                     command += '--resume '
+                if args.stat is not None:
+                    command += '--stat '
         command += '\"'
         os.system(command)

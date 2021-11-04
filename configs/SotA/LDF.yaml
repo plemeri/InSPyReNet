@@ -27,4 +27,4 @@ Eval:
     pred_root: "snapshots/SotA/LDF"
     result_path: "results"
     datasets: ['DUTS-TE', 'DUT-OMRON', 'ECSSD', 'HKU-IS', 'PASCAL-S']
-    metrics: ['Sm', 'mae', 'Em', 'maxF', 'avgF', 'wFm', 'IoUmaxF', 'maxIoU', 'meanIoU']
+    metrics: ['Sm', 'mae', 'adpEm', 'maxEm', 'avgEm', 'adpFm', 'maxFm', 'avgFm', 'wFm']

@@ -4,10 +4,10 @@ import tqdm
 import sys
 import pickle
 
+import pandas as pd
 import numpy as np
 
 from PIL import Image
-from tabulate import tabulate
 
 filepath = os.path.split(__file__)[0]
 repopath = os.path.split(filepath)[0]
@@ -22,7 +22,7 @@ BETA = 1.0
 def _args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--config', type=str, default='configs/InSPyReNet_SwinB.yaml')
-    parser.add_argument('--save-stat', action='store_true', default=False)
+    parser.add_argument('--stat', action='store_true', default=False)
     parser.add_argument('--verbose', action='store_true', default=True)
     return parser.parse_args()
 
@@ -31,13 +31,10 @@ def evaluate(opt, args):
     if os.path.isdir(opt.Eval.result_path) is False:
         os.makedirs(opt.Eval.result_path)
         
-    if args.save_stat is True and os.path.isdir(os.path.join(opt.Eval.pred_root, 'stat')) is False:
+    if args.stat is True and os.path.isdir(os.path.join(opt.Eval.pred_root, 'stat')) is False:
         os.makedirs(os.path.join(opt.Eval.pred_root, 'stat'))
 
     method = os.path.split(opt.Eval.pred_root)[-1]
-    Thresholds = np.linspace(1, 0, 256)
-    headers = opt.Eval.metrics
-    results = []
 
     if args.verbose is True:
         print('#' * 20, 'Start Evaluation', '#' * 20)
@@ -46,6 +43,8 @@ def evaluate(opt, args):
     else:
         datasets = opt.Eval.datasets
 
+    results = []
+
     for dataset in datasets:
         pred_root = os.path.join(opt.Eval.pred_root, dataset)
         gt_root = os.path.join(opt.Eval.gt_root, dataset, 'masks')
@@ -53,22 +52,17 @@ def evaluate(opt, args):
         preds = os.listdir(pred_root)
         gts = os.listdir(gt_root)
 
-        preds.sort()
-        gts.sort()
-
-        hitRate = np.zeros((len(preds), len(Thresholds)))
-        falseAlarm = np.zeros((len(preds), len(Thresholds)))
-
-        IoU = np.zeros((len(preds), len(Thresholds)))
-        TPR = np.zeros((len(preds), len(Thresholds)))
-        FPR = np.zeros((len(preds), len(Thresholds)))
-        Pre = np.zeros((len(preds), len(Thresholds)))
-        Recall = np.zeros((len(preds), len(Thresholds)))
-
-        MAE = np.zeros(len(preds))
-        S_measure = np.zeros(len(preds))
-        wFmeasure = np.zeros(len(preds))
-        Emeasure = np.zeros(len(preds))
+        preds = sort(preds)
+        gts = sort(gts)
+        
+        preds = [i for i in preds if i in gts]
+        gts = [i for i in gts if i in preds]
+        
+        FM = Fmeasure()
+        WFM = WeightedFmeasure()
+        SM = Smeasure()
+        EM = Emeasure()
+        MAE = Mae()
 
         if args.verbose is True:
             samples = tqdm.tqdm(enumerate(zip(preds, gts)), desc=dataset + ' - Evaluation', total=len(
@@ -86,80 +80,59 @@ def evaluate(opt, args):
                 pred_mask = pred_mask[:, :, 0]
             if len(gt_mask.shape) != 2:
                 gt_mask = gt_mask[:, :, 0]
-            gtSize = gt_mask.shape
 
-            assert pred_mask.shape == gt_mask.shape
+            assert pred_mask.shape == gt_mask.shape, print(pred, 'does not match the size of', gt)
 
-            gt_mask = gt_mask.astype(np.float64) / 255
-            gt_mask = (gt_mask > 0.5).astype(np.float64)
-
-            pred_mask = pred_mask.astype(
-                np.float64) / (pred_mask.max() + np.finfo(np.float64).eps)
-
-            IoU[i], TPR[i], FPR[i], Pre[i], Recall[i], hitRate[i], falseAlarm[i] = thresholdBased_HR_FR(
-                pred_mask, Thresholds, gt_mask)  # index 0 is not working
-
-            S_measure[i] = StructureMeasure(pred_mask, gt_mask)
-            wFmeasure[i] = wFmeasure_calu(pred_mask, gt_mask)
-            MAE[i] = CalMAE(pred_mask, gt_mask)
-            Emeasure[i] = Emeasure_calu(pred_mask, gt_mask)
+            FM.step( pred=pred_mask, gt=gt_mask)
+            WFM.step(pred=pred_mask, gt=gt_mask)
+            SM.step( pred=pred_mask, gt=gt_mask)
+            EM.step( pred=pred_mask, gt=gt_mask)
+            MAE.step(pred=pred_mask, gt=gt_mask)
+            
         result = []
 
-        mae = np.nanmean(MAE)
-        Sm = np.nanmean(S_measure)
-        wFm = np.nanmean(wFmeasure)
-        Em = np.nanmean(Emeasure)
-
-        Pre = np.nanmean(Pre, axis=0)
-        Recall = np.nanmean(Recall, axis=0)
-        IoU = np.nanmean(IoU, axis=0)
-        TPR = np.nanmean(TPR, axis=0)
-        hitRate = np.nanmean(hitRate, axis=0)
-        falseAlarm = np.nanmean(falseAlarm, axis=0)
-
-        Fmeasure_Curve = 1.3 * Pre * Recall / (0.3 * Pre + Recall)
-        maxF = np.max(Fmeasure_Curve)
-        avgF = np.mean(Fmeasure_Curve)
-        IoUmaxF = IoU[np.argmax(Fmeasure_Curve)]
-        maxIoU = np.max(IoU)
-        meanIoU = np.mean(IoU)
-
-        out = []
-        for metric in opt.Eval.metrics:
-            out.append(eval(metric))
-
-        result.extend(out)
-        results.append([dataset, *result])
-
-        csv = os.path.join(opt.Eval.result_path, 'result_' + dataset + '.csv')
-        if os.path.isfile(csv) is True:
-            csv = open(csv, 'a')
-        else:
-            csv = open(csv, 'w')
-            csv.write(', '.join(['method', *headers]) + '\n')
-
-        out_str = method + ','
-        for metric in result:
-            out_str += '{:.4f}'.format(metric) + ','
-        out_str += '\n'
-
-        csv.write(out_str)
-        csv.close()
+        Sm =  SM.get_results()["sm"]
+        wFm = WFM.get_results()["wfm"]
+        mae = MAE.get_results()["mae"]
         
-        if args.save_stat is True:
-            stat = {'Pre': Pre, 'Recall': Recall, 'Fmeasure_Curve': Fmeasure_Curve}
+        Fm =  FM.get_results()["fm"]
+        Em =  EM.get_results()["em"]
+        
+        adpEm = Em["adp"]
+        avgEm = Em["curve"].mean()
+        maxEm = Em["curve"].max()
+        adpFm = Fm["adp"]
+        avgFm = Fm["curve"].mean()
+        maxFm = Fm["curve"].max()
+        
+        out = dict()
+        for metric in opt.Eval.metrics:
+            out[metric] = eval(metric)
+
+        pkl = os.path.join(opt.Eval.result_path, 'result_' + dataset + '.pkl')
+        if os.path.isfile(pkl) is True:
+            result = pd.read_pickle(pkl)
+            result.loc[method] = out
+            result.to_pickle(pkl)
+        else:
+            result = pd.DataFrame(data=out, index=[method])
+            result.to_pickle(pkl)
+        result.to_csv(os.path.join(opt.Eval.result_path, 'result_' + dataset + '.csv'))
+        
+        results.append(result)
+        
+        if args.stat is True:
+            Fm_info = FM.get_results()
+            Fm = Fm_info["fm"]
+            PR = Fm_info["pr"]
+            stat = {'Pre': np.flip(PR["p"]), 'Recall': np.flip(PR["r"]), 'Fmeasure_Curve': np.flip(Fm["curve"])}
             with open(os.path.join(opt.Eval.pred_root, 'stat', dataset + '.pkl'), 'wb') as f:
                 pickle.dump(stat, f)
-
-    tab = tabulate(results, headers=['dataset', *headers], floatfmt=".3f")
-    
+                
     if args.verbose is True:
-        print(tab)
-        print("#"*20, "End Evaluation", "#"*20)
-
-    return tab
-
-
+        for dataset, result in zip(datasets, results):
+            print('###', dataset, '###', '\n', result.sort_index(), '\n')
+    
 if __name__ == "__main__":
     args = _args()
     opt = load_config(args.config)

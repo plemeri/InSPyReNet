@@ -3,8 +3,6 @@ import torch.nn.functional as F
 from torch import nn
 from torch.utils import model_zoo
 from torchvision.models.resnet import resnet50
-from thop import clever_format
-from thop import profile
 
 class FoldConv_aspp(nn.Module):
     def __init__(self, in_channel, out_channel, out_size,

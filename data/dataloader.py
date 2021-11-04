@@ -14,6 +14,7 @@ repopath = os.path.split(filepath)[0]
 sys.path.append(repopath)
 
 from data.custom_transforms import *
+from utils.misc import *
 
 def get_transform(transform_list):
     tfs = []
@@ -33,10 +34,10 @@ class RGB_Dataset(Dataset):
             image_root, gt_root = os.path.join(root, set, 'images'), os.path.join(root, set, 'masks')
 
             images = [os.path.join(image_root, f) for f in os.listdir(image_root) if f.lower().endswith(('.jpg', '.png'))]
-            images = sorted(images)
+            images = sort(images)
             
             gts = [os.path.join(gt_root, f) for f in os.listdir(gt_root) if f.lower().endswith('.png')]
-            gts = sorted(gts)
+            gts = sort(gts)
             
             self.images.extend(images)
             self.gts.extend(gts)
@@ -78,13 +79,13 @@ class RGBD_Dataset(Dataset):
         depth_root = os.path.join(root, 'depth')
 
         self.images = [os.path.join(image_root, f) for f in os.listdir(image_root) if f.lower().endswith(('.jpg', '.png'))]
-        self.images = sorted(self.images)
+        self.images = sort(self.images)
         
         self.depths = [os.path.join(depth_root, f) for f in os.listdir(depth_root) if f.lower().endswith(('.jpg', '.png'))]
-        self.depths = sorted(self.depths)
+        self.depths = sort(self.depths)
         
         self.gts = [os.path.join(gt_root, f) for f in os.listdir(gt_root) if f.lower().endswith('.png')]
-        self.gts = sorted(self.gts)
+        self.gts = sort(self.gts)
         
         self.filter_files()
         
@@ -131,7 +132,7 @@ class ImageLoader:
     def __init__(self, root, transform_list):
         if os.path.isdir(root):
             self.images = [os.path.join(root, f) for f in os.listdir(root) if f.lower().endswith(('.jpg', '.png', '.jpeg'))]
-            self.images = sorted(self.images)
+            self.images = sort(self.images)
         elif os.path.isfile(root):
             self.images = [root]
         self.size = len(self.images)

@@ -4,8 +4,14 @@ import torch.nn as nn
 import torch.nn.functional as F
 import cv2
 import numpy as np
+import re
 
 from easydict import EasyDict as ed
+
+def sort(x):
+    convert = lambda text: int(text) if text.isdigit() else text.lower()
+    alphanum_key = lambda key: [convert(c) for c in re.split('([0-9]+)', key)]
+    return sorted(x, key=alphanum_key)
 
 def load_config(config_dir, easy=True):
     cfg = yaml.load(open(config_dir), yaml.FullLoader)

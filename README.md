@@ -102,7 +102,7 @@ Salient object detection (SOD) requires multi-scale features from intermediate b
     pred_root: "[DIR_FOR_YOUR_PRE_COMPUTED_SALIENCY_MAP]"
     result_path: "results"
     datasets: ['DUTS-TE', 'DUT-OMRON', 'ECSSD', 'HKU-IS', 'PASCAL-S']
-    metrics: ['Sm', 'mae', 'Em', 'maxF', 'avgF', 'wFm', 'IoUmaxF', 'maxIoU', 'meanIoU']
+    metrics: ['Sm', 'mae', 'adpEm', 'maxEm', 'avgEm', 'adpFm', 'maxFm', 'avgFm', 'wFm']
   ``` 
 
 ## 4. Experimental Results
@@ -135,3 +135,4 @@ PASCAL-S   0.894  0.047  0.933   0.912   0.886  0.859      0.809     0.827      
 + Res2Net: A New Multi-scale Backbone Architecture [github](https://github.com/Res2Net/Res2Net-PretrainedModels)
 + Swin Transformer: Hierarchical Vision Transformer using Shifted Windows [github](https://github.com/microsoft/Swin-Transformer)
 + Datasets - [DUTS](http://saliencydetection.net/duts/), [DUT-OMRON](http://saliencydetection.net/dut-omron/), [ECSSD](https://i.cs.hku.hk/~gbli/deep_saliency.html), [HKU-IS](http://www.cse.cuhk.edu.hk/leojia/projects/hsaliency/dataset.html), [PASCAL-S](http://cbi.gatech.edu/salobj/)
++ Evaluation Toolkit: [PySOD Metrics](https://github.com/lartpang/PySODMetrics)
