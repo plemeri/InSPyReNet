@@ -13,7 +13,7 @@ from utils.misc import *
 
 def _args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--config', type=str, default='configs/InSPyReNet_SwinB.yaml')
+    parser.add_argument('--config', type=str, default='configs/SotA/PoolNet.yaml')
     return parser.parse_args()
 
 if __name__ == '__main__':

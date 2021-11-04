@@ -3,7 +3,6 @@ from lib.InSPyReNet_Grid import InSPyReNet_Grid
 
 from lib.SotA.BASNet import BASNet
 from lib.SotA.CPD import CPD_ResNet
-from lib.SotA.PFAN import PFAN
 from lib.SotA.GateNet import GateNet
 from lib.SotA.PoolNet import PoolNet_ResNet
 from lib.SotA.EGNet import EGNet_ResNet

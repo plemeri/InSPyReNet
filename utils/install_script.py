@@ -15,10 +15,10 @@ def _args():
     parser.add_argument('-y', action='store_true', default=False)
     return parser.parse_args()
 
-download_list = {'dataset':  {'filename': 'RGB_Dataset.zip',   'dest': 'data/RGB_Dataset',   'key': '1QKYG58WLDdq4ar690H5qCNiSgI1twKie'},
-                'backbone':  {'filename': 'backbone_ckpt.zip', 'dest': 'data/backbone_ckpt', 'key': '1B53u3WApaicCsaLYZIKjNSrmhe8qKeGP'},
-                'our_ckpt':  {'filename': 'snapshots.zip',     'dest': 'snapshots',          'key': '1IlHzuFeAMbPzxLCghaFzDV1FPuXwwcC0'},
-                'sota_ckpt': {'filename': 'SotA.zip',          'dest': 'snapshots/SotA',     'key': '1eBDsPD_iPj_skILTXutyAJ4hjmSZuyAb'}}
+download_list = {'dataset':  {'filename': 'RGB_Dataset.zip',   'dest': 'data/RGB_Dataset',   'key': '1kVR8uvjFFqR4Tx3v8XFH6Qp7ugdnBLiG'},
+                'backbone':  {'filename': 'backbone_ckpt.zip', 'dest': 'data/backbone_ckpt', 'key': '1ZtBmUskX5Jmcr1ltlmfJCnwJ7JxjXG4i'},
+                'our_ckpt':  {'filename': 'snapshots.zip',     'dest': 'snapshots',          'key': '1iD4ekldcivjMJ3gcenW3_kit7TCTMg_S'},
+                'sota_ckpt': {'filename': 'SotA.zip',          'dest': 'snapshots/SotA',     'key': '1X0o7O-dyoLhXvncYpa4pvL6TCe171NXK'}}
     
 if __name__ == '__main__':
     args = _args()

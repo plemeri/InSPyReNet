@@ -11,6 +11,6 @@ total = sota + ours
 for i in total:
     command = 'tmux new-window \"source ~/.zshrc && conda activate inspyrenet ' 
     command += '&& python run/Eval.py --config {} '.format(i)
-    command += ' --stat'
+    command += ' --stat --verbose'
     command += '\"'
     os.system(command)
