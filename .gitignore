@@ -131,6 +131,7 @@ data/backbone_ckpt
 data/RGB_Dataset
 results/*
 snapshots/*
+Samples/*
 temp/*
 .idea
 .vscode
