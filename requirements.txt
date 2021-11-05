@@ -8,3 +8,4 @@ thop
 pandas
 scipy
 timm
+matplotlib

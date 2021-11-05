@@ -18,14 +18,21 @@ cfg =   {'DUTS-TE':  [''],
         'DUT-OMRON': [''], 
         'ECSSD':     [''], 
         'HKU-IS':    [''], 
-        'PASCAL-S':  [''], }
+        'PASCAL-S':  [''],}
 
 def draw_figure(methods, datasets):
     outs = []
     for dataset in datasets:
-        # imlist = os.listdir(os.path.join('data', 'RGB_Dataset', 'Test_Dataset', dataset, 'masks'))
+        imlist = os.listdir(os.path.join('data', 'RGB_Dataset', 'Test_Dataset', dataset, 'masks'))
         # imlist = os.listdir(os.path.join('snapshots', 'SotA', 'PoolNet', dataset))
-        targets = cfg[dataset]
+        # targets = cfg[dataset]
+        stats = []
+        for method in methods:
+            stat = pickle.load(open(os.path.join(method, 'stat', dataset + '.pkl'), 'rb'))['score']
+            stats.append(stat)
+            print(stat.shape, method)
+        stats = np.stack(stats)
+        print(stats)
         
         for target in targets:
             out = [cv2.resize(cv2.imread(os.path.join('data', 'RGB_Dataset', 'Test_Dataset', dataset, 'masks', target)), (160, 200))]
