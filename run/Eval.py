@@ -125,7 +125,7 @@ def evaluate(opt, args):
             Fm_info = FM.get_results()
             Fm = Fm_info["fm"]
             PR = Fm_info["pr"]
-            stat = {'Pre': np.flip(PR["p"]), 'Recall': np.flip(PR["r"]), 'Fmeasure_Curve': np.flip(Fm["curve"])}
+            stat = {'Pre': np.flip(PR["p"]), 'Recall': np.flip(PR["r"]), 'Fmeasure_Curve': np.flip(Fm["curve"]), 'score': np.array(SM.sms)}
             with open(os.path.join(opt.Eval.pred_root, 'stat', dataset + '.pkl'), 'wb') as f:
                 pickle.dump(stat, f)
                 

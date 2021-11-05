@@ -14,71 +14,45 @@ sys.path.append(repopath)
 from utils.misc import *
 
 
-cfg =   {'DUTS-TE':  {'ylim': ((0.6, 1.0),  (0.6, 0.95))}, 
-        'DUT-OMRON': {'ylim': ((0.6, 0.92), (0.6, 0.87))}, 
-        'ECSSD':     {'ylim': ((0.92, 1.0), (0.8, 0.97))}, 
-        'HKU-IS':    {'ylim': ((0.9, 1.0),  (0.8, 0.96))}, 
-        'PASCAL-S':  {'ylim': ((0.7, 1.0),  (0.7, 0.92))}, }
+cfg =   {'DUTS-TE':  [''], 
+        'DUT-OMRON': [''], 
+        'ECSSD':     [''], 
+        'HKU-IS':    [''], 
+        'PASCAL-S':  [''], }
 
-def draw_figure(opts, datasets):
-    stats = dict()
-    for opt in opts:
-        method = os.path.split(opt.Eval.pred_root)[-1]
-        stats[method] = dict()
-        for dataset in opt.Eval.datasets:
-            stat = pickle.load(open(os.path.join(opt.Eval.pred_root, 'stat', dataset + '.pkl'), 'rb'))
-            stats[method][dataset] = stat
-
-    fig, axes = plt.subplots(nrows=1, ncols=len(datasets), figsize=(20, 4))
-    axes = [axes]
-
-    for i, dataset in enumerate(datasets):
-        axes[0][i].set_xlabel('Recall'   , fontsize=20)
-        # axes[1][i].set_xlabel('Threshold', fontsize=15)
-
-        axes[0][i].set_ylabel('Precision', fontsize=20)
-        # axes[1][i].set_ylabel('F-measure', fontsize=15)
+def draw_figure(methods, datasets):
+    outs = []
+    for dataset in datasets:
+        # imlist = os.listdir(os.path.join('data', 'RGB_Dataset', 'Test_Dataset', dataset, 'masks'))
+        # imlist = os.listdir(os.path.join('snapshots', 'SotA', 'PoolNet', dataset))
+        targets = cfg[dataset]
         
-        axes[0][i].set_xlim((0, 1.0))
-        # axes[1][i].set_xlim((0, 255))
-        
-        axes[0][i].set_ylim(*cfg[dataset]['ylim'][0])
-        # axes[1][i].set_ylim(*cfg[dataset]['ylim'][1])
-        
-        axes[0][i].set_yticks(np.linspace(*cfg[dataset]['ylim'][0], 7).round(3))
-        # axes[1][i].set_yticks(np.linspace(*cfg[dataset]['ylim'][1], 7).round(3))
-        
-        axes[0][i].grid()
-        # axes[1][i].grid()
-        
-        # lines, labels = axes[0][i].get_legend_handles_labels()
-        
-        # axes[0][i].legend()
-        
-        for opt in opts:
-            method = os.path.split(opt.Eval.pred_root)[-1]
-            axes[0][i].plot(stats[method][dataset]['Recall'], stats[method][dataset]['Pre'],    '--' if 'InSPyRe' not in method else '-', label=method, )
-            # axes[1][i].plot(np.linspace(0, 255, 256), stats[method][dataset]['Fmeasure_Curve'], '--' if 'InSPyRe' not in method else '-', label=method, )
-        axes[0][i].legend(loc = 'lower left')
-    
-    # lines, labels = axes[0][-1].get_legend_handles_labels()
-    # fig.legend(lines, labels, loc = 'upper center')
-    plt.tight_layout()
-    # plt.savefig('Figure3.pdf')
-    plt.savefig('Figure3.png')
+        for target in targets:
+            out = [cv2.resize(cv2.imread(os.path.join('data', 'RGB_Dataset', 'Test_Dataset', dataset, 'masks', target)), (160, 200))]
+            out.append(np.ones((160, 10, 3)) * 255)
+            for mdir in methods:
+                print(mdir)
+                img = cv2.imread(os.path.join(mdir, dataset, target))
+                if img is None:
+                    print(mdir, dataset, target)
+                img = cv2.resize(img, (160, 200))
+                out.append(img)
+                out.append(np.ones((160, 10, 3)) * 255)
+            outs.append(np.hstack(out))
+            outs.append(np.ones((10, 210 * (len(methods) + 1), 3)) * 255)
+    for i in outs:
+        print(i.shape)
+    cv2.imwrite('Figure5.png', np.vstack(outs))
             
 if __name__ == "__main__":
     theirs = ['PoolNet', 'BASNet', 'EGNet', 'CPD', 'MINet', 'F3Net', 'GateNet', 'LDF', 'PA_KRN', 'VST', 'TTSOD']
-    theirs = [os.path.join('configs', 'SotA', i + '.yaml') for i in theirs]
+    theirs = [os.path.join('snapshots', 'SotA', i) for i in theirs]
     
     ours = ['InSPyReNet_Res2Net50', 'InSPyReNet_Res2Net101', 'InSPyReNet_SwinT', 'InSPyReNet_SwinS', 'InSPyReNet_SwinB']#, 'InSPyReNet_SwinL']
-    ours = [os.path.join('configs', i + '.yaml') for i in ours]
+    ours = [os.path.join('snapshots', i) for i in ours]
 
-    configs = theirs + ours
+    methods = ours[::-1] + theirs
 
     datasets = ['DUTS-TE', 'DUT-OMRON', 'ECSSD', 'HKU-IS', 'PASCAL-S']
     
-    opts = []
-    for config in configs:
-        opts.append(load_config(config))
-    draw_figure(opts, datasets)
+    draw_figure(methods, datasets)
