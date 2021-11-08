@@ -22,7 +22,7 @@ Salient object detection (SOD) requires multi-scale features from intermediate b
   + Install requirements with following command `pip install -r requirements.txt`
   
 ## 2. Preparation
-  + Use following command to automatically download datasets and checkpoints with following command `sh install.sh`
+  + Use following command to automatically download datasets and checkpoints with following command `sh install.sh`. There'll be prompts for downloading datasets, backbone checkpoints, pre-trained models, SotA results, and auto-install conda environments. 
   + Instead, you can download them manually.
     + Download datasets and backbone checkpoints from following [URL](https://drive.google.com/file/d/1KkXffb1DEu1be7NO-RPUy1r2bZqJRuYl/view?usp=sharing)
     + Move folder `data` to the repository.
@@ -30,72 +30,64 @@ Salient object detection (SOD) requires multi-scale features from intermediate b
   ```
   .
   ├── configs
-  │   ├── InSPyReNet_Res2Net50.yaml
-  │   └── InSPyReNet_SwinB.yaml
+  │   ├── ...
+  │   ├── InSPyReNet_SwinT.yaml
+  │   └── SotA
   ├── data
   │   ├── backbone_ckpt
-  │   │   ├── swin_base_patch4_window12_384_22kto1k.pth
-  │   │   └── res2net50_v1b_26w_4s-3cf99910.pth
-  │   ├── RGB_Dataset
-  │   │   ├── Test_Dataset
-  │   │   │   ├── DUTS-TE
-  │   │   │   ├── DUT-OMRON
-  │   │   │   ├── ECSSD
-  │   │   │   ├── HKU-IS
-  │   │   │   └──PASCAL-S
-  │   │   └── Train_Dataset
-  │   │       └── DUTS-TR
+  │   │   ├── ...
+  │   │   └── swin_tiny_patch4_window7_224.pth
+  │   ├── custom_transforms.py
+  │   ├── dataloader.py
+  │   └── RGB_Dataset
+  │       ├── Test_Dataset                       
+  │       └── Train_Dataset
   ├── Expr.py
+  ├── Exprs.py
   ├── figures
-  │   ├── figure1.png
-  │   ├── figure2.png
-  │   └── results.png
+  │   ├── ...
+  │   └── table.png
+  ├── install.sh
   ├── lib
   │   ├── backbones
   │   ├── __init__.py
-  │   ├── InSPyReNet_Res2Net50.py
-  │   ├── InSPyReNet_SwinB.py
-  │   ├── losses
+  │   ├── InSPyReNet_PM.py
+  │   ├── InSPyReNet.py
   │   ├── modules
+  │   ├── optim
+  │   └── SotA
   ├── LICENSE
   ├── README.md
   ├── requirements.txt
   ├── results
+  │   ├── ...
+  │   └── result_PASCAL-S.pkl
   ├── run
   │   ├── Eval.py
+  │   ├── Inference.py
   │   ├── __init__.py
   │   ├── Test.py
   │   └── Train.py
   ├── snapshots
-  │   ├── InSPyReNet_Res2Net50
-  │   │   ├── DUTS-TE
-  │   │   ├── DUT-OMRON
-  │   │   ├── ECSSD
-  │   │   ├── HKU-IS
-  │   │   ├── PASCAL-S
-  │   │   └── latest.pth
-  │   ├── InSPyReNet_SwinB
-  │   │   ├── DUTS-TE
-  │   │   ├── DUT-OMRON
-  │   │   ├── ECSSD
-  │   │   ├── HKU-IS
-  │   │   ├── PASCAL-S
-  │   │   └── latest.pth
+  │   ├── I...
+  │   ├── InSPyReNet_SwinT
+  │   └── SotA
   └── utils
-      ├── custom_transforms.py
-      ├── dataloader.py
+      ├── benchmark.py
       ├── eval_functions.py
-      └── utils.py
+      ├── __init__.py
+      ├── install_script.py
+      └── misc.py
   ```
 
 ## 3. Train & Evaluate
-  + You can train with `python run/Train.py --config configs/InSPyReNet_SwinB.yaml`
-  + You can generate prediction for test dataset with `python run/Test.py --config configs/InSPyReNet_SwinB.yaml`
-  + You can evaluate generated prediction with `python run/Eval.py --config configs/InSPyReNet_SwinB.yaml`
-  + You can also use `python Expr.py --config configs/InSPyReNet_SwinB.yaml` to train, generate prediction and evaluation in single command
+  + You can train with `python run/Train.py --config configs/InSPyReNet_SwinB.yaml --verbose`
+  + You can generate prediction for test dataset with `python run/Test.py --config configs/InSPyReNet_SwinB.yaml --verbose`
+  + You can evaluate generated prediction with `python run/Eval.py --config configs/InSPyReNet_SwinB.yaml --verbose`
+  + You can also use `python Expr.py --config configs/InSPyReNet_SwinB.yaml --verbose` to train, generate prediction and evaluation in single command
   
   + (optional) Download our best result checkpoints and pre-computed saliency maps from following [URL](https://drive.google.com/file/d/1IlHzuFeAMbPzxLCghaFzDV1FPuXwwcC0/view?usp=sharing) for InSPyReNet_Res2Net50 and InSPyReNet_SwinB. Locate pth files following above file location. If you use `install.sh`, then you don't need to download them manually.
-  + (optional) You can download pre-computed saliency maps from other methods and evaluate with our evaluation code. Create an yaml file as follows,
+  + (optional) You can download pre-computed saliency maps from other methods and evaluate with our evaluation code. We have created some of SotA models' yaml file in `configs/SotA` folder. To create an yaml file as manually, follow the format below.
   ```
   Eval:
     gt_root: "data/RGB_Dataset/Test_Dataset"
@@ -105,30 +97,32 @@ Salient object detection (SOD) requires multi-scale features from intermediate b
     metrics: ['Sm', 'mae', 'adpEm', 'maxEm', 'avgEm', 'adpFm', 'maxFm', 'avgFm', 'wFm']
   ``` 
 
-## 4. Experimental Results
-  + InSPyReNet_Res2Net50
-  ```
-dataset       Sm    mae     Em    maxF    avgF    wFm    IoUmaxF    maxIoU    meanIoU
----------  -----  -----  -----  ------  ------  -----  ---------  --------  ---------
-DUTS-TE    0.901  0.036  0.933   0.902   0.871  0.841      0.800     0.817      0.786
-DUT-OMRON  0.845  0.058  0.869   0.819   0.792  0.747      0.702     0.723      0.700
-ECSSD      0.938  0.030  0.965   0.957   0.935  0.920      0.893     0.903      0.878
-HKU-IS     0.927  0.029  0.962   0.945   0.921  0.902      0.861     0.876      0.849
-PASCAL-S   0.872  0.058  0.907   0.888   0.864  0.827      0.773     0.792      0.775
-  ```
-  + InSPyReNet_SwinB
-  ```
-dataset       Sm    mae     Em    maxF    avgF    wFm    IoUmaxF    maxIoU    meanIoU
----------  -----  -----  -----  ------  ------  -----  ---------  --------  ---------
-DUTS-TE    0.931  0.024  0.964   0.934   0.903  0.889      0.852     0.869      0.836
-DUT-OMRON  0.878  0.044  0.907   0.855   0.831  0.801      0.759     0.778      0.754
-ECSSD      0.949  0.023  0.974   0.967   0.946  0.937      0.913     0.923      0.900
-HKU-IS     0.944  0.022  0.976   0.958   0.932  0.924      0.890     0.904      0.877
-PASCAL-S   0.894  0.047  0.933   0.912   0.886  0.859      0.809     0.827      0.810
-  ```
-  + Qualitative Results 
+## 4. Inference on your own data
+  + You can inference your own single image or images (.jpg, .jpeg, and .png are supported), single video or videos (.mp4, .mov, and .avi are supported), and webcam input (ubuntu and macos are tested so far).
+  + `python run/Inference.py --config configs/InSPyReNet_SwinB.yaml --source [SOURCE] --dest [DEST] --type [TYPE] --gpu --jit --verbose`
+    + SOURCE: Specify your data in this argument.
+      + Single image - `image.png`
+      + Folder containing images - `path/to/img/folder`
+      + Single video - `video.mp4`
+      + Folder containing videos - `path/to/vid/folder`
+      + Webcam input: `0` (may vary depends on your device.)
+    + DEST (optional): Specify your destination folder. If not specified, it will be saved in `results` folder.
+    + TYPE: Choose between `map, green, rgba, blur`.  `map` will output saliency map only. `green` will change the background with green screen. `rgba` will generate RGBA output regarding saliency score as an alpha map. Note that this will not work for video and webcam input. `blur` will blur the background.
+    + --gpu: Use this argument if you want to use GPU. 
+    + --jit: Slightly improves inference speed when used. 
+    + --verbose: Use when you want to visualize progress.
 
+## 4. Experimental Results
+  + Benchmark on DUTS-TE, DUT-OMRON, ECSSD, HKU-IS, PASCAL-S
+![Teaser](./figures/table.png)
+  + Qualitative Results 
 ![results](./figures/results.png)
+
+## 5. Patch Merging
+  + With our method, it is easy to merge results from patch-wise prediction. The overall process work as following figure,
+  ![results](./figures/figure3.png)
+  + Use `--PM` for `run/Inference.py` to deploy patch merging (e.g., `python run/Inference.py --config configs/InSPyReNet_SwinB.yaml --source AIM-500 --type green --gpu --verbose --PM`)
+  
   
 ## 5. Citation
 
@@ -136,3 +130,4 @@ PASCAL-S   0.894  0.047  0.933   0.912   0.886  0.859      0.809     0.827      
 + Swin Transformer: Hierarchical Vision Transformer using Shifted Windows [github](https://github.com/microsoft/Swin-Transformer)
 + Datasets - [DUTS](http://saliencydetection.net/duts/), [DUT-OMRON](http://saliencydetection.net/dut-omron/), [ECSSD](https://i.cs.hku.hk/~gbli/deep_saliency.html), [HKU-IS](http://www.cse.cuhk.edu.hk/leojia/projects/hsaliency/dataset.html), [PASCAL-S](http://cbi.gatech.edu/salobj/)
 + Evaluation Toolkit: [PySOD Metrics](https://github.com/lartpang/PySODMetrics)
++ Deep Automatic Natural Image Matting - [AIM-500](https://github.com/JizhiziLi/AIM#aim-500)
