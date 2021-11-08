@@ -24,7 +24,8 @@ Salient object detection (SOD) requires multi-scale features from intermediate b
 ## 2. Preparation
   + Use following command to automatically download datasets and checkpoints with following command `sh install.sh`. There'll be prompts for downloading datasets, backbone checkpoints, pre-trained models, SotA results, and auto-install conda environments. 
   + Instead, you can download them manually.
-    + Download datasets and backbone checkpoints from following [URL](https://drive.google.com/file/d/1KkXffb1DEu1be7NO-RPUy1r2bZqJRuYl/view?usp=sharing)
+    + Download datasets from following [URL](https://drive.google.com/file/d/1kVR8uvjFFqR4Tx3v8XFH6Qp7ugdnBLiG/view?usp=sharing)
+    + Download ImageNet pre-trained backbone checkpoints from following [URL](https://drive.google.com/file/d/1ZtBmUskX5Jmcr1ltlmfJCnwJ7JxjXG4i/view?usp=sharing)
     + Move folder `data` to the repository.
     + Folder should be ordered as follows,
   ```
@@ -86,8 +87,8 @@ Salient object detection (SOD) requires multi-scale features from intermediate b
   + You can evaluate generated prediction with `python run/Eval.py --config configs/InSPyReNet_SwinB.yaml --verbose`
   + You can also use `python Expr.py --config configs/InSPyReNet_SwinB.yaml --verbose` to train, generate prediction and evaluation in single command
   
-  + (optional) Download our best result checkpoints and pre-computed saliency maps from following [URL](https://drive.google.com/file/d/1IlHzuFeAMbPzxLCghaFzDV1FPuXwwcC0/view?usp=sharing) for InSPyReNet_Res2Net50 and InSPyReNet_SwinB. Locate pth files following above file location. If you use `install.sh`, then you don't need to download them manually.
-  + (optional) You can download pre-computed saliency maps from other methods and evaluate with our evaluation code. We have created some of SotA models' yaml file in `configs/SotA` folder. To create an yaml file as manually, follow the format below.
+  + (optional) Download our best result checkpoints and pre-computed saliency maps from following [URL](https://drive.google.com/file/d/1iD4ekldcivjMJ3gcenW3_kit7TCTMg_S/view?usp=sharing). Locate pth files following above file location. If you use `install.sh`, then you don't need to download them manually.
+  + (optional) You can download pre-computed saliency maps from other methods and evaluate with our evaluation code. We have created some of SotA models' yaml file in `configs/SotA` folder. We also provide pre-computed saliency maps for SotA methods from following [URL](https://drive.google.com/file/d/1X0o7O-dyoLhXvncYpa4pvL6TCe171NXK/view?usp=sharing) which were brought from the official authors repositories. To create an yaml file as manually, follow the format below.
   ```
   Eval:
     gt_root: "data/RGB_Dataset/Test_Dataset"
@@ -130,8 +131,24 @@ Salient object detection (SOD) requires multi-scale features from intermediate b
   
 ## 5. Citation
 
-+ Res2Net: A New Multi-scale Backbone Architecture [github](https://github.com/Res2Net/Res2Net-PretrainedModels)
-+ Swin Transformer: Hierarchical Vision Transformer using Shifted Windows [github](https://github.com/microsoft/Swin-Transformer)
-+ Datasets - [DUTS](http://saliencydetection.net/duts/), [DUT-OMRON](http://saliencydetection.net/dut-omron/), [ECSSD](https://i.cs.hku.hk/~gbli/deep_saliency.html), [HKU-IS](http://www.cse.cuhk.edu.hk/leojia/projects/hsaliency/dataset.html), [PASCAL-S](http://cbi.gatech.edu/salobj/)
++ Backbones:
+  + Res2Net: [A New Multi-scale Backbone Architecture](https://github.com/Res2Net/Res2Net-PretrainedModels)
+  + Swin Transformer: [Hierarchical Vision Transformer using Shifted Windows](https://github.com/microsoft/Swin-Transformer)
++ Datasets:
+  + [DUTS](http://saliencydetection.net/duts/)
+  + [DUT-OMRON](http://saliencydetection.net/dut-omron/)
+  + [ECSSD](https://i.cs.hku.hk/~gbli/deep_saliency.html)
+  + [HKU-IS](http://www.cse.cuhk.edu.hk/leojia/projects/hsaliency/dataset.html)
+  + [PASCAL-S](http://cbi.gatech.edu/salobj/)
 + Evaluation Toolkit: [PySOD Metrics](https://github.com/lartpang/PySODMetrics)
-+ Deep Automatic Natural Image Matting - [AIM-500](https://github.com/JizhiziLi/AIM#aim-500)
++ SotA methods
+  + BASNet: [Boundary-Aware Segmentation Network for Mobile and Web Applications](https://github.com/xuebinqin/BASNet)
+  + CPD: [Cascaded Partial Decoder for Fast and Accurate Salient Object Detection](https://github.com/wuzhe71/CPD)
+  + EGNet: [Edge Guidance Network for Salient Object Detection](https://github.com/JXingZhao/EGNet)
+  + F3Net: [F3Net: Fusion, Feedback and Focus for Salient Object Detection](https://github.com/weijun88/F3Net)
+  + GateNet: [Suppress and Balance: A Simple Gated Network for Salient Object Detection](https://github.com/Xiaoqi-Zhao-DLUT/GateNet-RGB-Saliency)
+  + LDF: [Label Decoupling Framework for Salient Object Detection](https://github.com/weijun88/LDF)
+  + MINet: [Multi-scale Interactive Network for Salient Object Detection](https://github.com/lartpang/MINet)
+  + PA-KRN: [Locate-Globally-Segment-locally-A-Progressive-Architecture-With-Knowledge-Review-Network-for-SOD](https://github.com/bradleybin/Locate-Globally-Segment-locally-A-Progressive-Architecture-With-Knowledge-Review-Network-for-SOD)
+  + PoolNet: [A Simple Pooling-Based Design for Real-Time Salient Object Detection](https://github.com/backseason/PoolNet)
+  + VST [Visual Saliency Transformer](https://github.com/nnizhang/VST)

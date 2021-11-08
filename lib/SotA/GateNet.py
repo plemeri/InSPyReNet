@@ -1,3 +1,5 @@
+## the code has been brought from https://github.com/Xiaoqi-Zhao-DLUT/GateNet-RGB-Saliency ##
+
 import torch
 import torch.nn.functional as F
 from torch import nn

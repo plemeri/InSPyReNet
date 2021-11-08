@@ -1,3 +1,5 @@
+## the code has been brought from https://github.com/bradleybin/Locate-Globally-Segment-locally-A-Progressive-Architecture-With-Knowledge-Review-Network-for-SOD ##
+
 import torch
 from torch import nn
 import torch.nn.functional as F
