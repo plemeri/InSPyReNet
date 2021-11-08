@@ -107,7 +107,11 @@ Salient object detection (SOD) requires multi-scale features from intermediate b
       + Folder containing videos - `path/to/vid/folder`
       + Webcam input: `0` (may vary depends on your device.)
     + DEST (optional): Specify your destination folder. If not specified, it will be saved in `results` folder.
-    + TYPE: Choose between `map, green, rgba, blur`.  `map` will output saliency map only. `green` will change the background with green screen. `rgba` will generate RGBA output regarding saliency score as an alpha map. Note that this will not work for video and webcam input. `blur` will blur the background.
+    + TYPE: Choose between `map, green, rgba, blur`
+      + `map` will output saliency map only. 
+      + `green` will change the background with green screen. 
+      + `rgba` will generate RGBA output regarding saliency score as an alpha map. Note that this will not work for video and webcam input. 
+      + `blur` will blur the background.
     + --gpu: Use this argument if you want to use GPU. 
     + --jit: Slightly improves inference speed when used. 
     + --verbose: Use when you want to visualize progress.
