@@ -1,12 +1,12 @@
 # InSPyReNet: Inverse Saliency Pyramid Reconstruction Network for Salient Object Detection
 <p align="center">
 
-  <img src="./figures/Icon.png" alt="Logo" width="210" height="auto">
+  <img src="./figures/figure1.png" alt="Logo" width="300" height="auto">
 
 </p>
 PyTorch implementation of InSPyReNet: Inverse Saliency Pyramid Reconstruction Network for Salient Object Detection
 
-![Teaser](./figures/figure1.jpg)
+
 
 ## Abstract
 
@@ -14,7 +14,7 @@ Salient object detection (SOD) requires multi-scale features from intermediate b
 
 ## Architecture
 
-![Teaser](./figures/figure2.jpg)
+![Teaser](./figures/figure2.png)
 
 ## 1. Create environment
   + Create conda environment with following command `conda create -y -n inspyrenet python=3.8`
@@ -47,9 +47,9 @@ Salient object detection (SOD) requires multi-scale features from intermediate b
   │   │       └── DUTS-TR
   ├── Expr.py
   ├── figures
-  │   ├── figure1.jpg
-  │   ├── figure2.jpg
-  │   └── results.jpg
+  │   ├── figure1.png
+  │   ├── figure2.png
+  │   └── results.png
   ├── lib
   │   ├── backbones
   │   ├── __init__.py
@@ -128,7 +128,7 @@ PASCAL-S   0.894  0.047  0.933   0.912   0.886  0.859      0.809     0.827      
   ```
   + Qualitative Results 
 
-![results](./figures/results.jpg)
+![results](./figures/results.png)
   
 ## 5. Citation
 
