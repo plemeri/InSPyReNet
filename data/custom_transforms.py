@@ -23,7 +23,7 @@ class resize:
         if 'gt' in sample.keys():
             sample['gt'] = sample['gt'].resize(self.size, Image.NEAREST)
         if 'depth' in sample.keys():
-            sample['depth'] = sample['depth'].resize(self.size, Image.NEAREST)
+            sample['depth'] = sample['depth'].resize(self.size, Image.BILINEAR)
 
         return sample
     
@@ -203,7 +203,7 @@ class totensor:
             sample['gt'] = sample['gt'].unsqueeze(dim=0)
 
         if 'depth' in sample.keys():
-            sample['depth'] = torch.from_numpy(sample['depth'])
-            sample['depth'] = sample['depth'].unsqueeze(dim=0)
+            sample['depth'] = sample['depth'].transpose((2, 0, 1))
+            sample['depth'] = torch.from_numpy(sample['depth']).float()
 
         return sample

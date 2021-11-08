@@ -73,20 +73,27 @@ class RGB_Dataset(Dataset):
         return self.size
 
 class RGBD_Dataset(Dataset):
-    def __init__(self, root, tfs):
-        image_root = os.path.join(root, 'RGB')
-        gt_root = os.path.join(root, 'GT')
-        depth_root = os.path.join(root, 'depth')
-
-        self.images = [os.path.join(image_root, f) for f in os.listdir(image_root) if f.lower().endswith(('.jpg', '.png'))]
-        self.images = sort(self.images)
-        
-        self.depths = [os.path.join(depth_root, f) for f in os.listdir(depth_root) if f.lower().endswith(('.jpg', '.png'))]
-        self.depths = sort(self.depths)
-        
-        self.gts = [os.path.join(gt_root, f) for f in os.listdir(gt_root) if f.lower().endswith('.png')]
-        self.gts = sort(self.gts)
-        
+    def __init__(self, root, sets, tfs):
+        self.images, self.gts, self.depths = [], [],  []
+    
+        for set in sets:
+            image_root = os.path.join(root, set, 'RGB')
+            gt_root = os.path.join(root, set, 'GT')
+            depth_root = os.path.join(root, set, 'depth')
+            
+            images = [os.path.join(image_root, f) for f in os.listdir(image_root) if f.lower().endswith(('.jpg', '.png'))]
+            images = sort(images)
+            
+            depths = [os.path.join(depth_root, f) for f in os.listdir(depth_root) if f.lower().endswith(('.jpg', '.png'))]
+            depths = sort(depths)
+            
+            gts = [os.path.join(gt_root, f) for f in os.listdir(gt_root) if f.lower().endswith('.png')]
+            gts = sort(gts)
+            
+            self.images.extend(images)
+            self.gts.extend(gts)
+            self.depths.extend(depths)
+                        
         self.filter_files()
         
         self.size = len(self.images)
@@ -95,7 +102,7 @@ class RGBD_Dataset(Dataset):
     def __getitem__(self, index):
         image = Image.open(self.images[index]).convert('RGB')
         gt = Image.open(self.gts[index]).convert('L')
-        depth = Image.open(self.depths[index]).convert('L')
+        depth = Image.open(self.depths[index]).convert('RGB')
         shape = gt.size[::-1]
         name = self.images[index].split(os.sep)[-1]
         name = os.path.splitext(name)[0]
@@ -114,16 +121,6 @@ class RGBD_Dataset(Dataset):
                 gts.append(gt_path)
                 depths.append(depth_path)
         self.images, self.gts, self.depths = images, gts, depths
-
-    def rgb_loader(self, path):
-        with open(path, 'rb') as f:
-            img = Image.open(f)
-            return img.convert('RGB')
-
-    def binary_loader(self, path):
-        with open(path, 'rb') as f:
-            img = Image.open(f)
-            return img.convert('L')
 
     def __len__(self):
         return self.size
