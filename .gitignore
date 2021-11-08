@@ -129,6 +129,7 @@ dmypy.json
 
 data/backbone_ckpt
 data/RGB_Dataset
+data/RGBD_Dataset
 results/*
 snapshots/*
 Samples/*
