@@ -64,7 +64,7 @@ def draw_figure(opts, datasets):
     # lines, labels = axes[0][-1].get_legend_handles_labels()
     # fig.legend(lines, labels, loc = 'upper center')
     plt.tight_layout()
-    plt.savefig('Figure3.pdf')
+    plt.savefig('Figure3.png', transparent=True)
     # plt.savefig('Figure3.png')
             
 if __name__ == "__main__":

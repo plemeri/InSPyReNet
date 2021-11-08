@@ -16,18 +16,18 @@ sys.path.append(repopath)
 from data.custom_transforms import *
 from utils.misc import *
 
-def get_transform(transform_list):
-    tfs = []
-    for key, value in zip(transform_list.keys(), transform_list.values()):
+def get_transform(tfs):
+    comp = []
+    for key, value in zip(tfs.keys(), tfs.values()):
         if value is not None:
             tf = eval(key)(**value)
         else:
             tf = eval(key)()
-        tfs.append(tf)
-    return transforms.Compose(tfs)
+        comp.append(tf)
+    return transforms.Compose(comp)
 
 class RGB_Dataset(Dataset):
-    def __init__(self, root, sets, transform_list):
+    def __init__(self, root, sets, tfs):
         self.images, self.gts = [], []
         
         for set in sets:
@@ -45,7 +45,7 @@ class RGB_Dataset(Dataset):
         self.filter_files()
         
         self.size = len(self.images)
-        self.transform = get_transform(transform_list)
+        self.transform = get_transform(tfs)
         
     def __getitem__(self, index):
         image = Image.open(self.images[index]).convert('RGB')
@@ -73,7 +73,7 @@ class RGB_Dataset(Dataset):
         return self.size
 
 class RGBD_Dataset(Dataset):
-    def __init__(self, root, transform_list):
+    def __init__(self, root, tfs):
         image_root = os.path.join(root, 'RGB')
         gt_root = os.path.join(root, 'GT')
         depth_root = os.path.join(root, 'depth')
@@ -90,7 +90,7 @@ class RGBD_Dataset(Dataset):
         self.filter_files()
         
         self.size = len(self.images)
-        self.transform = get_transform(transform_list)
+        self.transform = get_transform(tfs)
 
     def __getitem__(self, index):
         image = Image.open(self.images[index]).convert('RGB')
@@ -129,14 +129,14 @@ class RGBD_Dataset(Dataset):
         return self.size
     
 class ImageLoader:
-    def __init__(self, root, transform_list):
+    def __init__(self, root, tfs):
         if os.path.isdir(root):
             self.images = [os.path.join(root, f) for f in os.listdir(root) if f.lower().endswith(('.jpg', '.png', '.jpeg'))]
             self.images = sort(self.images)
         elif os.path.isfile(root):
             self.images = [root]
         self.size = len(self.images)
-        self.transform = get_transform(transform_list)
+        self.transform = get_transform(tfs)
 
     def __iter__(self):
         self.index = 0
@@ -161,13 +161,13 @@ class ImageLoader:
         return self.size
     
 class VideoLoader:
-    def __init__(self, root, transform_list):
+    def __init__(self, root, tfs):
         if os.path.isdir(root):
             self.videos = [os.path.join(root, f) for f in os.listdir(root) if f.lower().endswith(('.mp4', '.avi', 'mov'))]
         elif os.path.isfile(root):
             self.videos = [root]
         self.size = len(self.videos)
-        self.transform = get_transform(transform_list)
+        self.transform = get_transform(tfs)
 
     def __iter__(self):
         self.index = 0
@@ -204,12 +204,12 @@ class VideoLoader:
     
 
 class WebcamLoader:
-    def __init__(self, ID, transform_list):
+    def __init__(self, ID, tfs):
         self.ID = int(ID)
         self.cap = cv2.VideoCapture(self.ID)
         self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
         self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
-        self.transform = get_transform(transform_list)
+        self.transform = get_transform(tfs)
         self.imgs = []
         self.imgs.append(self.cap.read()[1])
         self.thread = Thread(target=self.update, daemon=True)

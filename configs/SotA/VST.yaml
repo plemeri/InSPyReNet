@@ -8,7 +8,7 @@ Test:
         type: "RGB_Dataset"
         root: "data/RGB_Dataset/Test_Dataset"
         sets: ['DUTS-TE', 'DUT-OMRON', 'ECSSD', 'HKU-IS', 'PASCAL-S']
-        transform_list:
+        transforms:
             resize:
                 size: [224, 224]
             tonumpy: NULL

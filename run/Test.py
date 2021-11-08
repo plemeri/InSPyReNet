@@ -42,7 +42,7 @@ def test(opt, args):
         save_path = os.path.join(opt.Test.Checkpoint.checkpoint_dir, set)
 
         os.makedirs(save_path, exist_ok=True)
-        test_loader = ImageLoader(os.path.join(opt.Test.Dataset.root, set, 'images'), opt.Test.Dataset.transform_list)
+        test_loader = ImageLoader(os.path.join(opt.Test.Dataset.root, set, 'images'), opt.Test.Dataset.transforms)
 
         if args.verbose is True:
             samples = tqdm.tqdm(test_loader, desc=set + ' - Test', total=len(test_loader),

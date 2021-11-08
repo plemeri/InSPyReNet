@@ -20,14 +20,14 @@ from data.custom_transforms import *
 
 def _args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--config', type=str, default='configs/InSPyReNet_SwinB.yaml')
-    parser.add_argument('--source', type=str, default='test')
-    parser.add_argument('--dest',   type=str, default=None)
-    parser.add_argument('--type',   type=str,   default='map')
+    parser.add_argument('--config',  type=str,            default='configs/InSPyReNet_SwinB.yaml')
+    parser.add_argument('--source',  type=str,            default='test')
+    parser.add_argument('--dest',    type=str,            default=None)
+    parser.add_argument('--type',    type=str,            default='map')
     parser.add_argument('--gpu',     action='store_true', default=False)
     parser.add_argument('--jit',     action='store_true', default=False)
     parser.add_argument('--verbose', action='store_true', default=False)
-    parser.add_argument('--grid',    action='store_true', default=False)
+    parser.add_argument('--PM',      action='store_true', default=False)
     return parser.parse_args()
 
 def get_format(source):
@@ -52,8 +52,8 @@ def inference(opt, args):
         model.cuda()
     model.eval()
     
-    if args.grid is True:
-        model = InSPyReNet_Grid(model, opt.Test.Dataset.transform_list.dynamic_resize.base_size)
+    if args.PM is True:
+        model = InSPyReNet_PM(model, opt.Model.PM.patch_size, opt.Model.PM.stride)
         
     if args.jit is True:
         if os.path.isfile(os.path.join(opt.Test.Checkpoint.checkpoint_dir, 'jit.pt')) is False:
@@ -86,7 +86,7 @@ def inference(opt, args):
     if save_dir is not None:
         os.makedirs(save_dir, exist_ok=True)
     
-    sample_list = eval(_format + 'Loader')(args.source, opt.Test.Dataset.transform_list)
+    sample_list = eval(_format + 'Loader')(args.source, opt.Test.Dataset.transforms_PM)# if args.PM else opt.Test.Dataset.transforms)
 
     if args.verbose is True:
         samples = tqdm.tqdm(sample_list, desc='Inference', total=len(

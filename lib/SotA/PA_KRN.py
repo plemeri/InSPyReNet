@@ -47,7 +47,7 @@ def ftile(data, reps):
 def freshape(data, shape):
     return data.view(shape)
 
-class AttSamplerGrid:
+class AttSamplerPM:
     def __init__(self, scale=1.0, dense=4, iters=5):
         self.scale = scale
         self.dense = dense
@@ -149,7 +149,7 @@ class AttSampler(torch.nn.Module):
         self.dense = dense
         self.iters = iters
         
-        self.grid = AttSamplerGrid(scale=self.scale,
+        self.grid = AttSamplerPM(scale=self.scale,
                             dense=self.dense,
                             iters=self.iters)
 

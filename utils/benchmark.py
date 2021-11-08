@@ -24,7 +24,7 @@ def _args():
 
 def benchmark(opt, args):
     model = eval(opt.Model.name)(depth=opt.Model.depth, pretrained=False)
-    input = torch.rand(1, 3, *opt.Test.Dataset.transform_list.resize.size)
+    input = torch.rand(1, 3, *opt.Test.Dataset.transforms.resize.size)
     
     macs, params = profile(model, inputs=(input, ), verbose=False)
     macs, params = clever_format([macs, params], "%.3f")

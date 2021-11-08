@@ -7,11 +7,12 @@ from .modules.context_module import *
 from .modules.attention_module import *
 from .modules.decoder_module import *
 
-class InSPyReNet_Grid(nn.Module):
-    def __init__(self, model, patch_size):
-        super(InSPyReNet_Grid, self).__init__()
+class InSPyReNet_PM(nn.Module):
+    def __init__(self, model, patch_size, stride):
+        super(InSPyReNet_PM, self).__init__()
         self.model = model
         self.patch_size = patch_size
+        self.stride = stride
         
         self.ret = lambda x, target: F.interpolate(x, size=target.shape[-2:], mode='bilinear', align_corners=False)
         self.res = lambda x, size: F.interpolate(x, size=size, mode='bilinear', align_corners=False)
@@ -23,25 +24,24 @@ class InSPyReNet_Grid(nn.Module):
         else:
             x = sample
         
-        x, shape = patch(x, self.patch_size)
+        x, shape = patch(x, self.patch_size, self.stride)
         b, c, h, w = shape
         out = self.model({'image': x})
         
         pd3, pd2, pd1, pd0 = out['gaussian']
         pp2, pp1, pp0 = out['laplacian']
         
-        d3, _  = unpatch(pd3, (b, 1, h // 8, w // 8), self.patch_size // 8)
+        d3, i3  = unpatch(pd3, (b, 1, h // 8, w // 8), self.patch_size // 8, self.stride // 8)
         
-        _, i2  = unpatch(pd2, (b, 1, h // 4, w // 4), self.patch_size // 4)
-        p2, _  = unpatch(pp2, (b, 1, h // 4, w // 4), self.patch_size // 4, indice_map = i2)
+        _, i2  = unpatch(pd2, (b, 1, h // 4, w // 4), self.patch_size // 4, self.stride // 4)
+        p2, _  = unpatch(pp2, (b, 1, h // 4, w // 4), self.patch_size // 4, self.stride // 4, indice_map = F.pixel_shuffle(torch.cat([i3] * 4, dim=1), 2))
         d2 = self.model.pyr.rec(d3.detach(), p2)
         
-        _, i1  = unpatch(pd1, (b, 1, h // 2, w // 2), self.patch_size // 2)
-        p1, _  = unpatch(pp1, (b, 1, h // 2, w // 2), self.patch_size // 2, indice_map = i1)
+        _, i1  = unpatch(pd1, (b, 1, h // 2, w // 2), self.patch_size // 2, self.stride // 2)
+        p1, _  = unpatch(pp1, (b, 1, h // 2, w // 2), self.patch_size // 2, self.stride // 2, indice_map = F.pixel_shuffle(torch.cat([i2] * 4, dim=1), 2))
         d1 = self.model.pyr.rec(d2.detach(), p1)
         
-        _, i0  = unpatch(pd0, (b, 1, h     , w     ), self.patch_size)
-        p0, _  = unpatch(pp0, (b, 1, h     , w     ), self.patch_size,      indice_map = i0)
+        p0, _  = unpatch(pp0, (b, 1, h     , w     ), self.patch_size, self.stride, indice_map = F.pixel_shuffle(torch.cat([i1] * 4, dim=1), 2))
         d0 =  self.model.pyr.rec(d1.detach(), p0)
         
         if type(sample) == dict:

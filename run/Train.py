@@ -53,7 +53,7 @@ def train(opt, args):
     train_dataset = eval(opt.Train.Dataset.type)(
         root=opt.Train.Dataset.root, 
         sets=opt.Train.Dataset.sets,
-        transform_list=opt.Train.Dataset.transform_list)
+        tfs=opt.Train.Dataset.transforms)
 
     if device_num > 1:
         cuda.set_device(args.local_rank)
