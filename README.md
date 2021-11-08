@@ -84,7 +84,7 @@ Salient object detection (SOD) requires multi-scale features from intermediate b
 ## 3. Train & Evaluate
   + You can train with `python run/Train.py --config configs/InSPyReNet_SwinB.yaml --verbose`
   + You can generate prediction for test dataset with `python run/Test.py --config configs/InSPyReNet_SwinB.yaml --verbose`
-  + You can evaluate generated prediction with `python run/Eval.py --config configs/InSPyReNet_SwinB.yaml --verbose`
+  + You can evaluate generated prediction with `python run/Eval.py --config configs/InSPyReNet_SwinB.yaml --verbose`. The results will be saved in `results/results_[DATASET].csv`.
   + You can also use `python Expr.py --config configs/InSPyReNet_SwinB.yaml --verbose` to train, generate prediction and evaluation in single command
   
   + (optional) Download our best result checkpoints and pre-computed saliency maps from following [URL](https://drive.google.com/file/d/1iD4ekldcivjMJ3gcenW3_kit7TCTMg_S/view?usp=sharing). Locate pth files following above file location. If you use `install.sh`, then you don't need to download them manually.
@@ -127,7 +127,7 @@ Salient object detection (SOD) requires multi-scale features from intermediate b
   + With our method, it is easy to merge results from patch-wise prediction. The overall process work as following figure,
   ![results](./figures/figure3.png)
   + Use `--PM` for `run/Inference.py` to deploy patch merging (e.g., `python run/Inference.py --config configs/InSPyReNet_SwinB.yaml --source AIM-500 --type green --gpu --verbose --PM`)
-  
+  + We conduct experiments on AIM-500 dataset. The results are provided in this [URL](https://drive.google.com/file/d/19v5k8OJrycPs-ffkIcdRv-lhaTIjatbo/view?usp=sharing). Please refer to the paper for the results.
   
 ## 5. Citation
 
