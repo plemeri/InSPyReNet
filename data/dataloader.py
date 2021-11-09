@@ -27,34 +27,39 @@ def get_transform(tfs):
     return transforms.Compose(comp)
 
 class RGB_Dataset(Dataset):
-    def __init__(self, root, sets, tfs):
+    def __init__(self, root, sets, mode, tfs):
         self.images, self.gts = [], []
+        self.mode = mode
         
         for set in sets:
-            image_root, gt_root = os.path.join(root, set, 'images'), os.path.join(root, set, 'masks')
-
+            image_root = os.path.join(root, set, 'images')
             images = [os.path.join(image_root, f) for f in os.listdir(image_root) if f.lower().endswith(('.jpg', '.png'))]
             images = sort(images)
-            
-            gts = [os.path.join(gt_root, f) for f in os.listdir(gt_root) if f.lower().endswith('.png')]
-            gts = sort(gts)
-            
             self.images.extend(images)
-            self.gts.extend(gts)
         
-        self.filter_files()
-        
+        if self.mode == 'Train':
+            for set in sets:
+                gt_root = os.path.join(root, set, 'masks')
+                gts = [os.path.join(gt_root, f) for f in os.listdir(gt_root) if f.lower().endswith('.png')]
+                gts = sort(gts)
+                self.gts.extend(gts)
+            
+                self.filter_files()
+            
         self.size = len(self.images)
         self.transform = get_transform(tfs)
         
     def __getitem__(self, index):
         image = Image.open(self.images[index]).convert('RGB')
-        gt = Image.open(self.gts[index]).convert('L')
-        shape = gt.size[::-1]
+        if self.mode == 'Train':
+            gt = Image.open(self.gts[index]).convert('L')
+        shape = image.size[::-1]
         name = self.images[index].split(os.sep)[-1]
         name = os.path.splitext(name)[0]
             
-        sample = {'image': image, 'gt': gt, 'name': name, 'shape': shape}
+        sample = {'image': image,  'name': name, 'shape': shape}
+        if self.mode == 'Train':
+            sample['gt'] = gt
 
         sample = self.transform(sample)
         return sample
@@ -73,41 +78,47 @@ class RGB_Dataset(Dataset):
         return self.size
 
 class RGBD_Dataset(Dataset):
-    def __init__(self, root, sets, tfs):
+    def __init__(self, root, sets, mode, tfs):
         self.images, self.gts, self.depths = [], [],  []
-    
+        self.mode = mode
+        
         for set in sets:
-            image_root = os.path.join(root, set, 'RGB')
-            gt_root = os.path.join(root, set, 'GT')
-            depth_root = os.path.join(root, set, 'depth')
+            image_root = os.path.join(root, set, 'images')
+            depth_root = os.path.join(root, set, 'depths')
             
             images = [os.path.join(image_root, f) for f in os.listdir(image_root) if f.lower().endswith(('.jpg', '.png'))]
             images = sort(images)
             
-            depths = [os.path.join(depth_root, f) for f in os.listdir(depth_root) if f.lower().endswith(('.jpg', '.png'))]
+            depths = [os.path.join(depth_root, f) for f in os.listdir(depth_root) if f.lower().endswith(('.bmp', '.png'))]
             depths = sort(depths)
             
-            gts = [os.path.join(gt_root, f) for f in os.listdir(gt_root) if f.lower().endswith('.png')]
-            gts = sort(gts)
-            
             self.images.extend(images)
-            self.gts.extend(gts)
             self.depths.extend(depths)
-                        
-        self.filter_files()
+            
+        if self.mode == 'Train':
+            for set in sets:
+                gt_root = os.path.join(root, set, 'masks')
+                gts = [os.path.join(gt_root, f) for f in os.listdir(gt_root) if f.lower().endswith('.png')]
+                gts = sort(gts)
+                self.gts.extend(gts)    
+                                
+                self.filter_files()
         
         self.size = len(self.images)
         self.transform = get_transform(tfs)
 
     def __getitem__(self, index):
         image = Image.open(self.images[index]).convert('RGB')
-        gt = Image.open(self.gts[index]).convert('L')
         depth = Image.open(self.depths[index]).convert('RGB')
-        shape = gt.size[::-1]
+        if self.mode =='Train':
+            gt = Image.open(self.gts[index]).convert('L')
+        shape = image.size[::-1]
         name = self.images[index].split(os.sep)[-1]
         name = os.path.splitext(name)[0]
                 
-        sample = {'image': image, 'gt': gt, 'depth': depth, 'name': name, 'shape': shape}
+        sample = {'image': image, 'depth': depth, 'name': name, 'shape': shape}
+        if self.mode == 'Train':
+            sample['gt'] = gt
         sample = self.transform(sample)
         return sample
 

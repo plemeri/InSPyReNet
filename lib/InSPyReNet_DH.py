@@ -38,9 +38,13 @@ class InSPyReNet_DH(nn.Module):
             x, dh = sample
         
         B, C, H, W = x.shape
-        out = self.model({'image': x, 'gt': sample['gt']})
-        out_dh = self.model_dh({'image': dh, 'gt': sample['gt']})
-        
+        if type(sample) == dict and 'gt' in sample.keys() and sample['gt'] is not None:
+            out = self.model({'image': x, 'gt': sample['gt']})
+            out_dh = self.model_dh({'image': dh, 'gt': sample['gt']})
+        else:
+            out = self.model({'image': x})
+            out_dh = self.model_dh({'image': dh})
+            
         xd3, xd2, xd1, xd0 = out['gaussian']
         xp2, xp1, xp0 = out['laplacian']
 
@@ -81,7 +85,7 @@ class InSPyReNet_DH(nn.Module):
             loss = 0
         
         if type(sample) == dict:
-            return {'pred': d0, 
+            return {'pred': xd0, 
                     'loss': loss, 
                     'gaussian': [d3, d2, d1, d0], 
                     'laplacian': [p2, p1, p0]}

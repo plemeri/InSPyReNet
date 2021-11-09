@@ -53,6 +53,7 @@ def train(opt, args):
     train_dataset = eval(opt.Train.Dataset.type)(
         root=opt.Train.Dataset.root, 
         sets=opt.Train.Dataset.sets,
+        mode='Train',
         tfs=opt.Train.Dataset.transforms)
 
     if device_num > 1:
