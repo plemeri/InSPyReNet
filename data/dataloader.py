@@ -183,17 +183,18 @@ class VideoLoader:
             self.cap = cv2.VideoCapture(self.videos[self.index])
             self.fps = self.cap.get(cv2.CAP_PROP_FPS)
         ret, frame = self.cap.read()
-        
+        name = self.videos[self.index].split(os.sep)[-1]
+        name = os.path.splitext(name)[0]
         if ret is False:
             self.cap.release()
             self.cap = None
-            sample = {'image': None, 'shape': None, 'name': self.videos[self.index].split(os.sep)[-1], 'original': None}
+            sample = {'image': None, 'shape': None, 'name': name, 'original': None}
             self.index += 1
         
         else:
             image = Image.fromarray(frame).convert('RGB')
             shape = image.size[::-1]
-            sample = {'image': image, 'shape': shape, 'name': self.videos[self.index].split(os.sep)[-1], 'original': image}
+            sample = {'image': image, 'shape': shape, 'name': name, 'original': image}
             sample = self.transform(sample)
             sample['image'] = sample['image'].unsqueeze(0)
             

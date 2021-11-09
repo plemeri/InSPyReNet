@@ -97,20 +97,18 @@ def inference(opt, args):
     writer = None
     background = None
 
-    for source in samples:
+    for sample in samples:
         if _format == 'Video' and writer is None:
-            writer = cv2.VideoWriter(os.path.join(save_dir, sample['name'] + '.mp4'), cv2.VideoWriter_fourcc(*'mp4v'), sample_list.fps, source['shape'][::-1])
+            writer = cv2.VideoWriter(os.path.join(save_dir, sample['name'] + '.mp4'), cv2.VideoWriter_fourcc(*'mp4v'), sample_list.fps, sample['shape'][::-1])
             samples.total += int(sample_list.cap.get(cv2.CAP_PROP_FRAME_COUNT))
-        if _format == 'Video' and source['image'] is None:
+        if _format == 'Video' and sample['image'] is None:
             if writer is not None:
                 writer.release()
             writer = None
             continue
         
         if args.gpu is True:
-            sample = to_cuda(source)
-        else:
-            sample = source
+            sample = to_cuda(sample)
 
         with torch.no_grad():
             out = model(sample['image'])
