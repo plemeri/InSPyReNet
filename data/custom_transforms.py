@@ -37,21 +37,22 @@ class cvtcolor:
         return sample
     
 class dynamic_resize:
-    def __init__(self, base_size, stride):
-        assert base_size % stride == 0
-        self.base_size = base_size
-        self.stride = base_size // stride
+    def __init__(self, patch_size, stride, maximum_patches=20):
+        assert patch_size % stride == 0
+        self.patch_size = patch_size
+        self.stride = stride
+        self.bs_ratio = patch_size / stride
+        self.maximum_patch = maximum_patches
 
     def __call__(self, sample):
         if 'image' in sample.keys():
-            ar = sample['image'].size[0] / sample['image'].size[1]
-            hx, wx = 1, 1
-            if ar > 1:
-                hx = round(self.stride * ar) / self.stride
-            else:
-                wx = round(self.stride / ar) / self.stride
+            h, w = sample['image'].size
+            ph, pw = (h - self.patch_size) // self.stride + 1, (w - self.patch_size - 1) // self.stride + 1
+            if ph * pw > self.maximum_patch:
+                scale = np.sqrt((ph * pw) / self.maximum_patch)
+                ph, pw = (h / scale - self.patch_size) // self.stride + 1, (w / scale - self.patch_size - 1) // self.stride + 1
             
-            size = (int(self.base_size * hx), int(self.base_size * wx))
+            size = self.patch_size + (int(ph) - 1) * self.stride, self.patch_size + (int(pw) - 1) * self.stride
             
             sample['image'] = sample['image'].resize(size, Image.BILINEAR)
 

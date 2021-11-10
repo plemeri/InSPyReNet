@@ -4,7 +4,7 @@ Model:
     pretrained: True
     PM:
         patch_size: 384
-        stride: 96
+        stride: 192
 
 Train:
     Dataset:
@@ -60,7 +60,7 @@ Test:
         sets: ['DUTS-TE', 'DUT-OMRON', 'ECSSD', 'HKU-IS', 'PASCAL-S']
         transforms:
             resize:
-                size: [384, 384]
+                size: [1536, 1536]
             tonumpy: NULL
             normalize: 
                 mean: [0.485, 0.456, 0.406]
@@ -68,8 +68,9 @@ Test:
             totensor: NULL
         transforms_PM:
             dynamic_resize:
-                base_size: 384
+                patch_size: 384
                 stride: 192
+                maximum_patches: 20
             tonumpy: NULL
             normalize: 
                 mean: [0.485, 0.456, 0.406]

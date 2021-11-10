@@ -59,8 +59,10 @@ Test:
         root: "data/RGB_Dataset/Test_Dataset"
         sets: ['DUTS-TE', 'DUT-OMRON', 'ECSSD', 'HKU-IS', 'PASCAL-S']
         transforms:
-            resize: 
-                size: [384, 384]
+            dynamic_resize:
+                patch_size: 384
+                stride: 192
+                maximum_patches: 20
             tonumpy: NULL
             normalize: 
                 mean: [0.485, 0.456, 0.406]

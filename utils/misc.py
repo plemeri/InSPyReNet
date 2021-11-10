@@ -27,7 +27,7 @@ def to_cuda(sample):
 
 def to_numpy(pred, shape):
     pred = F.interpolate(pred, shape, mode='bilinear', align_corners=True)
-    pred = pred.data.cpu()
+    pred = pred.data.cpu().detach()
     pred = torch.sigmoid(pred)
     pred = pred.numpy().squeeze()
     pred = (pred - pred.min()) / (pred.max() - pred.min() + 1e-8)

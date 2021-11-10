@@ -28,6 +28,7 @@ def _args():
     parser.add_argument('--jit',     action='store_true', default=False)
     parser.add_argument('--verbose', action='store_true', default=False)
     parser.add_argument('--PM',      action='store_true', default=False)
+    parser.add_argument('--MS',      action='store_true', default=False)
     return parser.parse_args()
 
 def get_format(source):
@@ -55,6 +56,10 @@ def inference(opt, args):
     if args.PM is True:
         model = InSPyReNet_PM(model, opt.Model.PM.patch_size, opt.Model.PM.stride)
         
+    
+    if args.MS is True:
+        model = InSPyReNet_MS(model)    
+    
     if args.jit is True:
         if os.path.isfile(os.path.join(opt.Test.Checkpoint.checkpoint_dir, 'jit.pt')) is False:
             model = torch.jit.trace(model, torch.rand(1, 3, 384, 384).cuda())
@@ -86,7 +91,7 @@ def inference(opt, args):
     if save_dir is not None:
         os.makedirs(save_dir, exist_ok=True)
     
-    sample_list = eval(_format + 'Loader')(args.source, opt.Test.Dataset.transforms_PM)# if args.PM else opt.Test.Dataset.transforms)
+    sample_list = eval(_format + 'Loader')(args.source, opt.Test.Dataset.transforms_PM if args.PM else opt.Test.Dataset.transforms)
 
     if args.verbose is True:
         samples = tqdm.tqdm(sample_list, desc='Inference', total=len(
@@ -111,34 +116,37 @@ def inference(opt, args):
             sample = to_cuda(sample)
 
         with torch.no_grad():
-            out = model(sample['image'])
-        pred = to_numpy(out, sample['shape'])
-
-        img = np.array(sample['original'])
-        if args.type == 'map':
-            img = (np.stack([pred] * 3, axis=-1) * 255).astype(np.uint8)
-        elif args.type == 'rgba':
-            r, g, b = cv2.split(img)
-            pred = (pred * 255).astype(np.uint8)
-            img = cv2.merge([r, g, b, pred])
-        elif args.type == 'green':
-            bg = np.stack([np.ones_like(pred)] * 3, axis=-1) * [120, 255, 155]
-            img = img * pred[..., np.newaxis] + bg * (1 - pred[..., np.newaxis])
-        elif args.type == 'blur':
-            img = img * pred[..., np.newaxis] + cv2.GaussianBlur(img, (0, 0), 15) * (1 - pred[..., np.newaxis])
-        elif args.type.lower().endswith(('.jpg', '.jpeg', '.png')):
-            if background is None:
-                background = cv2.cvtColor(cv2.imread(args.type), cv2.COLOR_BGR2RGB)
-                background = cv2.resize(background, img.shape[:2][::-1])
-            img = img * pred[..., np.newaxis] + background * (1 - pred[..., np.newaxis])
-        img = img.astype(np.uint8)
+            out_ = model(sample)#['image'])
         
-        if _format == 'Image':
-            Image.fromarray(img).save(os.path.join(save_dir, sample['name'] + '.png'))
-        elif _format == 'Video' and writer is not None:
-            writer.write(img)
-        elif _format == 'Webcam':
-            cv2.imshow('InSPyReNet', img)
+        for i, out in enumerate(out_['gaussian'] + out_['laplacian']):
+            pred = to_numpy(out, sample['shape'])
+            img = (np.stack([pred] * 3, axis=-1) * 255).astype(np.uint8)
+            Image.fromarray(img).save(os.path.join(save_dir, str(i) + '_' + sample['name'] + '.png'))
+            img = np.array(sample['original'])
+        # if args.type == 'map':
+        #     img = (np.stack([pred] * 3, axis=-1) * 255).astype(np.uint8)
+        # elif args.type == 'rgba':
+        #     r, g, b = cv2.split(img)
+        #     pred = (pred * 255).astype(np.uint8)
+        #     img = cv2.merge([r, g, b, pred])
+        # elif args.type == 'green':
+        #     bg = np.stack([np.ones_like(pred)] * 3, axis=-1) * [120, 255, 155]
+        #     img = img * pred[..., np.newaxis] + bg * (1 - pred[..., np.newaxis])
+        # elif args.type == 'blur':
+        #     img = img * pred[..., np.newaxis] + cv2.GaussianBlur(img, (0, 0), 15) * (1 - pred[..., np.newaxis])
+        # elif args.type.lower().endswith(('.jpg', '.jpeg', '.png')):
+        #     if background is None:
+        #         background = cv2.cvtColor(cv2.imread(args.type), cv2.COLOR_BGR2RGB)
+        #         background = cv2.resize(background, img.shape[:2][::-1])
+        #     img = img * pred[..., np.newaxis] + background * (1 - pred[..., np.newaxis])
+        # img = img.astype(np.uint8)
+        
+        # if _format == 'Image':
+        #     Image.fromarray(img).save(os.path.join(save_dir, sample['name'] + '.png'))
+        # elif _format == 'Video' and writer is not None:
+        #     writer.write(img)
+        # elif _format == 'Webcam':
+        #     cv2.imshow('InSPyReNet', img)
 
 if __name__ == "__main__":
     args = _args()
