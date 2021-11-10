@@ -116,37 +116,34 @@ def inference(opt, args):
             sample = to_cuda(sample)
 
         with torch.no_grad():
-            out_ = model(sample)#['image'])
-        
-        for i, out in enumerate(out_['gaussian'] + out_['laplacian']):
-            pred = to_numpy(out, sample['shape'])
+            out = model(sample['image'])
+        pred = to_numpy(out, sample['shape'])
+
+        img = np.array(sample['original'])
+        if args.type == 'map':
             img = (np.stack([pred] * 3, axis=-1) * 255).astype(np.uint8)
-            Image.fromarray(img).save(os.path.join(save_dir, str(i) + '_' + sample['name'] + '.png'))
-            img = np.array(sample['original'])
-        # if args.type == 'map':
-        #     img = (np.stack([pred] * 3, axis=-1) * 255).astype(np.uint8)
-        # elif args.type == 'rgba':
-        #     r, g, b = cv2.split(img)
-        #     pred = (pred * 255).astype(np.uint8)
-        #     img = cv2.merge([r, g, b, pred])
-        # elif args.type == 'green':
-        #     bg = np.stack([np.ones_like(pred)] * 3, axis=-1) * [120, 255, 155]
-        #     img = img * pred[..., np.newaxis] + bg * (1 - pred[..., np.newaxis])
-        # elif args.type == 'blur':
-        #     img = img * pred[..., np.newaxis] + cv2.GaussianBlur(img, (0, 0), 15) * (1 - pred[..., np.newaxis])
-        # elif args.type.lower().endswith(('.jpg', '.jpeg', '.png')):
-        #     if background is None:
-        #         background = cv2.cvtColor(cv2.imread(args.type), cv2.COLOR_BGR2RGB)
-        #         background = cv2.resize(background, img.shape[:2][::-1])
-        #     img = img * pred[..., np.newaxis] + background * (1 - pred[..., np.newaxis])
-        # img = img.astype(np.uint8)
+        elif args.type == 'rgba':
+            r, g, b = cv2.split(img)
+            pred = (pred * 255).astype(np.uint8)
+            img = cv2.merge([r, g, b, pred])
+        elif args.type == 'green':
+            bg = np.stack([np.ones_like(pred)] * 3, axis=-1) * [120, 255, 155]
+            img = img * pred[..., np.newaxis] + bg * (1 - pred[..., np.newaxis])
+        elif args.type == 'blur':
+            img = img * pred[..., np.newaxis] + cv2.GaussianBlur(img, (0, 0), 15) * (1 - pred[..., np.newaxis])
+        elif args.type.lower().endswith(('.jpg', '.jpeg', '.png')):
+            if background is None:
+                background = cv2.cvtColor(cv2.imread(args.type), cv2.COLOR_BGR2RGB)
+                background = cv2.resize(background, img.shape[:2][::-1])
+            img = img * pred[..., np.newaxis] + background * (1 - pred[..., np.newaxis])
+        img = img.astype(np.uint8)
         
-        # if _format == 'Image':
-        #     Image.fromarray(img).save(os.path.join(save_dir, sample['name'] + '.png'))
-        # elif _format == 'Video' and writer is not None:
-        #     writer.write(img)
-        # elif _format == 'Webcam':
-        #     cv2.imshow('InSPyReNet', img)
+        if _format == 'Image':
+            Image.fromarray(img).save(os.path.join(save_dir, sample['name'] + '.png'))
+        elif _format == 'Video' and writer is not None:
+            writer.write(img)
+        elif _format == 'Webcam':
+            cv2.imshow('InSPyReNet', img)
 
 if __name__ == "__main__":
     args = _args()
