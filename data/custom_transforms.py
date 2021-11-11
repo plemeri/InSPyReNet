@@ -52,7 +52,8 @@ class dynamic_resize:
                 scale = np.sqrt((ph * pw) / self.maximum_patch)
                 ph, pw = (h / scale - self.patch_size) // self.stride + 1, (w / scale - self.patch_size - 1) // self.stride + 1
             
-            size = self.patch_size + (int(ph) - 1) * self.stride, self.patch_size + (int(pw) - 1) * self.stride
+            
+            size = self.patch_size + max(int(ph) - 1, 1) * self.stride, self.patch_size + max(int(pw) - 1, 1) * self.stride
             
             sample['image'] = sample['image'].resize(size, Image.BILINEAR)
 

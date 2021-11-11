@@ -181,4 +181,5 @@ def train(opt, args):
 if __name__ == '__main__':
     args = _args()
     opt = load_config(args.config)
+    print
     train(opt, args)

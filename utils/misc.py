@@ -28,8 +28,9 @@ def to_cuda(sample):
 def to_numpy(pred, shape):
     pred = F.interpolate(pred, shape, mode='bilinear', align_corners=True)
     pred = pred.data.cpu().detach()
-    pred = torch.sigmoid(pred)
+    # pred = torch.sigmoid(pred)
     pred = pred.numpy().squeeze()
+    print(pred.max(), pred.min())
     pred = (pred - pred.min()) / (pred.max() - pred.min() + 1e-8)
     return pred
 
@@ -38,7 +39,7 @@ def debug_tile(deblist, size=(100, 100)):
     for debs in deblist:
         debug = []
         for deb in debs:
-            log = torch.sigmoid(deb).cpu().detach().numpy().squeeze()
+            log = deb.cpu().detach().numpy().squeeze()
             log = ((log - log.min()) / (log.max() - log.min()) * 255).astype(np.uint8)
             log = cv2.cvtColor(log, cv2.COLOR_GRAY2RGB)
             log = cv2.resize(log, size)

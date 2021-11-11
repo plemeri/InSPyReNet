@@ -1,5 +1,5 @@
 from lib.InSPyReNet import InSPyReNet_Res2Net50, InSPyReNet_Res2Net101, InSPyReNet_SwinT, InSPyReNet_SwinS, InSPyReNet_SwinB, InSPyReNet_SwinL
-from lib.InSPyReNet_PM import InSPyReNet_PM
+from lib.InSPyReNetv2 import InSPyReNetv2_Res2Net50, InSPyReNetv2_Res2Net101, InSPyReNetv2_SwinT, InSPyReNetv2_SwinS, InSPyReNetv2_SwinB, InSPyReNetv2_SwinL
 from lib.InSPyReNet_MS import InSPyReNet_MS
 
 from lib.SotA.BASNet import BASNet
