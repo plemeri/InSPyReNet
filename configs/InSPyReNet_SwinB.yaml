@@ -4,7 +4,7 @@ Model:
     pretrained: True
     PM:
         patch_size: 384
-        stride: 192
+        stride: 96
 
 Train:
     Dataset:
@@ -70,7 +70,7 @@ Test:
             dynamic_resize:
                 patch_size: 384
                 stride: 192
-                maximum_patches: 40
+                maximum_patches: 10
             tonumpy: NULL
             normalize: 
                 mean: [0.485, 0.456, 0.406]

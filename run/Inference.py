@@ -116,8 +116,8 @@ def inference(opt, args):
             sample = to_cuda(sample)
 
         with torch.no_grad():
-            out = model(sample['image'])
-        pred = to_numpy(out, sample['shape'])
+            out = model(sample)#['image'])
+        pred = to_numpy(out['pred'], sample['shape'])
 
         img = np.array(sample['original'])
         if args.type == 'map':
@@ -140,6 +140,11 @@ def inference(opt, args):
         
         if _format == 'Image':
             Image.fromarray(img).save(os.path.join(save_dir, sample['name'] + '.png'))
+            # out = model(sample)
+            # for i, d in enumerate(out['gaussian']):
+            #     d = to_numpy(torch.sigmoid(d), sample['shape'])
+            #     img = (np.stack([d] * 3, axis=-1) * 255).astype(np.uint8)
+            #     Image.fromarray(img).save(os.path.join(save_dir, str(i) + sample['name'] + '.png'))
         elif _format == 'Video' and writer is not None:
             writer.write(img)
         elif _format == 'Webcam':

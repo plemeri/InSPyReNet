@@ -30,7 +30,6 @@ def to_numpy(pred, shape):
     pred = pred.data.cpu().detach()
     # pred = torch.sigmoid(pred)
     pred = pred.numpy().squeeze()
-    print(pred.max(), pred.min())
     pred = (pred - pred.min()) / (pred.max() - pred.min() + 1e-8)
     return pred
 

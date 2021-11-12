@@ -25,16 +25,8 @@ class InSPyReNet_PM(nn.Module):
             x = sample['image']
         else:
             x = sample
-        
-        hr, wr = x.shape[-2:]
-        if hr > wr:
-            hr = int(hr / wr)
-            wr = 1
-        else:
-            wr = int(wr / hr)
-            hr = 1
             
-        out = self.model({'image': self.res(x, (self.patch_size * hr, self.patch_size * wr))})
+        out = self.model({'image': self.res(x, (self.patch_size, self.patch_size))})
         
         # for i, d in enumerate(out['gaussian']):
         #     d = torch.abs(.5 - torch.sigmoid(d)) * 2
@@ -51,14 +43,13 @@ class InSPyReNet_PM(nn.Module):
         pd3, pd2, pd1, pd0 = pout['gaussian']
         pp2, pp1, pp0 = pout['laplacian']
         
-        d3  = unpatch(pd3, (b, 1, h // 8, w // 8), 
-                          self.patch_size // 8, 
-                          self.stride // 8)
-        
+        # d3  = unpatch(pd3, (b, 1, h // 8, w // 8), 
+        #                   self.patch_size // 8, 
+        #                   self.stride // 8)
+        d3 = self.res(od3, (h // 8, w // 8))
         p2  = unpatch(pp2, (b, 1, h // 4, w // 4), 
                          self.patch_size // 4, 
                          self.stride // 4)
-        
         d2 = self.model.pyr.rec(d3, p2)
         
         
@@ -75,10 +66,10 @@ class InSPyReNet_PM(nn.Module):
         d0 =  self.model.pyr.rec(d1.detach(), p0)
         
         if type(sample) == dict:
-            return {'pred': d0, 
+            return {'pred': torch.sigmoid(d0), 
                     'loss': 0, 
                     'gaussian': [d3, d2, d1, d0], 
                     'laplacian': [p2, p1, p0]}
         
         else:
-            return d0
+            return torch.sigmoid(d0)

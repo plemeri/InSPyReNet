@@ -95,12 +95,12 @@ class InSPyReNet(nn.Module):
 
         else:
             loss = 0
-
+            
         if type(sample) == dict:
             return {'pred': torch.sigmoid(d0), 
-                    'loss': loss, 
-                    'gaussian': [torch.sigmoid(i) for i in [d3, d2, d1, d0]], 
-                    'laplacian': [torch.sigmoid(i) for i in [p2, p1, p0]]}
+                    'loss': 0, 
+                    'gaussian': [d3, d2, d1, d0], 
+                    'laplacian': [p2, p1, p0]}
         
         else:
             return torch.sigmoid(d0)
