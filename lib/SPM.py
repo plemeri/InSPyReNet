@@ -7,9 +7,9 @@ from .modules.context_module import *
 from .modules.attention_module import *
 from .modules.decoder_module import *
 
-class SotA_PM(nn.Module):
+class SPM(nn.Module):
     def __init__(self, model, patch_size, stride):
-        super(SotA_PM, self).__init__()
+        super(SPM, self).__init__()
         self.model = model
         self.patch_size = patch_size
         self.stride = stride

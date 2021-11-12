@@ -52,7 +52,8 @@ Salient object detection (SOD) requires multi-scale features from intermediate b
   ├── lib
   │   ├── backbones
   │   ├── __init__.py
-  │   ├── InSPyReNet_PM.py
+  │   ├── PPM.py
+  │   ├── SPM.py
   │   ├── InSPyReNet.py
   │   ├── modules
   │   ├── optim

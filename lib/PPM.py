@@ -7,9 +7,9 @@ from .modules.context_module import *
 from .modules.attention_module import *
 from .modules.decoder_module import *
 
-class InSPyReNet_PM(nn.Module):
+class PPM(nn.Module):
     def __init__(self, model, patch_size, stride):
-        super(InSPyReNet_PM, self).__init__()
+        super(PPM, self).__init__()
         self.model = model
         self.patch_size = patch_size
         self.stride = stride
