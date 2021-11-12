@@ -53,7 +53,10 @@ def inference(opt, args):
     model.eval()
     
     if args.PM is True:
-        model = InSPyReNet_PM(model, opt.Model.PM.patch_size, opt.Model.PM.stride)
+        if 'InSPyRe' in opt.Model.name:
+            model = InSPyReNet_PM(model, opt.Model.PM.patch_size, opt.Model.PM.stride)
+        else:
+            model = SotA_PM(model, opt.Model.PM.patch_size, opt.Model.PM.stride)
         
     if args.jit is True:
         if os.path.isfile(os.path.join(opt.Test.Checkpoint.checkpoint_dir, 'jit.pt')) is False:
