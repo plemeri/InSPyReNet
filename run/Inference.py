@@ -48,10 +48,6 @@ def inference(opt, args):
     model.load_state_dict(torch.load(os.path.join(
         opt.Test.Checkpoint.checkpoint_dir, 'latest.pth'), map_location=torch.device('cpu')), strict=True)
     
-    if args.gpu is True:
-        model.cuda()
-    model.eval()
-    
     if args.PM is True:
         if 'InSPyRe' in opt.Model.name:
             model = PPM(model, opt.Model.PM.patch_size, opt.Model.PM.stride)
@@ -66,8 +62,10 @@ def inference(opt, args):
         else:
             del model
             model = torch.jit.load(os.path.join(opt.Test.Checkpoint.checkpoint_dir, 'jit.pt'))
-            if args.gpu is True:
-                model.cuda()
+                
+    if args.gpu is True:
+        model.cuda()
+    model.eval()
     
     save_dir = None
     _format = None
