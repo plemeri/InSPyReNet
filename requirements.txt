@@ -25,9 +25,9 @@ tabulate==0.8.9
 thop==0.0.31.post2005241907
 tifffile==2021.10.12
 timm==0.4.12
-torch==1.7.1+cu110
+torch==1.7.1
 torchaudio==0.7.2
-torchvision==0.8.2+cu110
+torchvision==0.8.2
 tqdm==4.62.3
 typing-extensions==3.10.0.2
 urllib3==1.26.7
