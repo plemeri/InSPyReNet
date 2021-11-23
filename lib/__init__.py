@@ -1,6 +1,6 @@
 from lib.InSPyReNet import InSPyReNet_Res2Net50, InSPyReNet_Res2Net101, InSPyReNet_SwinT, InSPyReNet_SwinS, InSPyReNet_SwinB, InSPyReNet_SwinL
-from lib.InSPyReNet_DH import InSPyReNet_DH_Res2Net50, InSPyReNet_DH_Res2Net101, InSPyReNet_DH_SwinT, InSPyReNet_DH_SwinS, InSPyReNet_DH_SwinB, InSPyReNet_DH_SwinL
-from lib.InSPyReNet_PM import InSPyReNet_PM
+from lib.PPM import PPM
+from lib.SPM import SPM
 
 from lib.SotA.BASNet import BASNet
 from lib.SotA.CPD import CPD_ResNet

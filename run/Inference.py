@@ -18,6 +18,8 @@ from utils.misc import *
 from data.dataloader import *
 from data.custom_transforms import *
 
+from torch2trt import torch2trt
+
 def _args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--config',  type=str,            default='configs/InSPyReNet_SwinB.yaml')
@@ -48,12 +50,15 @@ def inference(opt, args):
     model.load_state_dict(torch.load(os.path.join(
         opt.Test.Checkpoint.checkpoint_dir, 'latest.pth'), map_location=torch.device('cpu')), strict=True)
     
-    if args.gpu is True:
-        model.cuda()
-    model.eval()
-    
     if args.PM is True:
-        model = InSPyReNet_PM(model, opt.Model.PM.patch_size, opt.Model.PM.stride)
+        if 'InSPyRe' in opt.Model.name:
+            model = PPM(model, opt.Model.PM.patch_size, opt.Model.PM.stride)
+        else:
+            model = SPM(model, opt.Model.PM.patch_size, opt.Model.PM.stride)
+    
+    if args.gpu is True:
+        model = model.cuda()
+    model.eval()
         
     if args.jit is True:
         if os.path.isfile(os.path.join(opt.Test.Checkpoint.checkpoint_dir, 'jit.pt')) is False:
@@ -63,9 +68,8 @@ def inference(opt, args):
         else:
             del model
             model = torch.jit.load(os.path.join(opt.Test.Checkpoint.checkpoint_dir, 'jit.pt'))
-            if args.gpu is True:
-                model.cuda()
-    
+                
+    model = torch2trt(model, [torch.ones(1, 3, 384, 384).cuda()])
     save_dir = None
     _format = None
     
@@ -86,7 +90,7 @@ def inference(opt, args):
     if save_dir is not None:
         os.makedirs(save_dir, exist_ok=True)
     
-    sample_list = eval(_format + 'Loader')(args.source, opt.Test.Dataset.transforms_PM)# if args.PM else opt.Test.Dataset.transforms)
+    sample_list = eval(_format + 'Loader')(args.source, opt.Test.Dataset.transforms_PM if args.PM else opt.Test.Dataset.transforms)
 
     if args.verbose is True:
         samples = tqdm.tqdm(sample_list, desc='Inference', total=len(
@@ -97,20 +101,18 @@ def inference(opt, args):
     writer = None
     background = None
 
-    for source in samples:
+    for sample in samples:
         if _format == 'Video' and writer is None:
-            writer = cv2.VideoWriter(os.path.join(save_dir, sample['name'] + '.mp4'), cv2.VideoWriter_fourcc(*'mp4v'), sample_list.fps, source['shape'][::-1])
+            writer = cv2.VideoWriter(os.path.join(save_dir, sample['name'] + '.mp4'), cv2.VideoWriter_fourcc(*'mp4v'), sample_list.fps, sample['shape'][::-1])
             samples.total += int(sample_list.cap.get(cv2.CAP_PROP_FRAME_COUNT))
-        if _format == 'Video' and source['image'] is None:
+        if _format == 'Video' and sample['image'] is None:
             if writer is not None:
                 writer.release()
             writer = None
             continue
         
         if args.gpu is True:
-            sample = to_cuda(source)
-        else:
-            sample = source
+            sample = to_cuda(sample)
 
         with torch.no_grad():
             out = model(sample['image'])
