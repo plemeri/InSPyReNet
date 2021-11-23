@@ -124,7 +124,7 @@ Salient object detection (SOD) requires multi-scale features from intermediate b
   + Qualitative Results 
 ![results](./figures/results.png)
 
-## 5. Patch Merging
+## 5. Pyramid-based Patch Merging
   + With our method, it is easy to merge results from patch-wise prediction. The overall process work as following figure,
   ![results](./figures/figure3.png)
   + Use `--PM` for `run/Inference.py` to deploy patch merging (e.g., `python run/Inference.py --config configs/InSPyReNet_SwinB.yaml --source AIM-500 --type green --gpu --verbose --PM`)

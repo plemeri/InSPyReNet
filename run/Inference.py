@@ -18,6 +18,8 @@ from utils.misc import *
 from data.dataloader import *
 from data.custom_transforms import *
 
+from torch2trt import torch2trt
+
 def _args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--config',  type=str,            default='configs/InSPyReNet_SwinB.yaml')
@@ -53,6 +55,10 @@ def inference(opt, args):
             model = PPM(model, opt.Model.PM.patch_size, opt.Model.PM.stride)
         else:
             model = SPM(model, opt.Model.PM.patch_size, opt.Model.PM.stride)
+    
+    if args.gpu is True:
+        model = model.cuda()
+    model.eval()
         
     if args.jit is True:
         if os.path.isfile(os.path.join(opt.Test.Checkpoint.checkpoint_dir, 'jit.pt')) is False:
@@ -63,10 +69,7 @@ def inference(opt, args):
             del model
             model = torch.jit.load(os.path.join(opt.Test.Checkpoint.checkpoint_dir, 'jit.pt'))
                 
-    if args.gpu is True:
-        model.cuda()
-    model.eval()
-    
+    model = torch2trt(model, [torch.ones(1, 3, 384, 384).cuda()])
     save_dir = None
     _format = None
     

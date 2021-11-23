@@ -4,9 +4,9 @@ import numpy as np
 
 root = 'results'
 # root = 'temp'
-datasets = ['DUTS-TE', 'DUT-OMRON'] #['ECSSD', 'HKU-IS', 'PASCAL-S'] #['DUTS-TE', 'DUT-OMRON', 'ECSSD', 'HKU-IS', 'PASCAL-S'] 
+datasets = ['ECSSD', 'HKU-IS', 'PASCAL-S'] #['DUTS-TE', 'DUT-OMRON']  #['DUTS-TE', 'DUT-OMRON', 'ECSSD', 'HKU-IS', 'PASCAL-S'] 
 # metrics = {'Sm': 'max', 'maxEm': 'max', 'maxFm': 'max', 'mae': 'min'}
-metrics = {'Sm': 'max', 'maxEm': 'max', 'avgEm': 'max', 'maxFm': 'max', 'avgFm': 'max', 'mae': 'min'}
+metrics = {'Sm': 'max', 'maxEm': 'max', 'avgEm': 'max', 'maxFm': 'max', 'avgFm': 'max', 'wFm': 'max', 'mae': 'min'}
 
 # methods =   ['PoolNet',   'BASNet',    'EGNet',     'CPD',       'MINet',     'F3Net',     'GateNet',     'LDF',       'UCNet',     'PA_KRN',    'VST',        'ABiUNet',   'TTSOD',     'RFBB',             'InSPyReNet_Res2Net50', 'InSPyReNet_Res2Net101', 'InSPyReNet_SwinT', 'InSPyReNet_SwinS', 'InSPyReNet_SwinB']#, 'InSPyReNet_SwinL']
 # tablename = [
