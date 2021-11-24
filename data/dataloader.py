@@ -73,20 +73,26 @@ class RGB_Dataset(Dataset):
         return self.size
 
 class RGBD_Dataset(Dataset):
-    def __init__(self, root, tfs):
-        image_root = os.path.join(root, 'RGB')
-        gt_root = os.path.join(root, 'GT')
-        depth_root = os.path.join(root, 'depth')
+    def __init__(self, root, sets, tfs):
+        self.images, self.gts, self.depths = [], [], []
+        
+        for set in sets:
+            image_root, gt_root, depth_root = os.path.join(root, set, 'images'), os.path.join(root, set, 'masks'), os.path.join(root, set, 'depths')
 
-        self.images = [os.path.join(image_root, f) for f in os.listdir(image_root) if f.lower().endswith(('.jpg', '.png'))]
-        self.images = sort(self.images)
+            images = [os.path.join(image_root, f) for f in os.listdir(image_root) if f.lower().endswith(('.jpg', '.png'))]
+            images = sort(images)
+            
+            gts = [os.path.join(gt_root, f) for f in os.listdir(gt_root) if f.lower().endswith('.png')]
+            gts = sort(gts)
+            
+            depths = [os.path.join(depth_root, f) for f in os.listdir(depth_root) if f.lower().endswith(('.jpg', '.png'))]
+            depths = sort(depths)
+            
+            self.images.extend(images)
+            self.gts.extend(gts)
+            self.depths.extend(depths)
         
-        self.depths = [os.path.join(depth_root, f) for f in os.listdir(depth_root) if f.lower().endswith(('.jpg', '.png'))]
-        self.depths = sort(self.depths)
-        
-        self.gts = [os.path.join(gt_root, f) for f in os.listdir(gt_root) if f.lower().endswith('.png')]
-        self.gts = sort(self.gts)
-        
+            
         self.filter_files()
         
         self.size = len(self.images)
