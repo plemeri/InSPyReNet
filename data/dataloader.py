@@ -85,7 +85,7 @@ class RGBD_Dataset(Dataset):
             gts = [os.path.join(gt_root, f) for f in os.listdir(gt_root) if f.lower().endswith('.png')]
             gts = sort(gts)
             
-            depths = [os.path.join(depth_root, f) for f in os.listdir(depth_root) if f.lower().endswith(('.jpg', '.png'))]
+            depths = [os.path.join(depth_root, f) for f in os.listdir(depth_root) if f.lower().endswith(('.jpg', '.png', 'bmp'))]
             depths = sort(depths)
             
             self.images.extend(images)
