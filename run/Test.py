@@ -44,7 +44,7 @@ def test(opt, args):
 
         os.makedirs(save_path, exist_ok=True)
         # test_loader = ImageLoader(os.path.join(opt.Test.Dataset.root, set, 'images'), opt.Test.Dataset.transforms)
-        test_dataset = eval(opt.Test.Dataset.type)(opt.Test.Dataset.root, [set], 'Test', opt.Test.Dataset.transforms)
+        test_dataset = eval(opt.Test.Dataset.type)(opt.Test.Dataset.root, [set], opt.Test.Dataset.transforms)
         test_loader = DataLoader(dataset=test_dataset,
                                 batch_size=1,
                                 num_workers=opt.Test.Dataloader.num_workers,
