@@ -73,8 +73,8 @@ def evaluate(opt, args):
         for i, sample in samples:
             pred, gt = sample
 
-            pred_mask = np.array(Image.open(os.path.join(pred_root, pred)))
-            gt_mask = np.array(Image.open(os.path.join(gt_root, gt)))
+            pred_mask = np.array(Image.open(os.path.join(pred_root, pred)).convert('L'))
+            gt_mask = np.array(Image.open(os.path.join(gt_root, gt)).convert('L'))
 
             if len(pred_mask.shape) != 2:
                 pred_mask = pred_mask[:, :, 0]
@@ -82,6 +82,7 @@ def evaluate(opt, args):
                 gt_mask = gt_mask[:, :, 0]
 
             assert pred_mask.shape == gt_mask.shape, print(pred, 'does not match the size of', gt)
+            # print(gt_mask.max())
 
             FM.step( pred=pred_mask, gt=gt_mask)
             WFM.step(pred=pred_mask, gt=gt_mask)
