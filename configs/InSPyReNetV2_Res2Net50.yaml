@@ -43,7 +43,7 @@ Train:
         epoch: 300
         gamma: 0.9
         minimum_lr: 1.0e-07
-        warmup_iteration: 3000
+        warmup_iteration: 12000
     Checkpoint:
         checkpoint_epoch: 1
         checkpoint_dir: "snapshots/InSPyReNetV2_Res2Net50"
