@@ -203,7 +203,9 @@ class totensor:
             sample['gt'] = sample['gt'].unsqueeze(dim=0)
 
         if 'depth' in sample.keys():
-            sample['depth'] = torch.from_numpy(sample['depth'])
-            sample['depth'] = sample['depth'].unsqueeze(dim=0)
+            sample['depth'] = sample['depth'].transpose((2, 0, 1))
+            sample['depth'] = torch.from_numpy(sample['depth']).float()
+            # sample['depth'] = torch.from_numpy(sample['depth'])
+            # sample['depth'] = sample['depth'].unsqueeze(dim=0)
 
         return sample

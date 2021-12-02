@@ -101,7 +101,7 @@ class RGBD_Dataset(Dataset):
     def __getitem__(self, index):
         image = Image.open(self.images[index]).convert('RGB')
         gt = Image.open(self.gts[index]).convert('L')
-        depth = Image.open(self.depths[index]).convert('L')
+        depth = Image.open(self.depths[index]).convert('RGB')
         shape = gt.size[::-1]
         name = self.images[index].split(os.sep)[-1]
         name = os.path.splitext(name)[0]
