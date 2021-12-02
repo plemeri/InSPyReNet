@@ -1,6 +1,6 @@
 Model:
     name: "InSPyReNetV3_SwinB"
-    depth: 64
+    depth: 32
     pretrained: True
     PM:
         patch_size: 384
@@ -48,7 +48,7 @@ Train:
         checkpoint_epoch: 1
         checkpoint_dir: "snapshots/InSPyReNetV3_SwinB"
     Debug:
-        keys: ['gaussian', 'laplacian']
+        keys: ['gaussian', 'laplacian', 'rgb_gaussian', 'rgb_laplacian', 'rgbd_gaussian', 'rgbd_laplacian']
     HyperTune:
         HyperParameter: ['Train', 'Optimizer', 'lr']
         Range: [1.0e-6, 2.4e-5, 24]
