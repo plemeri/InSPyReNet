@@ -34,7 +34,7 @@ def draw_figure(methods, datasets):
             stats.append(stat)
             # print(stat.shape, method)
         stats = np.stack(stats)
-        # stats = np.argsort(stats, axis=0)
+        stats = np.argsort(stats, axis=0)
         # print(stats)
         # stats = stats[4] #.sum(axis=0)
         # stats = stats.argsort()
@@ -52,7 +52,7 @@ def draw_figure(methods, datasets):
         # targets = np.random.choice(imlist, 1)
         targets = [imlist[i] for i in score[10:15]]
         # targets = [imlist[stats[-1]]]
-        targets = cfg[dataset]
+        # targets = cfg[dataset]
         
         for target in targets:
             # print(target.split('.')[0] + '.jpg')

@@ -70,7 +70,7 @@ Test:
             totensor: NULL
         transforms_PM:
             dynamic_resize:
-                base_size: 384
+                patch_size: 384
                 stride: 192
             tonumpy: NULL
             normalize: 

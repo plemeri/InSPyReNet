@@ -2,6 +2,9 @@ Model:
     name: "PA_KRN"
     depth: None
     pretrained: True
+    PM:
+        patch_size: 384
+        stride: 96
 
 Test:
     Dataset:
@@ -10,11 +13,20 @@ Test:
         sets: ['DUTS-TE', 'DUT-OMRON', 'ECSSD', 'HKU-IS', 'PASCAL-S']
         transforms:
             resize:
-                size: [384, 384]
+                size: [352, 352]
             tonumpy: NULL
             normalize: 
-                mean: [0.485, 0.456, 0.406]
-                std: [0.229, 0.224, 0.225]
+                mean: [104.00699, 116.66877, 122.67892]
+                div: 1
+            totensor: NULL
+        transforms_PM:
+            dynamic_resize:
+                patch_size: 384
+                stride: 192
+            tonumpy: NULL
+            normalize: 
+                mean: [104.00699, 116.66877, 122.67892]
+                div: 1
             totensor: NULL
     Dataloader:
         num_workers: 8

@@ -27,14 +27,14 @@ def draw_figure(opts, datasets):
             stat = pickle.load(open(os.path.join(opt.Eval.pred_root, 'stat', dataset + '.pkl'), 'rb'))
             stats[method][dataset] = stat
 
-    fig, axes = plt.subplots(nrows=1, ncols=len(datasets), figsize=(25, 5))
+    fig, axes = plt.subplots(nrows=1, ncols=len(datasets), figsize=(50, 10))
     axes = [axes]
 
     for i, dataset in enumerate(datasets):
-        axes[0][i].set_xlabel('Recall'   , fontsize=20)
+        axes[0][i].set_xlabel('Recall'   , fontsize=40)
         # axes[1][i].set_xlabel('Threshold', fontsize=15)
 
-        axes[0][i].set_ylabel('Precision', fontsize=20)
+        axes[0][i].set_ylabel('Precision', fontsize=40)
         # axes[1][i].set_ylabel('F-measure', fontsize=15)
         
         axes[0][i].set_xlim((0, 1.0))
@@ -44,10 +44,10 @@ def draw_figure(opts, datasets):
         # axes[1][i].set_ylim(*cfg[dataset]['ylim'][1])
         
         axes[0][i].set_yticks(np.linspace(*cfg[dataset]['ylim'][0], 7).round(3))
-        axes[0][i].yaxis.set_tick_params(labelsize=12, rotation=40)
-        axes[0][i].xaxis.set_tick_params(labelsize=12)
+        axes[0][i].yaxis.set_tick_params(labelsize=24, rotation=40)
+        axes[0][i].xaxis.set_tick_params(labelsize=24)
         # axes[1][i].set_yticks(np.linspace(*cfg[dataset]['ylim'][1], 7).round(3))
-        axes[0][i].set_title(dataset, fontsize=20, fontweight='bold')
+        axes[0][i].set_title(dataset, fontsize=40, fontweight='bold')
         axes[0][i].grid()
         # axes[1][i].grid()
         
@@ -57,14 +57,14 @@ def draw_figure(opts, datasets):
         
         for opt in opts:
             method = os.path.split(opt.Eval.pred_root)[-1]
-            axes[0][i].plot(stats[method][dataset]['Recall'], stats[method][dataset]['Pre'],    '--' if 'InSPyRe' not in method else '-', label=method, linewidth=2)
+            axes[0][i].plot(stats[method][dataset]['Recall'], stats[method][dataset]['Pre'], '--' if 'InSPyRe' not in method else '-', label=method if 'InSPyRe' not in method else 'Ours (' + method.split('_')[-1] + ')', linewidth=2 if 'InSPyRe' not in method else 4)
             # axes[1][i].plot(np.linspace(0, 255, 256), stats[method][dataset]['Fmeasure_Curve'], '--' if 'InSPyRe' not in method else '-', label=method, )
-        axes[0][i].legend(loc = 'lower left')
+        axes[0][i].legend(loc = 'lower left', fontsize=18)
     
     # lines, labels = axes[0][-1].get_legend_handles_labels()
     # fig.legend(lines, labels, loc = 'upper center')
     plt.tight_layout()
-    plt.savefig('Figure3.png', transparent=True)
+    plt.savefig('Figure3.pdf', transparent=True)
     # plt.savefig('Figure3.png')
             
 if __name__ == "__main__":

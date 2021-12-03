@@ -144,7 +144,7 @@ class AttSamplerPM:
         oshape = (dshape[0], out_size, out_size1)
         return in_shape, [oshape, oshape]
 
-class AttSampler(torch.nn.Module):
+class AttSampler(nn.Module):
     def __init__(self, scale=1.0, dense=4, iters=5):
         super(AttSampler, self).__init__()
         self.scale = scale
@@ -707,8 +707,7 @@ class PA_KRN(nn.Module):
         # self.net_hou.load_state_dict(torch.load(self.config.fsm_model))
         
     def forward(self, images):
-        feasum_out, merge_solid, out_merge_solid1, out_merge_solid2, out_merge_solid3, out_merge_solid4 = self.net(
-                    images)
+        feasum_out, merge_solid, out_merge_solid1, out_merge_solid2, out_merge_solid3, out_merge_solid4 = self.net(images)
 
 
         map_s = feasum_out
@@ -749,7 +748,6 @@ class PA_KRN(nn.Module):
             xr = xr.int()
             data_r = data_pred[:, :, :, num]
             for h in range(xl + 1, xr + 1):
-                print(h)
                 if h == grid_r:
                     new_data[:, :, h] = data_r
                 else:
@@ -791,6 +789,5 @@ class PA_KRN(nn.Module):
             print('h', h)
             print('yr', yr)
         preds = torch.unsqueeze(new_data_final, dim=1)
-
-        pred = np.squeeze(preds).cpu().data.numpy()
-        multi_fuse = 255 * pred
+        print(preds.min())
+        return preds

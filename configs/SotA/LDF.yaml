@@ -2,6 +2,9 @@ Model:
     name: "LDF"
     depth: None
     pretrained: True
+    PM:
+        patch_size: 384
+        stride: 96
 
 Test:
     Dataset:
@@ -11,6 +14,15 @@ Test:
         transforms:
             # resize:
             #     size: [384, 384]
+            tonumpy: NULL
+            normalize: 
+                mean: [0.485, 0.456, 0.406]
+                std: [0.229, 0.224, 0.225]
+            totensor: NULL
+        transforms_PM:
+            dynamic_resize:
+                patch_size: 384
+                stride: 192
             tonumpy: NULL
             normalize: 
                 mean: [0.485, 0.456, 0.406]
