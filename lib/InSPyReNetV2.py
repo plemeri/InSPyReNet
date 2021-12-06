@@ -19,7 +19,7 @@ class InSPyReNetV2(nn.Module):
         self.in_channels = in_channels
         self.depth = depth
         
-        self.reduce = conv(4, 3, 3)
+        self.reduce = conv(4, 3, 3, relu=True)
         
         self.context1 = PAA_e(self.in_channels[0], self.depth)
         self.context2 = PAA_e(self.in_channels[1], self.depth)
