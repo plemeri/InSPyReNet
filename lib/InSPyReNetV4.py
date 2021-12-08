@@ -104,9 +104,9 @@ class Decoder(nn.Module):
                 'feats': [f3, f2, f1],
                 'loss': loss}
 
-class InSPyReNetV3(nn.Module):
+class InSPyReNetV4(nn.Module):
     def __init__(self, backbone, in_channels, depth=64):
-        super(InSPyReNetV3, self).__init__()
+        super(InSPyReNetV4, self).__init__()
         self.backbone = backbone
         self.in_channels = in_channels
         self.depth = depth
@@ -120,6 +120,14 @@ class InSPyReNetV3(nn.Module):
         
         self.d_encoder = Encoder(in_channels, depth)
         self.d_decoder = Decoder(in_channels, depth, self.depth_loss_fn)
+        
+        self.context1 = PAA_e(self.depth * 2, self.depth)
+        self.context2 = PAA_e(self.depth * 2, self.depth)
+        self.context3 = PAA_e(self.depth * 2, self.depth)
+        self.context4 = PAA_e(self.depth * 2, self.depth)
+        self.context5 = PAA_e(self.depth * 2, self.depth)
+        
+        self.rgbd_decoder = Decoder(in_channels, depth, self.loss_fn)
 
         self.ret = lambda x, target: F.interpolate(x, size=target.shape[-2:], mode='bilinear', align_corners=False)
         self.res = lambda x, size: F.interpolate(x, size=size, mode='bilinear', align_corners=False)
@@ -131,7 +139,8 @@ class InSPyReNetV3(nn.Module):
         self.pyr = self.pyr.cuda()
         self.rgb_decoder = self.rgb_decoder.cuda()
         self.d_decoder = self.d_decoder.cuda()
-        self = super(InSPyReNetV3, self).cuda()
+        self.rgbd_decoder = self.rgbd_decoder.cuda()
+        self = super(InSPyReNetV4, self).cuda()
         return self
     
     def forward(self, sample):
@@ -153,14 +162,17 @@ class InSPyReNetV3(nn.Module):
         
         ds = self.d_encoder(xs)
         d_out = self.d_decoder(ds, x.shape, dh)
+        
+        rd_out = self.rgbd_decoder([con(torch.cat([r, d], dim=1)) for r, d, con in zip(rs, ds, [self.context1, self.context2, self.context3, self.context4, self.context5])], x.shape, y)
     
         _, _, _, r0 = r_out['gaussian']
         _, _, _, d0 = d_out['gaussian']
+        _, _, _, rd0 = rd_out['gaussian']
 
-        loss = r_out['loss'] + d_out['loss']
+        loss = r_out['loss'] + d_out['loss'] + rd_out['loss']
 
         if type(sample) == dict:
-            return {'pred': r0,
+            return {'pred': rd0,
                     'loss': loss,
                     'rgb_gaussian': r_out['gaussian'],
                     'rgb_laplacian': r_out['laplacian'],
@@ -168,23 +180,23 @@ class InSPyReNetV3(nn.Module):
                     'd_laplacian': d_out['laplacian']}
         
         else:
-            return d0
+            return rd0
     
     
-def InSPyReNetV3_Res2Net50(depth, pretrained):
-    return InSPyReNetV3(res2net50_v1b_26w_4s(pretrained=pretrained), [64, 256, 512, 1024, 2048], depth)
+def InSPyReNetV4_Res2Net50(depth, pretrained):
+    return InSPyReNetV4(res2net50_v1b_26w_4s(pretrained=pretrained), [64, 256, 512, 1024, 2048], depth)
 
-def InSPyReNetV3_Res2Net101(depth, pretrained):
-    return InSPyReNetV3(res2net101_v1b_26w_4s(pretrained=pretrained), [64, 256, 512, 1024, 2048], depth)
+def InSPyReNetV4_Res2Net101(depth, pretrained):
+    return InSPyReNetV4(res2net101_v1b_26w_4s(pretrained=pretrained), [64, 256, 512, 1024, 2048], depth)
 
-def InSPyReNetV3_SwinS(depth, pretrained):
-    return InSPyReNetV3(SwinS(pretrained=pretrained), [96, 96, 192, 384, 768], depth)
+def InSPyReNetV4_SwinS(depth, pretrained):
+    return InSPyReNetV4(SwinS(pretrained=pretrained), [96, 96, 192, 384, 768], depth)
 
-def InSPyReNetV3_SwinT(depth, pretrained):
-    return InSPyReNetV3(SwinT(pretrained=pretrained), [96, 96, 192, 384, 768], depth)
+def InSPyReNetV4_SwinT(depth, pretrained):
+    return InSPyReNetV4(SwinT(pretrained=pretrained), [96, 96, 192, 384, 768], depth)
     
-def InSPyReNetV3_SwinB(depth, pretrained):
-    return InSPyReNetV3(SwinB(pretrained=pretrained), [128, 128, 256, 512, 1024], depth)
+def InSPyReNetV4_SwinB(depth, pretrained):
+    return InSPyReNetV4(SwinB(pretrained=pretrained), [128, 128, 256, 512, 1024], depth)
 
-def InSPyReNetV3_SwinL(depth, pretrained):
-    return InSPyReNetV3(SwinL(pretrained=pretrained), [192, 192, 384, 768, 1536], depth)
+def InSPyReNetV4_SwinL(depth, pretrained):
+    return InSPyReNetV4(SwinL(pretrained=pretrained), [192, 192, 384, 768, 1536], depth)

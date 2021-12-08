@@ -77,7 +77,7 @@ class random_scale_crop:
                     lw = (sample[key].size[1] + base_size[1]) // 2
 
                     border = -min(0, min(lf, up))
-                    sample[key] = ImageOps.expand(sample[key], border=border) #, fill=np.array(sample[key]).min() if key == 'depth' else None)
+                    sample[key] = ImageOps.expand(sample[key], border=border, fill=255 if key == 'depth' else None)
                     sample[key] = sample[key].crop((lf + border, up + border, rg + border, lw + border))
 
         return sample
@@ -115,8 +115,7 @@ class random_rotate:
             for key in sample.keys():
                 if key in ['image', 'gt', 'depth']:
                     base_size = sample[key].size
-
-                    sample[key] = sample[key].rotate(rot, expand=True) #, fillcolor=np.array(sample[key]).min() if key == 'depth' else None)
+                    sample[key] = sample[key].rotate(rot, expand=True, fillcolor=255 if key == 'depth' else None)
 
                     sample[key] = sample[key].crop(((sample[key].size[0] - base_size[0]) // 2,
                                                     (sample[key].size[1] - base_size[1]) // 2,
@@ -203,9 +202,9 @@ class totensor:
             sample['gt'] = sample['gt'].unsqueeze(dim=0)
 
         if 'depth' in sample.keys():
-            sample['depth'] = sample['depth'].transpose((2, 0, 1))
-            sample['depth'] = torch.from_numpy(sample['depth']).float()
-            # sample['depth'] = torch.from_numpy(sample['depth'])
-            # sample['depth'] = sample['depth'].unsqueeze(dim=0)
+            # sample['depth'] = sample['depth'].transpose((2, 0, 1))
+            # sample['depth'] = torch.from_numpy(sample['depth']).float()
+            sample['depth'] = torch.from_numpy(sample['depth'])
+            sample['depth'] = sample['depth'].unsqueeze(dim=0)
 
         return sample

@@ -54,7 +54,7 @@ class InSPyReNetV2(nn.Module):
         else:
             x, dh = sample
             
-        x = torch.cat([x, dh[:, 0:1]], dim=1)
+        x = torch.cat([x, dh], dim=1)
         x = self.reduce(x)
             
         B, _, H, W = x.shape

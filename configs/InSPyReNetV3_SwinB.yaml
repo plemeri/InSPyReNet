@@ -1,6 +1,6 @@
 Model:
     name: "InSPyReNetV3_SwinB"
-    depth: 32
+    depth: 64
     pretrained: True
     PM:
         patch_size: 384
