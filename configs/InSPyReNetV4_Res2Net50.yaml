@@ -48,7 +48,7 @@ Train:
         checkpoint_epoch: 1
         checkpoint_dir: "snapshots/InSPyReNetV4_Res2Net50"
     Debug:
-        keys: ['rgb_gaussian', 'rgb_laplacian', 'd_gaussian', 'd_laplacian']
+        keys: ['gaussian', 'laplacian']
     HyperTune:
         HyperParameter: ['Train', 'Optimizer', 'lr']
         Range: [1.0e-6, 2.4e-5, 24]

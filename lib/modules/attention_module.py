@@ -135,3 +135,85 @@ class ASCA(nn.Module):
         out = self.conv_out4(x)
 
         return x, out
+    
+    
+class DACA(nn.Module):
+    def __init__(self, in_channel, channel, dmap_in=False):
+        super(DACA, self).__init__()
+        self.in_channel = in_channel
+        self.channel = channel
+        self.dmap_in = dmap_in
+        
+        self.conv_query = nn.Sequential(conv(in_channel, channel, 3, relu=True),
+                                        conv(channel, channel, 3, relu=True))
+        self.conv_key   = nn.Sequential(conv(in_channel, channel, 1, relu=True),
+                                        conv(channel, channel, 1, relu=True))
+        self.conv_value = nn.Sequential(conv(in_channel, channel, 1, relu=True),
+                                        conv(channel, channel, 1, relu=True))
+
+        if self.dmap_in is True:
+            self.ctx = 5
+        else:
+            self.ctx = 3
+
+        self.conv_out1 = conv(channel, channel, 3, relu=True)
+        self.conv_out2 = conv(in_channel + channel, channel, 3, relu=True)
+        self.conv_out3 = conv(channel, channel, 3, relu=True)
+        self.conv_out4 = conv(channel, 1, 1)
+
+        self.threshold = Parameter(torch.tensor([0.5]))
+        
+        if self.dmap_in is True:
+            self.lthreshold = Parameter(torch.tensor([0.5]))
+
+    def forward(self, x, smap, dmap: Optional[torch.Tensor]=None):
+        assert not xor(self.dmap_in is True, dmap is not None)
+        b, c, h, w = x.shape
+        
+        # compute class probability
+        smap = F.interpolate(smap, size=x.shape[-2:], mode='bilinear', align_corners=False)
+        smap = torch.sigmoid(smap)
+        p = smap - self.threshold
+
+        fg = torch.clip(p, 0, 1) # foreground
+        bg = torch.clip(-p, 0, 1) # background
+        cg = self.threshold - torch.abs(p) # confusion area
+
+        if self.dmap_in is True and dmap is not None:
+            dmap = F.interpolate(dmap, size=x.shape[-2:], mode='bilinear', align_corners=False)
+            fp = dmap
+            bp = 1 - dmap
+
+            prob = [fg, bg, cg, fp, bp]
+        else:
+            prob = [fg, bg, cg]
+
+        prob = torch.cat(prob, dim=1)
+
+        # reshape feature & prob
+        f = x.view(b, h * w, -1)
+        prob = prob.view(b, self.ctx, h * w)
+        
+        # compute context vector
+        context = torch.bmm(prob, f).permute(0, 2, 1).unsqueeze(3) # b, 3, c
+
+        # k q v compute
+        query = self.conv_query(x).view(b, self.channel, -1).permute(0, 2, 1)
+        key = self.conv_key(context).view(b, self.channel, -1)
+        value = self.conv_value(context).view(b, self.channel, -1).permute(0, 2, 1)
+
+        # compute similarity map
+        sim = torch.bmm(query, key) # b, hw, c x b, c, 2
+        sim = (self.channel ** -.5) * sim
+        sim = F.softmax(sim, dim=-1)
+
+        # compute refined feature
+        context = torch.bmm(sim, value).permute(0, 2, 1).contiguous().view(b, -1, h, w)
+        context = self.conv_out1(context)
+        
+        x = torch.cat([x, context], dim=1)
+        x = self.conv_out2(x)
+        x = self.conv_out3(x)
+        out = self.conv_out4(x)
+
+        return x, out

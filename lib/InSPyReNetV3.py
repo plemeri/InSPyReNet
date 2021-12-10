@@ -139,7 +139,8 @@ class InSPyReNetV3(nn.Module):
             x = sample['image']
             dh = sample['depth']
         else:
-            x, dh = sample
+            x = sample
+            dh = None
             
         if type(sample) == dict and 'gt' in sample.keys() and sample['gt'] is not None:
             y = sample['gt']
@@ -160,7 +161,7 @@ class InSPyReNetV3(nn.Module):
         loss = r_out['loss'] + d_out['loss']
 
         if type(sample) == dict:
-            return {'pred': r0,
+            return {'pred': d0,
                     'loss': loss,
                     'rgb_gaussian': r_out['gaussian'],
                     'rgb_laplacian': r_out['laplacian'],
@@ -168,7 +169,7 @@ class InSPyReNetV3(nn.Module):
                     'd_laplacian': d_out['laplacian']}
         
         else:
-            return d0
+            return r0
     
     
 def InSPyReNetV3_Res2Net50(depth, pretrained):
