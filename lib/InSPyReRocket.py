@@ -104,9 +104,9 @@ class Decoder(nn.Module):
                 'feats': [f3, f2, f1],
                 'loss': loss}
 
-class InSPyReNetV3(nn.Module):
+class InSPyReRocket(nn.Module):
     def __init__(self, backbone, in_channels, depth=64):
-        super(InSPyReNetV3, self).__init__()
+        super(InSPyReRocket, self).__init__()
         self.backbone = backbone
         self.in_channels = in_channels
         self.depth = depth
@@ -120,6 +120,12 @@ class InSPyReNetV3(nn.Module):
         
         self.d_encoder = Encoder(in_channels, depth)
         self.d_decoder = Decoder(in_channels, depth, self.depth_loss_fn)
+        
+        self.decoder = PAA_d(depth * 2)
+        
+        self.attention0 = DACA(depth * 2, depth, dmap_in=True)
+        self.attention1 = DACA(depth * 4, depth, dmap_in=True)
+        self.attention2 = DACA(depth * 4, depth, dmap_in=True)
 
         self.ret = lambda x, target: F.interpolate(x, size=target.shape[-2:], mode='bilinear', align_corners=False)
         self.res = lambda x, size: F.interpolate(x, size=size, mode='bilinear', align_corners=False)
@@ -131,7 +137,7 @@ class InSPyReNetV3(nn.Module):
         self.pyr = self.pyr.cuda()
         self.rgb_decoder = self.rgb_decoder.cuda()
         self.d_decoder = self.d_decoder.cuda()
-        self = super(InSPyReNetV3, self).cuda()
+        self = super(InSPyReRocket, self).cuda()
         return self
     
     def forward(self, sample):
@@ -154,11 +160,43 @@ class InSPyReNetV3(nn.Module):
         
         ds = self.d_encoder(xs)
         d_out = self.d_decoder(ds, x.shape, dh)
-    
-        _, _, _, r0 = r_out['gaussian']
-        _, _, _, d0 = d_out['gaussian']
+        dh3, dh2, dh1, dh0 = d_out['gaussian']
+        
+        x5, x4, x3, x2, x1 = [torch.cat([r, d], dim=1) for r, d in zip(rs, ds)]
+        f3, d3 = self.decoder(x5, x4, x3) #16
 
-        loss = r_out['loss'] + d_out['loss']
+        f3 = self.res(f3, (H // 4,  W // 4 ))
+        f2, p2 = self.attention2(torch.cat([x2, f3], dim=1), d3.detach(), dh3.detach())
+        d2 = self.pyr.rec(d3.detach(), p2) #4
+
+        x1 = self.res(x1, (H // 2, W // 2))
+        f2 = self.res(f2, (H // 2, W // 2))
+        f1, p1 = self.attention1(torch.cat([x1, f2], dim=1), d2.detach(), dh2.detach()) #2
+        d1 = self.pyr.rec(d2.detach(), p1) #2
+        
+        f1 = self.res(f1, (H, W))
+        _, p0 = self.attention0(f1, d1.detach(), dh1.detach()) #2
+        d0 = self.pyr.rec(d1.detach(), p0) #2
+    
+        if y is not None:
+            y1 = self.pyr.down(y)
+            y2 = self.pyr.down(y1)
+            y3 = self.pyr.down(y2)
+
+            ploss =  self.pyramidal_consistency_loss_fn(self.des(d3, (H, W)), self.des(self.pyr.down(d2), (H, W)).detach()) * 0.0001
+            ploss += self.pyramidal_consistency_loss_fn(self.des(d2, (H, W)), self.des(self.pyr.down(d1), (H, W)).detach()) * 0.0001
+            ploss += self.pyramidal_consistency_loss_fn(self.des(d1, (H, W)), self.des(self.pyr.down(d0), (H, W)).detach()) * 0.0001
+            
+            closs =  self.loss_fn(self.des(d3, (H, W)), self.des(y3, (H, W)))
+            closs += self.loss_fn(self.des(d2, (H, W)), self.des(y2, (H, W)))
+            closs += self.loss_fn(self.des(d1, (H, W)), self.des(y1, (H, W)))
+            closs += self.loss_fn(self.des(d0, (H, W)), self.des(y, (H, W)))
+            
+            loss = ploss + closs
+        else:
+            loss = 0
+    
+        loss += r_out['loss'] + d_out['loss']
 
         if type(sample) == dict:
             return {'pred': d0,
@@ -169,23 +207,23 @@ class InSPyReNetV3(nn.Module):
                     'd_laplacian': d_out['laplacian']}
         
         else:
-            return r0
+            return d0
     
     
-def InSPyReNetV3_Res2Net50(depth, pretrained):
-    return InSPyReNetV3(res2net50_v1b_26w_4s(pretrained=pretrained), [64, 256, 512, 1024, 2048], depth)
+def InSPyReRocket_Res2Net50(depth, pretrained):
+    return InSPyReRocket(res2net50_v1b_26w_4s(pretrained=pretrained), [64, 256, 512, 1024, 2048], depth)
 
-def InSPyReNetV3_Res2Net101(depth, pretrained):
-    return InSPyReNetV3(res2net101_v1b_26w_4s(pretrained=pretrained), [64, 256, 512, 1024, 2048], depth)
+def InSPyReRocket_Res2Net101(depth, pretrained):
+    return InSPyReRocket(res2net101_v1b_26w_4s(pretrained=pretrained), [64, 256, 512, 1024, 2048], depth)
 
-def InSPyReNetV3_SwinS(depth, pretrained):
-    return InSPyReNetV3(SwinS(pretrained=pretrained), [96, 96, 192, 384, 768], depth)
+def InSPyReRocket_SwinS(depth, pretrained):
+    return InSPyReRocket(SwinS(pretrained=pretrained), [96, 96, 192, 384, 768], depth)
 
-def InSPyReNetV3_SwinT(depth, pretrained):
-    return InSPyReNetV3(SwinT(pretrained=pretrained), [96, 96, 192, 384, 768], depth)
+def InSPyReRocket_SwinT(depth, pretrained):
+    return InSPyReRocket(SwinT(pretrained=pretrained), [96, 96, 192, 384, 768], depth)
     
-def InSPyReNetV3_SwinB(depth, pretrained):
-    return InSPyReNetV3(SwinB(pretrained=pretrained), [128, 128, 256, 512, 1024], depth)
+def InSPyReRocket_SwinB(depth, pretrained):
+    return InSPyReRocket(SwinB(pretrained=pretrained), [128, 128, 256, 512, 1024], depth)
 
-def InSPyReNetV3_SwinL(depth, pretrained):
-    return InSPyReNetV3(SwinL(pretrained=pretrained), [192, 192, 384, 768, 1536], depth)
+def InSPyReRocket_SwinL(depth, pretrained):
+    return InSPyReRocket(SwinL(pretrained=pretrained), [192, 192, 384, 768, 1536], depth)
