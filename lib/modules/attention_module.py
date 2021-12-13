@@ -52,6 +52,67 @@ class simple_attention(nn.Module):
         out = out + map
 
         return x, out
+    
+class Attn(nn.Module):
+    def __init__(self, in_channel, channel, decoder=False):
+        super(Attn, self).__init__()
+        self.in_channel = in_channel
+        self.channel = channel
+        self.decoder = decoder
+        
+        self.conv_query = nn.Sequential(conv(in_channel, channel, 3, relu=True),
+                                        conv(channel, channel, 3, relu=True))
+        self.conv_key   = nn.Sequential(conv(in_channel, channel, 1, relu=True),
+                                        conv(channel, channel, 1, relu=True))
+        self.conv_value = nn.Sequential(conv(in_channel, channel, 1, relu=True),
+                                        conv(channel, channel, 1, relu=True))
+
+        self.conv_out1 = conv(channel, channel, 3, relu=True)
+        self.conv_out2 = conv(in_channel + channel, channel, 3, relu=True)
+        if self.decoder is True:
+            self.conv_out3 = conv(channel, channel, 3, relu=True)
+            self.conv_out4 = conv(channel, 1, 1)
+
+    def forward(self, x, smap):
+        b, c, h, w = x.shape
+        
+        # compute class probability
+        smap = F.interpolate(smap, size=x.shape[-2:], mode='bilinear', align_corners=False)
+        if smap.max() > 1 or smap.min() < 0:
+            smap = torch.sigmoid(smap)
+        prob = [smap, 1 - smap]
+        prob = torch.cat(prob, dim=1)
+
+        # reshape feature & prob
+        f = x.view(b, h * w, -1)
+        prob = prob.view(b, 2, h * w)
+        
+        # compute context vector
+        context = torch.bmm(prob, f).permute(0, 2, 1).unsqueeze(3) # b, 3, c
+
+        # k q v compute
+        query = self.conv_query(x).view(b, self.channel, -1).permute(0, 2, 1)
+        key = self.conv_key(context).view(b, self.channel, -1)
+        value = self.conv_value(context).view(b, self.channel, -1).permute(0, 2, 1)
+
+        # compute similarity map
+        sim = torch.bmm(query, key) # b, hw, c x b, c, 2
+        sim = (self.channel ** -.5) * sim
+        sim = F.softmax(sim, dim=-1)
+
+        # compute refined feature
+        context = torch.bmm(sim, value).permute(0, 2, 1).contiguous().view(b, -1, h, w)
+        context = self.conv_out1(context)
+        
+        x = torch.cat([x, context], dim=1)
+        x = self.conv_out2(x)
+        if self.decoder is True:
+            x = self.conv_out3(x)
+            out = self.conv_out4(x)
+        else:
+            out = None
+
+        return x, out
 
 class ASCA(nn.Module):
     def __init__(self, in_channel, channel, lmap_in=False):
