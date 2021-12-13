@@ -123,8 +123,8 @@ class InSPyReRocket(nn.Module):
         
         self.decoder = PAA_d(depth * 2)
         
-        self.attention0 = DACA(depth * 2, depth, dmap_in=True)
-        self.attention1 = DACA(depth * 4, depth, dmap_in=True)
+        self.attention0 = DACA(depth, depth, dmap_in=True)
+        self.attention1 = DACA(depth * 3, depth, dmap_in=True)
         self.attention2 = DACA(depth * 4, depth, dmap_in=True)
 
         self.ret = lambda x, target: F.interpolate(x, size=target.shape[-2:], mode='bilinear', align_corners=False)
@@ -162,7 +162,7 @@ class InSPyReRocket(nn.Module):
         d_out = self.d_decoder(ds, x.shape, dh)
         dh3, dh2, dh1, dh0 = d_out['gaussian']
         
-        x5, x4, x3, x2, x1 = [torch.cat([r, d], dim=1) for r, d in zip(rs, ds)]
+        x1, x2, x3, x4, x5 = [torch.cat([r, d], dim=1) for r, d in zip(rs, ds)]
         f3, d3 = self.decoder(x5, x4, x3) #16
 
         f3 = self.res(f3, (H // 4,  W // 4 ))
