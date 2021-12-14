@@ -33,11 +33,11 @@ class InSPyReNetV4(nn.Module):
         self.decoder = PAA_d(self.depth)
 
         self.attention0_1 = Attn(self.depth    , depth, decoder=False)
-        self.attention0_2 = Attn(self.depth * 2, depth, decoder=False)
+        self.attention0_2 = Attn(self.depth    , depth, decoder=False)
         self.attention0_3 = Attn(self.depth * 3, depth, decoder=True)
         
         self.attention1_1 = Attn(self.depth * 2, depth, decoder=False)
-        self.attention1_2 = Attn(self.depth * 3, depth, decoder=False)
+        self.attention1_2 = Attn(self.depth * 2, depth, decoder=False)
         self.attention1_3 = Attn(self.depth * 4, depth, decoder=True)
 
         self.attention2_1 = Attn(self.depth * 2, depth, decoder=False)
