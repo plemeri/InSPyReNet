@@ -23,6 +23,7 @@ def _args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--config', type=str, default='configs/InSPyReNet_SwinB.yaml')
     parser.add_argument('--verbose', action='store_true', default=False)
+    parser.add_argument('--PM',      action='store_true', default=False)
     return parser.parse_args()
 
 
@@ -30,6 +31,13 @@ def test(opt, args):
     model = eval(opt.Model.name)(depth=opt.Model.depth,
                                 pretrained=False)
     model.load_state_dict(torch.load(os.path.join(opt.Test.Checkpoint.checkpoint_dir, 'latest.pth')), strict=True)
+    
+    if args.PM is True:
+        if 'InSPyRe' in opt.Model.name:
+            model = PPM(model, opt.Model.PM.patch_size, opt.Model.PM.stride)
+    else:
+        model = SPM(model, opt.Model.PM.patch_size, opt.Model.PM.stride)
+        
     model.cuda()
     model.eval()
 
