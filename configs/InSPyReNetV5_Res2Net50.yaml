@@ -23,6 +23,8 @@ Train:
                 range: [-10, 10]
             random_image_enhance:
                 methods: ['contrast', 'sharpness', 'brightness']
+            histogram_equalization: NULL
+            random_gamma_corruption: NULL
             tonumpy: NULL
             normalize: 
                 mean: [0.485, 0.456, 0.406]
@@ -61,6 +63,7 @@ Test:
         transforms:
             resize:
                 size: [384, 384]
+            histogram_equalization: NULL
             tonumpy: NULL
             normalize: 
                 mean: [0.485, 0.456, 0.406]
@@ -70,6 +73,8 @@ Test:
             dynamic_resize:
                 base_size: 384
                 stride: 192
+            histogram_equalization: NULL
+            random_gamma_corruption: NULL
             tonumpy: NULL
             normalize: 
                 mean: [0.485, 0.456, 0.406]

@@ -155,6 +155,40 @@ class random_gaussian_blur:
             sample['image'] = sample['image'].filter(ImageFilter.GaussianBlur(radius=np.random.random()))
 
         return sample
+# class gamma_correction:
+#     def __init__(self):
+#         pass
+        
+#     def __call__(self, sample):
+#         if 'depth' in sample.keys():
+#             gamma = 
+#             sample['depth'] = sample['depth'] ** gamma
+
+#         return sample
+
+class histogram_equalization:
+    def __init__(self):
+        pass
+        
+    def __call__(self, sample):
+        if 'depth' in sample.keys():
+            sample['depth'] = Image.fromarray(cv2.equalizeHist(np.array(sample['depth'])))
+
+        return sample
+    
+class random_gamma_corruption:
+    def __init__(self):
+        pass
+        
+    def __call__(self, sample):
+        if 'depth' in sample.keys():
+            if np.random.random() > .5:
+                depth = np.array(sample['depth'])
+                depth = (depth / 255) ** (np.random.random() * .4 + .8)
+                depth = (depth * 255).astype(np.uint8)
+                sample['depth'] = depth
+
+        return sample
 
 class tonumpy:
     def __init__(self):
@@ -186,8 +220,6 @@ class normalize:
             sample['depth'] /= self.div
 
         return sample
-
-
 class totensor:
     def __init__(self):
         pass
