@@ -173,7 +173,7 @@ class histogram_equalization_clahe:
         
     def __call__(self, sample):
         if 'depth' in sample.keys():
-            sample['depth'] = Image.fromarray(self.clahe.apply(x))
+            sample['depth'] = Image.fromarray(self.clahe.apply(np.array(sample['depth'])))
 
         return sample
     
