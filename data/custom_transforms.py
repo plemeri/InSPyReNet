@@ -155,16 +155,7 @@ class random_gaussian_blur:
             sample['image'] = sample['image'].filter(ImageFilter.GaussianBlur(radius=np.random.random()))
 
         return sample
-# class gamma_correction:
-#     def __init__(self):
-#         pass
-        
-#     def __call__(self, sample):
-#         if 'depth' in sample.keys():
-#             gamma = 
-#             sample['depth'] = sample['depth'] ** gamma
 
-#         return sample
 
 class histogram_equalization:
     def __init__(self):
@@ -173,6 +164,16 @@ class histogram_equalization:
     def __call__(self, sample):
         if 'depth' in sample.keys():
             sample['depth'] = Image.fromarray(cv2.equalizeHist(np.array(sample['depth'])))
+
+        return sample
+    
+class histogram_equalization_clahe:
+    def __init__(self):
+        self.clahe = cv2.createCLAHE(clipLimit=4.0, tileGridSize=(8, 8))
+        
+    def __call__(self, sample):
+        if 'depth' in sample.keys():
+            sample['depth'] = Image.fromarray(self.clahe.apply(x))
 
         return sample
     
