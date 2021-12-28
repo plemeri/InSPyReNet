@@ -25,7 +25,7 @@ def _args():
 
 def benchmark(opt, args):
     model = eval(opt.Model.name)(depth=opt.Model.depth, pretrained=False)
-    
+    print(model.backbone.fc)
     if args.PM is True:
         if 'InSPyRe' in opt.Model.name:
             model = PPM(model, opt.Model.PM.patch_size, opt.Model.PM.stride)

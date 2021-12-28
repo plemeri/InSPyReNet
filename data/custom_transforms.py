@@ -167,13 +167,13 @@ class histogram_equalization:
 
         return sample
     
-class histogram_equalization_clahe:
-    def __init__(self):
-        self.clahe = cv2.createCLAHE(clipLimit=4.0, tileGridSize=(8, 8))
+class clahe:
+    def __init__(self, clip=4.0, grid=(8, 8)):
+        self.eq = cv2.createCLAHE(clipLimit=clip, tileGridSize=grid)
         
     def __call__(self, sample):
         if 'depth' in sample.keys():
-            sample['depth'] = Image.fromarray(self.clahe.apply(np.array(sample['depth'])))
+            sample['depth'] = Image.fromarray(self.eq.apply(np.array(sample['depth'])))
 
         return sample
     

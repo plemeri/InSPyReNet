@@ -20,7 +20,6 @@ class InSPyReRocket(nn.Module):
         self.depth = depth
         
         self.reduce = conv(4, 3, 3)
-        self.induce = conv(3, 4, 3)
         
         self.context1 = PAA_e(self.in_channels[0], self.depth)
         self.context2 = PAA_e(self.in_channels[1], self.depth)
@@ -30,9 +29,13 @@ class InSPyReRocket(nn.Module):
 
         self.decoder = PAA_d(self.depth)
 
-        self.attention0 = ASCA(self.depth    , depth, lmap_in=True)
-        self.attention1 = ASCA(self.depth * 2, depth, lmap_in=True)
-        self.attention2 = ASCA(self.depth * 2, depth)
+        self.attention0_1 = Attn(self.depth    , depth, decoder=False)
+        self.attention1_1 = Attn(self.depth * 2, depth, decoder=False)
+        self.attention2_1 = Attn(self.depth * 2, depth, decoder=False)
+        
+        self.attention0_2 = Attn(self.depth    , depth, decoder=True)
+        self.attention1_2 = Attn(self.depth * 2, depth, decoder=True)
+        self.attention2_2 = Attn(self.depth * 2, depth, decoder=True)
 
         self.loss_fn = lambda x, y: weighted_tversky_bce_loss(x, y, alpha=0.2, beta=0.8, gamma=2)
         self.pyramidal_consistency_loss_fn = nn.L1Loss()
@@ -53,15 +56,10 @@ class InSPyReRocket(nn.Module):
             x = sample['image']
             dh = sample['depth']
         else:
-            x = sample
-            dh = None
+            x, dh = sample
             
-        induced_xdh = self.induce(x)
-        if dh is not None:
-            xdh = torch.cat([x, dh], dim=1)
-        else:
-            xdh = induced_xdh
-        x = self.reduce(xdh)
+        x = torch.cat([x, dh], dim=1)
+        x = self.reduce(x)
         
         dh1 = self.pyr.down(dh)
         dh2 = self.pyr.down(dh1)
@@ -79,16 +77,19 @@ class InSPyReRocket(nn.Module):
         f3, d3 = self.decoder(x5, x4, x3) #16
 
         f3 = self.res(f3, (H // 4,  W // 4 ))
-        f2, p2 = self.attention2(torch.cat([x2, f3], dim=1), d3.detach())
+        f2, _ = self.attention2_1(torch.cat([x2, f3], dim=1), d3.detach())
+        f2, p2 = self.attention2_2(torch.cat([f2, f3], dim=1), dh3)
         d2 = self.pyr.rec(d3.detach(), p2) #4
 
         x1 = self.res(x1, (H // 2, W // 2))
         f2 = self.res(f2, (H // 2, W // 2))
-        f1, p1 = self.attention1(torch.cat([x1, f2], dim=1), d2.detach(), p2.detach()) #2
+        f1, _ = self.attention1_1(torch.cat([x1, f2], dim=1), d2.detach()) #2
+        f1, p1 = self.attention1_2(torch.cat([f1, f2], dim=1), dh2) #2
         d1 = self.pyr.rec(d2.detach(), p1) #2
         
         f1 = self.res(f1, (H, W))
-        _, p0 = self.attention0(f1, d1.detach(), p1.detach()) #2
+        f1, _ = self.attention0_1(f1, d1.detach()) #2
+        f1, p0 = self.attention0_2(f1, dh1) #2
         d0 = self.pyr.rec(d1.detach(), p0) #2
         
         if type(sample) == dict and 'gt' in sample.keys() and sample['gt'] is not None:
