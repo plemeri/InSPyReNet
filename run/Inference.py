@@ -44,15 +44,15 @@ def get_format(source):
         return ''
 
 def inference(opt, args):
-    model = eval(opt.Model.name)(depth=opt.Model.depth, pretrained=False)
+    model = eval(opt.Model.name)(**opt.Model)
     model.load_state_dict(torch.load(os.path.join(
         opt.Test.Checkpoint.checkpoint_dir, 'latest.pth'), map_location=torch.device('cpu')), strict=True)
     
     if args.PM is True:
         if 'InSPyRe' in opt.Model.name:
-            model = PPM(model, opt.Model.PM.patch_size, opt.Model.PM.stride)
+            model = PPM(model, opt.PM.patch_size, opt.PM.stride)
         else:
-            model = SPM(model, opt.Model.PM.patch_size, opt.Model.PM.stride)
+            model = SPM(model, opt.PM.patch_size, opt.PM.stride)
     
     if args.gpu is True:
         model = model.cuda()

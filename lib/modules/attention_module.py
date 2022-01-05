@@ -54,11 +54,15 @@ class simple_attention(nn.Module):
         return x, out
     
 class Attn(nn.Module):
-    def __init__(self, in_channel, channel, decoder=False):
+    def __init__(self, in_channel, channel, decoder, base_size=None, stage=None, lmap_in=False):
         super(Attn, self).__init__()
         self.in_channel = in_channel
         self.channel = channel
         self.decoder = decoder
+        if base_size is not None and stage is not None:
+            self.stage_size = base_size // (2 ** stage)
+        else:
+            self.stage_size = None
         
         self.conv_query = nn.Sequential(conv(in_channel, channel, 3, relu=True),
                                         conv(channel, channel, 3, relu=True))
@@ -84,8 +88,15 @@ class Attn(nn.Module):
         prob = torch.cat(prob, dim=1)
 
         # reshape feature & prob
-        f = x.view(b, h * w, -1)
-        prob = prob.view(b, 2, h * w)
+        if self.stage_size is not None:
+            shape = (self.stage_size, self.stage_size)
+            shape_mul = self.stage_size * self.stage_size
+        else:
+            shape = (h, w)
+            shape_mul = h * w        
+        
+        f = F.interpolate(x, size=shape, mode='bilinear', align_corners=False).view(b, shape_mul, -1)
+        prob = F.interpolate(prob, size=shape, mode='bilinear', align_corners=False).view(b, 2, shape_mul)
         
         # compute context vector
         context = torch.bmm(prob, f).permute(0, 2, 1).unsqueeze(3) # b, 3, c
@@ -115,11 +126,15 @@ class Attn(nn.Module):
         return x, out
 
 class ASCA(nn.Module):
-    def __init__(self, in_channel, channel, lmap_in=False):
+    def __init__(self, in_channel, channel, base_size=None, stage=None, lmap_in=False):
         super(ASCA, self).__init__()
         self.in_channel = in_channel
         self.channel = channel
         self.lmap_in = lmap_in
+        if base_size is not None and stage is not None:
+            self.stage_size = base_size // (2 ** stage)
+        else:
+            self.stage_size = None
         
         self.conv_query = nn.Sequential(conv(in_channel, channel, 3, relu=True),
                                         conv(channel, channel, 3, relu=True))
@@ -170,8 +185,15 @@ class ASCA(nn.Module):
         prob = torch.cat(prob, dim=1)
 
         # reshape feature & prob
-        f = x.view(b, h * w, -1)
-        prob = prob.view(b, self.ctx, h * w)
+        if self.stage_size is not None:
+            shape = (self.stage_size, self.stage_size)
+            shape_mul = self.stage_size * self.stage_size
+        else:
+            shape = (h, w)
+            shape_mul = h * w        
+        
+        f = F.interpolate(x, size=shape, mode='bilinear', align_corners=False).view(b, shape_mul, -1)
+        prob = F.interpolate(prob, size=shape, mode='bilinear', align_corners=False).view(b, self.ctx, shape_mul)
         
         # compute context vector
         context = torch.bmm(prob, f).permute(0, 2, 1).unsqueeze(3) # b, 3, c
@@ -199,11 +221,11 @@ class ASCA(nn.Module):
     
     
 class DACA(nn.Module):
-    def __init__(self, in_channel, channel, dmap_in=False):
+    def __init__(self, in_channel, channel, lmap_in=False):
         super(DACA, self).__init__()
         self.in_channel = in_channel
         self.channel = channel
-        self.dmap_in = dmap_in
+        self.lmap_in = lmap_in
         
         self.conv_query = nn.Sequential(conv(in_channel, channel, 3, relu=True),
                                         conv(channel, channel, 3, relu=True))
@@ -212,43 +234,36 @@ class DACA(nn.Module):
         self.conv_value = nn.Sequential(conv(in_channel, channel, 1, relu=True),
                                         conv(channel, channel, 1, relu=True))
 
-        if self.dmap_in is True:
-            self.ctx = 5
+        if self.lmap_in is True:
+            self.ctx = 7
         else:
-            self.ctx = 3
+            self.ctx = 5
 
         self.conv_out1 = conv(channel, channel, 3, relu=True)
         self.conv_out2 = conv(in_channel + channel, channel, 3, relu=True)
         self.conv_out3 = conv(channel, channel, 3, relu=True)
         self.conv_out4 = conv(channel, 1, 1)
 
-        self.threshold = Parameter(torch.tensor([0.5]))
-        
-        if self.dmap_in is True:
-            self.lthreshold = Parameter(torch.tensor([0.5]))
-
-    def forward(self, x, smap, dmap: Optional[torch.Tensor]=None):
-        assert not xor(self.dmap_in is True, dmap is not None)
+    def forward(self, x, smap, dmap, lmap: Optional[torch.Tensor]=None):
+        assert not xor(self.lmap_in is True, lmap is not None)
         b, c, h, w = x.shape
         
         # compute class probability
         smap = F.interpolate(smap, size=x.shape[-2:], mode='bilinear', align_corners=False)
         smap = torch.sigmoid(smap)
-        p = smap - self.threshold
+        rmap = 1 - smap
+        umap = - (smap * torch.log(smap + torch.finfo(torch.float32).eps)) + (1 - smap) * torch.log(1 - smap + torch.finfo(torch.float32).eps)
 
-        fg = torch.clip(p, 0, 1) # foreground
-        bg = torch.clip(-p, 0, 1) # background
-        cg = self.threshold - torch.abs(p) # confusion area
+        dmap = F.interpolate(dmap, size=x.shape[-2:], mode='bilinear', align_corners=False)
+        drmap = 1 - dmap
 
-        if self.dmap_in is True and dmap is not None:
-            dmap = F.interpolate(dmap, size=x.shape[-2:], mode='bilinear', align_corners=False)
-            fp = dmap
-            bp = 1 - dmap
+        prob = [smap, rmap, umap, dmap, drmap]
 
-            prob = [fg, bg, cg, fp, bp]
-        else:
-            prob = [fg, bg, cg]
-
+        if self.lmap_in is True and lmap is not None:
+            lmap = F.interpolate(lmap, size=x.shape[-2:], mode='bilinear', align_corners=False)
+            lmap = torch.sigmoid(lmap)
+            lrmap = 1 - lmap
+            prob.extend([lmap, lrmap])
         prob = torch.cat(prob, dim=1)
 
         # reshape feature & prob

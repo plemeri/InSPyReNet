@@ -2,15 +2,16 @@ Model:
     name: "InSPyReNetV2_Res2Net50"
     depth: 64
     pretrained: True
-    PM:
-        patch_size: 384
-        stride: 96
+    base_size: 384
+PM:
+    patch_size: 384
+    stride: 192
 
 Train:
     Dataset:
-        type: "RGBD_Dataset"
-        root: "data/RGBD_Dataset/Train_Dataset"
-        sets: ['NJU2K+NLPR']
+        type: "RGB_Dataset"
+        root: "data/RGB_Dataset/Train_Dataset"
+        sets: ['DUTS-TR']
         transforms:
             resize: 
                 size: [384, 384]
@@ -32,7 +33,7 @@ Train:
         batch_size: 6
         shuffle: True
         num_workers: 8
-        pin_memory: False
+        pin_memory: True
     Optimizer:
         type: "Adam"
         lr: 1.0e-05
@@ -40,7 +41,7 @@ Train:
         mixed_precision: False
     Scheduler:
         type: "PolyLr"
-        epoch: 300
+        epoch: 60
         gamma: 0.9
         minimum_lr: 1.0e-07
         warmup_iteration: 12000
@@ -50,19 +51,17 @@ Train:
     Debug:
         keys: ['gaussian', 'laplacian']
     HyperTune:
-        # HyperParameter: ['Train', 'Optimizer', 'lr']
-        # Range: [1.0e-6, 2.4e-5, 24]
-        HyperParameter: ['Train', 'Scheduler', 'warmup_iteration']
-        Range: [1000, 24000, 24]
-    
+        HyperParameter: ['Train', 'Optimizer', 'lr']
+        Range: [1.0e-6, 2.4e-5, 24]
+
 Test:
     Dataset:
-        type: "RGBD_Dataset"
-        root: "data/RGBD_Dataset/Test_Dataset"
-        sets: ['DES', 'LFSD', 'NJU2K', 'NLPR', 'SIP', 'STERE']
+        type: "RGB_Dataset"
+        root: "data/RGB_Dataset/Test_Dataset"
+        sets: ['DUTS-TE', 'DUT-OMRON', 'ECSSD', 'HKU-IS', 'PASCAL-S']
         transforms:
-            resize:
-                size: [384, 384]
+            # resize: 
+                # size: [384, 384]
             tonumpy: NULL
             normalize: 
                 mean: [0.485, 0.456, 0.406]
@@ -70,7 +69,7 @@ Test:
             totensor: NULL
         transforms_PM:
             dynamic_resize:
-                base_size: 384
+                patch_size: 384
                 stride: 192
             tonumpy: NULL
             normalize: 
@@ -84,8 +83,8 @@ Test:
         checkpoint_dir: "snapshots/InSPyReNetV2_Res2Net50"
 
 Eval:
-    gt_root: "data/RGBD_Dataset/Test_Dataset"
+    gt_root: "data/RGB_Dataset/Test_Dataset"
     pred_root: "snapshots/InSPyReNetV2_Res2Net50"
     result_path: "results"
-    datasets: ['DES', 'LFSD', 'NJU2K', 'NLPR', 'SIP', 'STERE']
+    datasets: ['DUTS-TE', 'DUT-OMRON', 'ECSSD', 'HKU-IS', 'PASCAL-S']
     metrics: ['Sm', 'mae', 'adpEm', 'maxEm', 'avgEm', 'adpFm', 'maxFm', 'avgFm', 'wFm']

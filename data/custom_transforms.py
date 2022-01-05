@@ -27,6 +27,19 @@ class resize:
 
         return sample
     
+class even_resize:
+    def __init__(self):
+        pass
+    
+    def __call__(self, sample):
+        if 'image' in sample.keys():
+            ar = sample['image'].size[0] / sample['image'].size[1]
+            size = (int(sample['image'].size[0] // 32) * 32, int(sample['image'].size[1] // 32) * 32)
+            
+            sample['image'] = sample['image'].resize(size, Image.BILINEAR)
+
+        return sample
+    
 class cvtcolor:
     def __init__(self):
         pass

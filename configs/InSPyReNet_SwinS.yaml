@@ -2,9 +2,10 @@ Model:
     name: "InSPyReNet_SwinS"
     depth: 64
     pretrained: True
-    PM:
-        patch_size: 384
-        stride: 192
+    base_size: 384
+PM:
+    patch_size: 384
+    stride: 192
 
 Train:
     Dataset:

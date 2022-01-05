@@ -105,7 +105,7 @@ class Decoder(nn.Module):
                 'loss': loss}
 
 class InSPyReNet_DH(nn.Module):
-    def __init__(self, backbone, in_channels, depth=64):
+    def __init__(self, backbone, in_channels, depth=64, base_size=384, **kwargs):
         super(InSPyReNet_DH, self).__init__()
         self.backbone = backbone
         self.in_channels = in_channels
@@ -222,20 +222,20 @@ class InSPyReNet_DH(nn.Module):
             return d0
     
     
-def InSPyReNet_DH_Res2Net50(depth, pretrained):
-    return InSPyReNet_DH(res2net50_v1b_26w_4s(pretrained=pretrained), [64, 256, 512, 1024, 2048], depth)
+def InSPyReNet_DH_Res2Net50(depth, pretrained, base_size, **kwargs):
+    return InSPyReNet_DH(res2net50_v1b_26w_4s(pretrained=pretrained), [64, 256, 512, 1024, 2048], depth, base_size, **kwargs)
 
-def InSPyReNet_DH_Res2Net101(depth, pretrained):
-    return InSPyReNet_DH(res2net101_v1b_26w_4s(pretrained=pretrained), [64, 256, 512, 1024, 2048], depth)
+def InSPyReNet_DH_Res2Net101(depth, pretrained, base_size, **kwargs):
+    return InSPyReNet_DH(res2net101_v1b_26w_4s(pretrained=pretrained), [64, 256, 512, 1024, 2048], depth, base_size, **kwargs)
 
-def InSPyReNet_DH_SwinS(depth, pretrained):
-    return InSPyReNet_DH(SwinS(pretrained=pretrained), [96, 96, 192, 384, 768], depth)
+def InSPyReNet_DH_SwinS(depth, pretrained, base_size, **kwargs):
+    return InSPyReNet_DH(SwinS(pretrained=pretrained), [96, 96, 192, 384, 768], depth, base_size, **kwargs)
 
-def InSPyReNet_DH_SwinT(depth, pretrained):
-    return InSPyReNet_DH(SwinT(pretrained=pretrained), [96, 96, 192, 384, 768], depth)
+def InSPyReNet_DH_SwinT(depth, pretrained, base_size, **kwargs):
+    return InSPyReNet_DH(SwinT(pretrained=pretrained), [96, 96, 192, 384, 768], depth, base_size, **kwargs)
     
-def InSPyReNet_DH_SwinB(depth, pretrained):
-    return InSPyReNet_DH(SwinB(pretrained=pretrained), [128, 128, 256, 512, 1024], depth)
+def InSPyReNet_DH_SwinB(depth, pretrained, base_size, **kwargs):
+    return InSPyReNet_DH(SwinB(pretrained=pretrained), [128, 128, 256, 512, 1024], depth, base_size, **kwargs)
 
-def InSPyReNet_DH_SwinL(depth, pretrained):
-    return InSPyReNet_DH(SwinL(pretrained=pretrained), [192, 192, 384, 768, 1536], depth)
+def InSPyReNet_DH_SwinL(depth, pretrained, base_size, **kwargs):
+    return InSPyReNet_DH(SwinL(pretrained=pretrained), [192, 192, 384, 768, 1536], depth, base_size, **kwargs)

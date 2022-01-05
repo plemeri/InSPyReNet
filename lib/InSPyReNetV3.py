@@ -16,7 +16,7 @@ from lib.backbones.SwinTransformer import SwinT, SwinS, SwinB, SwinL
 # stage 2-0: laplacian context -> gaussian context -> depth context (also sequential)
 
 class InSPyReNetV3(nn.Module):
-    def __init__(self, backbone, in_channels, depth=64):
+    def __init__(self, backbone, in_channels, depth=64, base_size=384, **kwargs):
         super(InSPyReNetV3, self).__init__()
         self.backbone = backbone
         self.in_channels = in_channels
@@ -131,20 +131,20 @@ class InSPyReNetV3(nn.Module):
             return d0
     
     
-def InSPyReNetV3_Res2Net50(depth, pretrained):
-    return InSPyReNetV3(res2net50_v1b_26w_4s(pretrained=pretrained), [64, 256, 512, 1024, 2048], depth)
+def InSPyReNetV3_Res2Net50(depth, pretrained, base_size, **kwargs):
+    return InSPyReNetV3(res2net50_v1b_26w_4s(pretrained=pretrained), [64, 256, 512, 1024, 2048], depth, base_size, **kwargs)
 
-def InSPyReNetV3_Res2Net101(depth, pretrained):
-    return InSPyReNetV3(res2net101_v1b_26w_4s(pretrained=pretrained), [64, 256, 512, 1024, 2048], depth)
+def InSPyReNetV3_Res2Net101(depth, pretrained, base_size, **kwargs):
+    return InSPyReNetV3(res2net101_v1b_26w_4s(pretrained=pretrained), [64, 256, 512, 1024, 2048], depth, base_size, **kwargs)
 
-def InSPyReNetV3_SwinS(depth, pretrained):
-    return InSPyReNetV3(SwinS(pretrained=pretrained), [96, 96, 192, 384, 768], depth)
+def InSPyReNetV3_SwinS(depth, pretrained, base_size, **kwargs):
+    return InSPyReNetV3(SwinS(pretrained=pretrained), [96, 96, 192, 384, 768], depth, base_size, **kwargs)
 
-def InSPyReNetV3_SwinT(depth, pretrained):
-    return InSPyReNetV3(SwinT(pretrained=pretrained), [96, 96, 192, 384, 768], depth)
+def InSPyReNetV3_SwinT(depth, pretrained, base_size, **kwargs):
+    return InSPyReNetV3(SwinT(pretrained=pretrained), [96, 96, 192, 384, 768], depth, base_size, **kwargs)
     
-def InSPyReNetV3_SwinB(depth, pretrained):
-    return InSPyReNetV3(SwinB(pretrained=pretrained), [128, 128, 256, 512, 1024], depth)
+def InSPyReNetV3_SwinB(depth, pretrained, base_size, **kwargs):
+    return InSPyReNetV3(SwinB(pretrained=pretrained), [128, 128, 256, 512, 1024], depth, base_size, **kwargs)
 
-def InSPyReNetV3_SwinL(depth, pretrained):
-    return InSPyReNetV3(SwinL(pretrained=pretrained), [192, 192, 384, 768, 1536], depth)
+def InSPyReNetV3_SwinL(depth, pretrained, base_size, **kwargs):
+    return InSPyReNetV3(SwinL(pretrained=pretrained), [192, 192, 384, 768, 1536], depth, base_size, **kwargs)

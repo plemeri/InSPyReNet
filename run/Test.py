@@ -28,8 +28,7 @@ def _args():
 
 
 def test(opt, args):
-    model = eval(opt.Model.name)(depth=opt.Model.depth,
-                                pretrained=False)
+    model = eval(opt.Model.name)(**opt.Model)
     model.load_state_dict(torch.load(os.path.join(opt.Test.Checkpoint.checkpoint_dir, 'latest.pth')), strict=True)
     
     # if args.PM is True:

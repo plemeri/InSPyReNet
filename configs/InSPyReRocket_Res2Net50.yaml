@@ -2,9 +2,11 @@ Model:
     name: "InSPyReRocket_Res2Net50"
     depth: 64
     pretrained: True
-    PM:
-        patch_size: 384
-        stride: 96
+    base_size: 384
+    
+PM:
+    patch_size: 384
+    stride: 96
 
 Train:
     Dataset:
@@ -48,7 +50,7 @@ Train:
         checkpoint_epoch: 1
         checkpoint_dir: "snapshots/InSPyReRocket_Res2Net50"
     Debug:
-        keys: ['rgb_gaussian', 'rgb_laplacian', 'd_gaussian', 'd_laplacian']
+        keys: ['gaussian', 'laplacian']
     HyperTune:
         HyperParameter: ['Train', 'Optimizer', 'lr']
         Range: [1.0e-6, 2.4e-5, 24]

@@ -12,21 +12,8 @@ from lib.modules.decoder_module import *
 from lib.backbones.Res2Net_v1b import res2net50_v1b_26w_4s, res2net101_v1b_26w_4s
 from lib.backbones.SwinTransformer import SwinT, SwinS, SwinB, SwinL
 
-# stage 3: gaussian context -> depth context (sequential)
-# stage 2-0: laplacian context + gaussian context -> depth context (parallel and sequential)
-
-class head(nn.Module):
-    def __init__(self, in_channel, depth):
-        super(head, self).__init__()
-        self.conv0 = conv(in_channel, depth, 3, relu=True)
-        self.conv1 = conv(depth, 1, 1)
-    def forward(self, x):
-        x = self.conv0(x)
-        out = self.conv1(x)
-        return x, out
-
 class InSPyReNetV4(nn.Module):
-    def __init__(self, backbone, in_channels, depth=64):
+    def __init__(self, backbone, in_channels, depth=64, base_size=384, **kwargs):
         super(InSPyReNetV4, self).__init__()
         self.backbone = backbone
         self.in_channels = in_channels
@@ -43,18 +30,12 @@ class InSPyReNetV4(nn.Module):
         self.decoder = PAA_d(self.depth)
 
         self.attention0_1 = Attn(self.depth    , depth, decoder=False)
-        self.attention0_2 = Attn(self.depth    , depth, decoder=False)
-        self.attention0_3 = Attn(self.depth    , depth, decoder=False)
-        self.head0 = head(depth * 3, depth)
-        
         self.attention1_1 = Attn(self.depth * 2, depth, decoder=False)
-        self.attention1_2 = Attn(self.depth * 2, depth, decoder=False)
-        self.attention1_3 = Attn(self.depth * 2, depth, decoder=False)
-        self.head1 = head(depth * 3, depth)
-
         self.attention2_1 = Attn(self.depth * 2, depth, decoder=False)
-        self.attention2_2 = Attn(self.depth * 2, depth, decoder=False)
-        self.head2 = head(depth * 2, depth)
+        
+        self.attention0_2 = Attn(self.depth    , depth, decoder=True)
+        self.attention1_2 = Attn(self.depth * 2, depth, decoder=True)
+        self.attention2_2 = Attn(self.depth * 2, depth, decoder=True)
 
         self.loss_fn = lambda x, y: weighted_tversky_bce_loss(x, y, alpha=0.2, beta=0.8, gamma=2)
         self.pyramidal_consistency_loss_fn = nn.L1Loss()
@@ -96,24 +77,19 @@ class InSPyReNetV4(nn.Module):
         f3, d3 = self.decoder(x5, x4, x3) #16
 
         f3 = self.res(f3, (H // 4,  W // 4 ))
-        a2, _  = self.attention2_1(torch.cat([x2, f3], dim=1), d3.detach())
-        b2, _  = self.attention2_2(torch.cat([x2, f3], dim=1), dh3)
-        f2, p2 = self.head2(torch.cat([a2, b2], dim=1))
+        f2, _ = self.attention2_1(torch.cat([x2, f3], dim=1), d3.detach())
+        f2, p2 = self.attention2_2(torch.cat([f2, f3], dim=1), dh3)
         d2 = self.pyr.rec(d3.detach(), p2) #4
 
         x1 = self.res(x1, (H // 2, W // 2))
         f2 = self.res(f2, (H // 2, W // 2))
-        a1, _  = self.attention1_1(torch.cat([x1, f2], dim=1), d2.detach()) #2
-        b1, _  = self.attention1_2(torch.cat([x1, f2], dim=1), p2.detach()) #2
-        c1, _  = self.attention1_3(torch.cat([x1, f2], dim=1), p2.detach()) #2
-        f1, p1 = self.head1(torch.cat([a1, b1, c1], dim=1))
+        f1, _ = self.attention1_1(torch.cat([x1, f2], dim=1), d2.detach()) #2
+        f1, p1 = self.attention1_2(torch.cat([f1, f2], dim=1), dh2) #2
         d1 = self.pyr.rec(d2.detach(), p1) #2
         
         f1 = self.res(f1, (H, W))
-        a0, _ = self.attention0_1(f1, d1.detach()) #2
-        b0, _ = self.attention0_2(f1, p1.detach()) #attention0_2
-        c0, _ = self.attention0_3(f1, p1.detach()) #2
-        _, p0 = self.head0(torch.cat([a0, b0, c0], dim=1))
+        f1, _ = self.attention0_1(f1, d1.detach()) #2
+        f1, p0 = self.attention0_2(f1, dh1) #2
         d0 = self.pyr.rec(d1.detach(), p0) #2
         
         if type(sample) == dict and 'gt' in sample.keys() and sample['gt'] is not None:
@@ -147,20 +123,20 @@ class InSPyReNetV4(nn.Module):
             return d0
     
     
-def InSPyReNetV4_Res2Net50(depth, pretrained):
-    return InSPyReNetV4(res2net50_v1b_26w_4s(pretrained=pretrained), [64, 256, 512, 1024, 2048], depth)
+def InSPyReNetV4_Res2Net50(depth, pretrained, base_size, **kwargs):
+    return InSPyReNetV4(res2net50_v1b_26w_4s(pretrained=pretrained), [64, 256, 512, 1024, 2048], depth, base_size, **kwargs)
 
-def InSPyReNetV4_Res2Net101(depth, pretrained):
-    return InSPyReNetV4(res2net101_v1b_26w_4s(pretrained=pretrained), [64, 256, 512, 1024, 2048], depth)
+def InSPyReNetV4_Res2Net101(depth, pretrained, base_size, **kwargs):
+    return InSPyReNetV4(res2net101_v1b_26w_4s(pretrained=pretrained), [64, 256, 512, 1024, 2048], depth, base_size, **kwargs)
 
-def InSPyReNetV4_SwinS(depth, pretrained):
-    return InSPyReNetV4(SwinS(pretrained=pretrained), [96, 96, 192, 384, 768], depth)
+def InSPyReNetV4_SwinS(depth, pretrained, base_size, **kwargs):
+    return InSPyReNetV4(SwinS(pretrained=pretrained), [96, 96, 192, 384, 768], depth, base_size, **kwargs)
 
-def InSPyReNetV4_SwinT(depth, pretrained):
-    return InSPyReNetV4(SwinT(pretrained=pretrained), [96, 96, 192, 384, 768], depth)
+def InSPyReNetV4_SwinT(depth, pretrained, base_size, **kwargs):
+    return InSPyReNetV4(SwinT(pretrained=pretrained), [96, 96, 192, 384, 768], depth, base_size, **kwargs)
     
-def InSPyReNetV4_SwinB(depth, pretrained):
-    return InSPyReNetV4(SwinB(pretrained=pretrained), [128, 128, 256, 512, 1024], depth)
+def InSPyReNetV4_SwinB(depth, pretrained, base_size, **kwargs):
+    return InSPyReNetV4(SwinB(pretrained=pretrained), [128, 128, 256, 512, 1024], depth, base_size, **kwargs)
 
-def InSPyReNetV4_SwinL(depth, pretrained):
-    return InSPyReNetV4(SwinL(pretrained=pretrained), [192, 192, 384, 768, 1536], depth)
+def InSPyReNetV4_SwinL(depth, pretrained, base_size, **kwargs):
+    return InSPyReNetV4(SwinL(pretrained=pretrained), [192, 192, 384, 768, 1536], depth, base_size, **kwargs)

@@ -28,14 +28,14 @@ class simple_context(nn.Module):
         return x_cat
 
 class PAA_kernel(nn.Module):
-    def __init__(self, in_channel, out_channel, receptive_size=3):
+    def __init__(self, in_channel, out_channel, receptive_size, stage_size=None):
         super(PAA_kernel, self).__init__()
         self.conv0 = conv(in_channel, out_channel, 1)
         self.conv1 = conv(out_channel, out_channel, kernel_size=(1, receptive_size))
         self.conv2 = conv(out_channel, out_channel, kernel_size=(receptive_size, 1))
         self.conv3 = conv(out_channel, out_channel, 3, dilation=receptive_size)
-        self.Hattn = self_attn(out_channel, mode='h')
-        self.Wattn = self_attn(out_channel, mode='w')
+        self.Hattn = self_attn(out_channel, 'h', stage_size)
+        self.Wattn = self_attn(out_channel, 'w', stage_size)
 
     def forward(self, x):
         x = self.conv0(x)
@@ -49,14 +49,18 @@ class PAA_kernel(nn.Module):
         return x
 
 class PAA_e(nn.Module):
-    def __init__(self, in_channel, out_channel):
+    def __init__(self, in_channel, out_channel, base_size=None, stage=None):
         super(PAA_e, self).__init__()
         self.relu = nn.ReLU(True)
+        if base_size is not None and stage is not None:
+            self.stage_size = base_size // (2 ** stage)
+        else:
+            self.stage_size = None
 
         self.branch0 = conv(in_channel, out_channel, 1)
-        self.branch1 = PAA_kernel(in_channel, out_channel, 3)
-        self.branch2 = PAA_kernel(in_channel, out_channel, 5)
-        self.branch3 = PAA_kernel(in_channel, out_channel, 7)
+        self.branch1 = PAA_kernel(in_channel, out_channel, 3, self.stage_size)
+        self.branch2 = PAA_kernel(in_channel, out_channel, 5, self.stage_size)
+        self.branch3 = PAA_kernel(in_channel, out_channel, 7, self.stage_size)
 
         self.conv_cat = conv(4 * out_channel, out_channel, 3)
         self.conv_res = conv(in_channel, out_channel, 1)

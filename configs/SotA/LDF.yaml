@@ -2,9 +2,10 @@ Model:
     name: "LDF"
     depth: None
     pretrained: True
-    PM:
-        patch_size: 384
-        stride: 96
+    
+PM:
+    patch_size: 384
+    stride: 96
 
 Test:
     Dataset:
