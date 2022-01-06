@@ -12,9 +12,6 @@ from lib.modules.decoder_module import *
 from lib.backbones.Res2Net_v1b import res2net50_v1b_26w_4s, res2net101_v1b_26w_4s
 from lib.backbones.SwinTransformer import SwinT, SwinS, SwinB, SwinL
 
-# stage 3: gaussian context -> depth context (sequential)
-# stage 2-0: laplacian context -> gaussian context -> depth context (also sequential)
-
 class InSPyReNetV3(nn.Module):
     def __init__(self, backbone, in_channels, depth=64, base_size=384, **kwargs):
         super(InSPyReNetV3, self).__init__()
@@ -32,16 +29,9 @@ class InSPyReNetV3(nn.Module):
 
         self.decoder = PAA_d(self.depth)
 
-        self.attention0_1 = Attn(self.depth    , depth, decoder=False)
-        self.attention0_2 = Attn(self.depth    , depth, decoder=False)
-        self.attention0_3 = Attn(self.depth    , depth, decoder=True)
-        
-        self.attention1_1 = Attn(self.depth * 2, depth, decoder=False)
-        self.attention1_2 = Attn(self.depth * 2, depth, decoder=False)
-        self.attention1_3 = Attn(self.depth * 2, depth, decoder=True)
-
-        self.attention2_1 = Attn(self.depth * 2, depth, decoder=False)
-        self.attention2_2 = Attn(self.depth * 2, depth, decoder=True)
+        self.attention0 = ASCA(self.depth    , depth, base_size=base_size, stage=0, lmap_in=True)
+        self.attention1 = ASCA(self.depth * 2, depth, base_size=base_size, stage=1, lmap_in=True)
+        self.attention2 = ASCA(self.depth * 2, depth, base_size=base_size, stage=2              )
 
         self.loss_fn = lambda x, y: weighted_tversky_bce_loss(x, y, alpha=0.2, beta=0.8, gamma=2)
         self.pyramidal_consistency_loss_fn = nn.L1Loss()
@@ -51,11 +41,18 @@ class InSPyReNetV3(nn.Module):
         self.des = lambda x, size: F.interpolate(x, size=size, mode='nearest')
         
         self.pyr = Pyr(7, 1)
+        self.shape = None
         
     def cuda(self):
         self.pyr = self.pyr.cuda()
         self = super(InSPyReNetV3, self).cuda()
         return self
+    
+    def resize(self, x):
+        b, _, h, w = x.shape
+        h = h if h % 32 == 0 else (h // 32) * 32
+        w = w if w % 32 == 0 else (w // 32) * 32
+        return self.res(x, (h, w))
     
     def forward(self, sample):
         if type(sample) == dict:
@@ -63,15 +60,14 @@ class InSPyReNetV3(nn.Module):
             dh = sample['depth']
         else:
             x, dh = sample
+
+        x = self.resize(x)
+        dh = self.resize(dh)
+        B, _, H, W = x.shape
             
         x = torch.cat([x, dh], dim=1)
         x = self.reduce(x)
-        
-        dh1 = self.pyr.down(dh)
-        dh2 = self.pyr.down(dh1)
-        dh3 = self.pyr.down(dh2)
-            
-        B, _, H, W = x.shape
+    
         x1, x2, x3, x4, x5 = self.backbone(x)
         
         x1 = self.context1(x1) #4
@@ -83,21 +79,16 @@ class InSPyReNetV3(nn.Module):
         f3, d3 = self.decoder(x5, x4, x3) #16
 
         f3 = self.res(f3, (H // 4,  W // 4 ))
-        f3, _  = self.attention2_1(torch.cat([x2, f3], dim=1), d3.detach())
-        f2, p2 = self.attention2_2(torch.cat([x2, f3], dim=1), dh3)
+        f2, p2 = self.attention2(torch.cat([x2, f3], dim=1), d3.detach())
         d2 = self.pyr.rec(d3.detach(), p2) #4
 
         x1 = self.res(x1, (H // 2, W // 2))
         f2 = self.res(f2, (H // 2, W // 2))
-        f2, _  = self.attention1_1(torch.cat([x1, f2], dim=1), d2.detach()) #2
-        f2, _  = self.attention1_2(torch.cat([x1, f2], dim=1), p2.detach()) #2
-        f1, p1 = self.attention1_3(torch.cat([x1, f2], dim=1), p2.detach()) #2
+        f1, p1 = self.attention1(torch.cat([x1, f2], dim=1), d2.detach(), p2.detach()) #2
         d1 = self.pyr.rec(d2.detach(), p1) #2
         
         f1 = self.res(f1, (H, W))
-        f1, _ = self.attention0_1(f1, d1.detach()) #2
-        f1, _ = self.attention0_2(f1, p1.detach()) #attention0_2
-        _, p0 = self.attention0_3(f1, p1.detach()) #2
+        _, p0 = self.attention0(f1, d1.detach(), p1.detach()) #2
         d0 = self.pyr.rec(d1.detach(), p0) #2
         
         if type(sample) == dict and 'gt' in sample.keys() and sample['gt'] is not None:
@@ -120,6 +111,9 @@ class InSPyReNetV3(nn.Module):
 
         else:
             loss = 0
+
+        if self.resize is True:
+            d0 = self.res(d0, (h, w))
 
         if type(sample) == dict:
             return {'pred': d0, 
