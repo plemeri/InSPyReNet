@@ -12,6 +12,12 @@ from lib.modules.decoder_module import *
 from lib.backbones.Res2Net_v1b import res2net50_v1b_26w_4s, res2net101_v1b_26w_4s
 from lib.backbones.SwinTransformer import SwinT, SwinS, SwinB, SwinL
 
+# class DepthQualityGuidedMerge(nn.Module):
+#     def __init__(self):
+#         self.conv1 = conv(4, 64, 3, relu=True)
+#         self.conv2 = conv(64, 3, 3)
+    
+#     def forward(self, x, dh):
 class Encoder(nn.Module):
     def __init__(self, in_channels, depth):
         super(Encoder, self).__init__()
@@ -111,15 +117,17 @@ class InSPyReNet_DH(nn.Module):
         self.in_channels = in_channels
         self.depth = depth
         
+        self.reduce = conv(4, 3, 3)
+        
         self.rgb_encoder = Encoder(in_channels, depth)
         self.rgb_decoder = Decoder(in_channels, depth)
         
         self.d_encoder = Encoder(in_channels, depth)
-        # self.rgbd_decoder = Decoder(in_channels, depth * 2)
+        self.rgbd_decoder = Decoder(in_channels, depth * 2)
         
-        # self.alpha3 = nn.Sequential(conv(depth * 3, depth, 3, relu=True), conv(depth, 1, 3, bn=False))
-        # self.alpha2 = nn.Sequential(conv(depth * 3, depth, 3, relu=True), conv(depth, 1, 3, bn=False))
-        # self.alpha1 = nn.Sequential(conv(depth * 3, depth, 3, relu=True), conv(depth, 1, 3, bn=False))
+        self.alpha3 = nn.Sequential(conv(depth * 3, depth, 3, relu=True), conv(depth, 1, 3, bn=False))
+        self.alpha2 = nn.Sequential(conv(depth * 3, depth, 3, relu=True), conv(depth, 1, 3, bn=False))
+        self.alpha1 = nn.Sequential(conv(depth * 3, depth, 3, relu=True), conv(depth, 1, 3, bn=False))
         
         self.loss_fn = lambda x, y: weighted_tversky_bce_loss(x, y, alpha=0.2, beta=0.8, gamma=2)
         self.pyramidal_consistency_loss_fn = nn.L1Loss()
@@ -154,6 +162,8 @@ class InSPyReNet_DH(nn.Module):
         xs = self.rgb_encoder(xs)
         x_out = self.rgb_decoder(xs, x.shape, y)
         
+        dh = torch.cat([x, dh], dim=1)
+        dh = self.reduce(dh)
         ds = self.backbone(dh)
         ds = self.d_encoder(ds)
         xds = [torch.cat([x_.detach(), d_], dim=1) for x_, d_ in zip(xs, ds)]
@@ -174,14 +184,14 @@ class InSPyReNet_DH(nn.Module):
         p2 = xp2.detach() * a3 + xdp2 * (1 - a3)
         d2 = self.pyr.rec(d3.detach(), p2) #4
         
-        a2 = torch.sigmoid(self.alpha3(torch.cat([xf2.detach(), xdf2], dim=1)))
+        a2 = torch.sigmoid(self.alpha2(torch.cat([xf2.detach(), xdf2], dim=1)))
         d2 = xd2.detach() * a2 + xdd2 * (1 - a2)
         
         a2 = self.res(a2, (H // 2, W // 2))
         p1 = xp1.detach() * a2 + xdp1 * (1 - a2)
         d1 = self.pyr.rec(d2.detach(), p1) #4
         
-        a1 = torch.sigmoid(self.alpha3(torch.cat([xf1.detach(), xdf1], dim=1)))
+        a1 = torch.sigmoid(self.alpha1(torch.cat([xf1.detach(), xdf1], dim=1)))
         d1 = xd1.detach() * a1 + xdd1 * (1 - a1)
         
         a1 = self.res(a1, (H, W))
@@ -206,7 +216,7 @@ class InSPyReNet_DH(nn.Module):
 
         else:
             loss = 0
-        loss += x_out['loss'] + xd_out['loss']
+        # loss += x_out['loss'] + xd_out['loss']
 
         if type(sample) == dict:
             return {'pred': d0, 

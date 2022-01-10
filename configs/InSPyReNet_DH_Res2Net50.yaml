@@ -1,6 +1,6 @@
 Model:
     name: "InSPyReNet_DH_Res2Net50"
-    depth: 64
+    depth: 32
     pretrained: True
     base_size: 384
     
