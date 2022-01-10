@@ -12,12 +12,6 @@ from lib.modules.decoder_module import *
 from lib.backbones.Res2Net_v1b import res2net50_v1b_26w_4s, res2net101_v1b_26w_4s
 from lib.backbones.SwinTransformer import SwinT, SwinS, SwinB, SwinL
 
-# class DepthQualityGuidedMerge(nn.Module):
-#     def __init__(self):
-#         self.conv1 = conv(4, 64, 3, relu=True)
-#         self.conv2 = conv(64, 3, 3)
-    
-#     def forward(self, x, dh):
 class Encoder(nn.Module):
     def __init__(self, in_channels, depth):
         super(Encoder, self).__init__()

@@ -42,7 +42,7 @@ Train:
         mixed_precision: False
     Scheduler:
         type: "PolyLr"
-        epoch: 60
+        epoch: 300
         gamma: 0.9
         minimum_lr: 1.0e-07
         warmup_iteration: 12000
