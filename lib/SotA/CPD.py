@@ -274,7 +274,7 @@ class aggregation(nn.Module):
 
 class CPD_ResNet(nn.Module):
     # resnet based encoder decoder
-    def __init__(self, depth=32, pretrained=False):
+    def __init__(self, depth=32, pretrained=False, **kwargs):
         super(CPD_ResNet, self).__init__()
         
         self.pretrained = pretrained

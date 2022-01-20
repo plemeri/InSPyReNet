@@ -4,9 +4,7 @@ Model:
     pretrained: True
     base_size: 384
     
-PM:
-    patch_size: 384
-    stride: 96
+
 
 Train:
     Dataset:

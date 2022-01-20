@@ -8,11 +8,9 @@ from .modules.attention_module import *
 from .modules.decoder_module import *
 
 class SPM(nn.Module):
-    def __init__(self, model, patch_size, stride):
+    def __init__(self, model):
         super(SPM, self).__init__()
         self.model = model
-        self.patch_size = patch_size
-        self.stride = stride
         
         self.ret = lambda x, target: F.interpolate(x, size=target.shape[-2:], mode='bilinear', align_corners=False)
         self.res = lambda x, size: F.interpolate(x, size=size, mode='bilinear', align_corners=False)
@@ -21,11 +19,13 @@ class SPM(nn.Module):
     def forward(self, sample):
         if type(sample) == dict:
             x = sample['image']
+            patch_size = sample['patch_size']
+            stride = sample['stride']
         else:
-            x = sample
+            raise TypeError('input must be dict for SPM')
         
-        x, shape = patch(x, self.patch_size, self.stride)
+        x, shape = patch(x, patch_size, stride)
         b, c, h, w = shape
         out = self.model(x)
-        out, _ = unpatch(out, (b, 1, h, w), self.patch_size, self.stride)
+        out, _ = unpatch(out, (b, 1, h, w), patch_size, stride)
         return out

@@ -14,32 +14,77 @@ sys.path.append(repopath)
 from utils.misc import *
 
 class resize:
-    def __init__(self, size):
-        self.size = size[::-1]
+    def __init__(self, size=None, pm=False):
+        if size is not None:
+            self.size = size[::-1]
+        else:
+            self.size = None
+            
+        self.pm = pm
+        self.MAX = 2.0e6
 
     def __call__(self, sample):
+        if self.size is None:
+            size = list(sample['image'].size)
+            if size[0] * size[1] > self.MAX:
+                scale = size[0] * size[1]
+                size[0] /= np.sqrt(scale)
+                size[0] *= np.sqrt(self.MAX)
+                size[1] /= np.sqrt(scale)
+                size[1] *= np.sqrt(self.MAX)
+            size = (int(size[0] // 32) * 32, int(size[1] // 32) * 32)
+        elif self.pm is False:
+            size = self.size
+        
+        if self.pm is True:
+            ar = size[0] / size[1]
+            hx, wx = 1, 1
+            
+            if ar > 1:
+                patch_size = size[1]
+                stride = patch_size // 2
+                hx = round(2 * ar) / 2
+            else:
+                patch_size = size[0]
+                stride = patch_size // 2
+                wx = round(2 / ar) / 2
+            
+            size = (int(patch_size * hx), int(patch_size * wx))
+            sample['patch_size'] = patch_size
+            sample['stride'] = stride
+        
         if 'image' in sample.keys():
-            sample['image'] = sample['image'].resize(self.size, Image.BILINEAR)
+            sample['image'] = sample['image'].resize(size, Image.BILINEAR)
         if 'gt' in sample.keys():
-            sample['gt'] = sample['gt'].resize(self.size, Image.NEAREST)
+            sample['gt'] = sample['gt'].resize(size, Image.NEAREST)
         if 'depth' in sample.keys():
-            sample['depth'] = sample['depth'].resize(self.size, Image.NEAREST)
+            sample['depth'] = sample['depth'].resize(size, Image.NEAREST)
+            
 
         return sample
-    
-class even_resize:
-    def __init__(self):
-        pass
-    
+class resize_pm:
+    def __init__(self, size=None):
+        if size is not None:
+            assert size[0] / size[1] == 1
+            self.size = size
+        else:
+            self.size = None
+
     def __call__(self, sample):
         if 'image' in sample.keys():
             ar = sample['image'].size[0] / sample['image'].size[1]
-            size = (int(sample['image'].size[0] // 32) * 32, int(sample['image'].size[1] // 32) * 32)
+            hx, wx = 1, 1
+            if ar > 1:
+                hx = round(2 * ar) / 2
+            else:
+                wx = round(2 / ar) / 2
+            
+            size = (int(self.patch_size * hx), int(self.patch_size * wx))
             
             sample['image'] = sample['image'].resize(size, Image.BILINEAR)
 
         return sample
-    
+
 class cvtcolor:
     def __init__(self):
         pass

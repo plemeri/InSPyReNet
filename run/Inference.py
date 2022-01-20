@@ -50,9 +50,9 @@ def inference(opt, args):
     
     if args.PM is True:
         if 'InSPyRe' in opt.Model.name:
-            model = PPM(model, opt.PM.patch_size, opt.PM.stride)
+            model = PPM(model)
         else:
-            model = SPM(model, opt.PM.patch_size, opt.PM.stride)
+            model = SPM(model)
     
     if args.gpu is True:
         model = model.cuda()
@@ -112,8 +112,8 @@ def inference(opt, args):
             sample = to_cuda(sample)
 
         with torch.no_grad():
-            out = model(sample['image'])
-        pred = to_numpy(out, sample['shape'])
+            out = model(sample)
+        pred = to_numpy(out['pred'], sample['shape'])
 
         img = np.array(sample['original'])
         if args.type == 'map':

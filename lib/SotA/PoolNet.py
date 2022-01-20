@@ -396,7 +396,7 @@ class PoolNet(nn.Module):
 #     elif base_model_cfg == 'resnet':
 #         return PoolNet(base_model_cfg, *extra_layer(base_model_cfg, resnet50_locate()))
     
-def PoolNet_ResNet(depth, pretrained=False):
+def PoolNet_ResNet(depth, pretrained=False, **kwargs):
     net = PoolNet('resnet', *extra_layer('resnet', resnet50_locate()))
     # if pretrained is True:
         

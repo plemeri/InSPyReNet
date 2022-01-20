@@ -29,6 +29,10 @@ class InSPyReNetV3(nn.Module):
 
         self.decoder = PAA_d(self.depth)
 
+        self.d_attention0 = ASCA(self.depth    , depth, base_size=base_size, stage=0, lmap_in=True)
+        self.d_attention1 = ASCA(self.depth * 2, depth, base_size=base_size, stage=1, lmap_in=True)
+        self.d_attention2 = ASCA(self.depth * 2, depth, base_size=base_size, stage=2              )
+        
         self.attention0 = ASCA(self.depth    , depth, base_size=base_size, stage=0, lmap_in=True)
         self.attention1 = ASCA(self.depth * 2, depth, base_size=base_size, stage=1, lmap_in=True)
         self.attention2 = ASCA(self.depth * 2, depth, base_size=base_size, stage=2              )
@@ -57,17 +61,43 @@ class InSPyReNetV3(nn.Module):
     def forward(self, sample):
         if type(sample) == dict:
             x = sample['image']
-            dh = sample['depth']
+            dx = sample['depth']
         else:
-            x, dh = sample
+            x, dx = sample
 
         x = self.resize(x)
-        dh = self.resize(dh)
+        dx = self.resize(dx)
         B, _, H, W = x.shape
             
-        x = torch.cat([x, dh], dim=1)
-        x = self.reduce(x)
+        # x = torch.cat([x, dx], dim=1)
+        # x = self.reduce(x)
     
+        x1, x2, x3, x4, x5 = self.backbone(x)
+        
+        x1 = self.context1(x1) #4
+        x2 = self.context2(x2) #4
+        x3 = self.context3(x3) #8
+        x4 = self.context4(x4) #16
+        x5 = self.context5(x5) #32
+
+        f3, dh3 = self.decoder(x5, x4, x3) #16
+
+        f3 = self.res(f3, (H // 4,  W // 4 ))
+        f2, ph2 = self.d_attention2(torch.cat([x2, f3], dim=1), dh3.detach())
+        dh2 = self.pyr.rec(dh3.detach(), ph2) #4
+
+        x1 = self.res(x1, (H // 2, W // 2))
+        f2 = self.res(f2, (H // 2, W // 2))
+        f1, ph1 = self.d_attention1(torch.cat([x1, f2], dim=1), dh2.detach(), ph2.detach()) #2
+        dh1 = self.pyr.rec(dh2.detach(), ph1) #2
+        
+        f1 = self.res(f1, (H, W))
+        _, ph0 = self.d_attention0(f1, dh1.detach(), ph1.detach()) #2
+        dh0 = self.pyr.rec(dh1.detach(), ph0) #2
+        
+        x = torch.cat([x, dh0], dim=1)
+        x = self.reduce(x)
+        
         x1, x2, x3, x4, x5 = self.backbone(x)
         
         x1 = self.context1(x1) #4
@@ -92,28 +122,38 @@ class InSPyReNetV3(nn.Module):
         d0 = self.pyr.rec(d1.detach(), p0) #2
         
         if type(sample) == dict and 'gt' in sample.keys() and sample['gt'] is not None:
-            y = sample['gt']
+            y = self.resize(sample['gt'])
             
             y1 = self.pyr.down(y)
             y2 = self.pyr.down(y1)
             y3 = self.pyr.down(y2)
+            
+            dx1 = self.pyr.down(dx)
+            dx2 = self.pyr.down(dx1)
+            dx3 = self.pyr.down(dx2)
 
             ploss =  self.pyramidal_consistency_loss_fn(self.des(d3, (H, W)), self.des(self.pyr.down(d2), (H, W)).detach()) * 0.0001
             ploss += self.pyramidal_consistency_loss_fn(self.des(d2, (H, W)), self.des(self.pyr.down(d1), (H, W)).detach()) * 0.0001
             ploss += self.pyramidal_consistency_loss_fn(self.des(d1, (H, W)), self.des(self.pyr.down(d0), (H, W)).detach()) * 0.0001
+            
+            ploss += self.pyramidal_consistency_loss_fn(self.des(dh3, (H, W)), self.des(self.pyr.down(dh2), (H, W)).detach()) * 0.0001
+            ploss += self.pyramidal_consistency_loss_fn(self.des(dh2, (H, W)), self.des(self.pyr.down(dh1), (H, W)).detach()) * 0.0001
+            ploss += self.pyramidal_consistency_loss_fn(self.des(dh1, (H, W)), self.des(self.pyr.down(dh0), (H, W)).detach()) * 0.0001
             
             closs =  self.loss_fn(self.des(d3, (H, W)), self.des(y3, (H, W)))
             closs += self.loss_fn(self.des(d2, (H, W)), self.des(y2, (H, W)))
             closs += self.loss_fn(self.des(d1, (H, W)), self.des(y1, (H, W)))
             closs += self.loss_fn(self.des(d0, (H, W)), self.des(y, (H, W)))
             
+            closs +=  self.loss_fn(self.des(dh3, (H, W)), self.des(dx3, (H, W)))
+            closs += self.loss_fn(self.des(dh2, (H, W)), self.des(dx2, (H, W)))
+            closs += self.loss_fn(self.des(dh1, (H, W)), self.des(dx1, (H, W)))
+            closs += self.loss_fn(self.des(dh0, (H, W)), self.des(dx, (H, W)))
+            
             loss = ploss + closs
 
         else:
             loss = 0
-
-        if self.resize is True:
-            d0 = self.res(d0, (h, w))
 
         if type(sample) == dict:
             return {'pred': d0, 

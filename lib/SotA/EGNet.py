@@ -468,7 +468,7 @@ class TUN_bone(nn.Module):
 #     elif base_model_cfg == 'resnet':
 #         return TUN_bone(base_model_cfg, *extra_layer(base_model_cfg, resnet50()))
 
-def EGNet_ResNet(depth, pretrained=False):
+def EGNet_ResNet(depth, pretrained=False, **kwargs):
     return TUN_bone('resnet', *extra_layer('resnet', resnet50()))
 
 # weight init

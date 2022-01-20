@@ -3,9 +3,7 @@ Model:
     depth: None
     pretrained: True
     
-PM:
-    patch_size: 384
-    stride: 96
+
 
 Test:
     Dataset:

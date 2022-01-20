@@ -4,9 +4,7 @@ Model:
     pretrained: True
     base_size: 384
 
-PM:
-    patch_size: 384
-    stride: 96
+
 
 Train:
     Dataset:
@@ -63,15 +61,16 @@ Test:
         transforms:
             resize:
                 size: [384, 384]
+                pm : False
             tonumpy: NULL
             normalize: 
                 mean: [0.485, 0.456, 0.406]
                 std: [0.229, 0.224, 0.225]
             totensor: NULL
         transforms_PM:
-            dynamic_resize:
-                patch_size: 384
-                stride: 192
+            resize:
+                size: NULL
+                pm : True
             tonumpy: NULL
             normalize: 
                 mean: [0.485, 0.456, 0.406]
