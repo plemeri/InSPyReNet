@@ -52,12 +52,8 @@ class InSPyReNetV5(nn.Module):
         return self
     
     def forward(self, sample):
-        if type(sample) == dict:
-            x = sample['image']
-            dh = sample['depth']
-        else:
-            x, dh = sample
-            
+        x = sample['image']
+        dh = sample['depth']
         B, _, H, W = x.shape
             
         x = torch.cat([x, dh], dim=1)
@@ -76,7 +72,7 @@ class InSPyReNetV5(nn.Module):
         x4 = self.context4(x4) #16
         x5 = self.context5(x5) #32
 
-        f3, d3 = self.decoder(x5, x4, x3) #16
+        f3, d3 = self.decoder(x3, x4, x5) #16
 
         f3 = self.res(f3, (H // 4,  W // 4 ))
         f2, _ = self.attention2_1(torch.cat([x2, f3], dim=1), d3.detach())
@@ -115,14 +111,11 @@ class InSPyReNetV5(nn.Module):
         else:
             loss = 0
 
-        if type(sample) == dict:
-            return {'pred': d0, 
-                    'loss': loss, 
-                    'gaussian': [d3, d2, d1, d0], 
-                    'laplacian': [p2, p1, p0]}
-        
-        else:
-            return d0
+        sample['pred'] = d0
+        sample['loss'] = loss
+        sample['gaussian'] = [d3, d2, d1, d0]
+        sample['laplacian'] = [p2, p1, p0]
+        return sample
     
     
 def InSPyReNetV5_Res2Net50(depth, pretrained, base_size, **kwargs):

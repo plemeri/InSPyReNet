@@ -8,6 +8,25 @@ import re
 
 from easydict import EasyDict as ed
 
+import torch.nn as nn
+import torch.nn.functional as F
+
+class TOJIT(nn.Module):
+    def __init__(self, model, scale=[0.5, 2]):
+        super(TOJIT, self).__init__()
+        self.model = model
+        
+    def cuda(self):
+        self.model = self.model.cuda()
+        return self
+        
+    def forward(self, sample):
+        x = sample['image']
+        b, c, h, w = x.shape
+        
+        out = self.model({'image': x})
+        return {'pred': out['pred']}
+
 def sort(x):
     convert = lambda text: int(text) if text.isdigit() else text.lower()
     alphanum_key = lambda key: [convert(c) for c in re.split('([0-9]+)', key)]

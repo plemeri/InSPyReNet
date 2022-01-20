@@ -17,15 +17,15 @@ class SPM(nn.Module):
         self.des = lambda x, size: F.interpolate(x, size=size, mode='nearest')
         
     def forward(self, sample):
-        if type(sample) == dict:
-            x = sample['image']
-            patch_size = sample['patch_size']
-            stride = sample['stride']
-        else:
-            raise TypeError('input must be dict for SPM')
+        x = sample['image']
+        patch_size = sample['patch_size']
+        stride = sample['stride']
         
         x, shape = patch(x, patch_size, stride)
         b, c, h, w = shape
         out = self.model(x)
-        out, _ = unpatch(out, (b, 1, h, w), patch_size, stride)
-        return out
+        out['pred'], _ = unpatch(out['pred'], (b, 1, h, w), patch_size, stride)
+
+        sample['pred'] = out['pred']
+        sample['loss'] = out['loss']
+        return sample

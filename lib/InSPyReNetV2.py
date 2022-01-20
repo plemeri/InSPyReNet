@@ -52,11 +52,7 @@ class InSPyReNetV2(nn.Module):
         return self
     
     def forward(self, sample):
-        if type(sample) == dict:
-            x = sample['image']
-        else:
-            x = sample
-            
+        x = sample['image']
         B, _, H, W = x.shape
             
         x1, x2, x3, x4, x5 = self.backbone(x)
@@ -67,7 +63,7 @@ class InSPyReNetV2(nn.Module):
         x4 = self.context4(x4) #16
         x5 = self.context5(x5) #32
 
-        f3, d3 = self.decoder(x5, x4, x3) #16
+        f3, d3 = self.decoder(x3, x4, x5) #16
 
         f3 = self.res(f3, (H // 4,  W // 4 ))
         f2, p2 = self.attention2_1(torch.cat([x2, f3], dim=1), d3.detach())
@@ -105,15 +101,11 @@ class InSPyReNetV2(nn.Module):
         else:
             loss = 0
 
-        if type(sample) == dict:
-            return {'pred': d0, 
-                    'loss': loss, 
-                    'gaussian': [d3, d2, d1, d0], 
-                    'laplacian': [p2, p1, p0]}
-        
-        else:
-            return d0
-    
+        sample['pred'] = d0
+        sample['loss'] = loss
+        sample['gaussian'] = [d3, d2, d1, d0]
+        sample['laplacian'] = [p2, p1, p0]
+        return sample
     
 def InSPyReNetV2_Res2Net50(depth, pretrained, base_size, **kwargs):
     return InSPyReNetV2(res2net50_v1b_26w_4s(pretrained=pretrained), [64, 256, 512, 1024, 2048], depth, base_size, **kwargs)

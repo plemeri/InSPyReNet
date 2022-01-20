@@ -25,12 +25,9 @@ class PPM(nn.Module):
         return self
         
     def forward(self, sample):
-        if type(sample) == dict:
-            x = sample['image']
-            patch_size = sample['patch_size']
-            stride = sample['stride']
-        else:
-            raise TypeError('input must be dict for PPM')
+        x = sample['image']
+        patch_size = sample['patch_size']
+        stride = sample['stride']
         
         x, shape = patch(x, patch_size, stride)
         b, c, h, w = shape
@@ -52,11 +49,8 @@ class PPM(nn.Module):
         p0, _  = unpatch(pp0, (b, 1, h     , w     ), patch_size, stride, indice_map = F.pixel_shuffle(torch.cat([i1] * 4, dim=1), 2))
         d0 =  self.pyr.rec(d1.detach(), p0)
         
-        if type(sample) == dict:
-            return {'pred': d0, 
-                    'loss': 0, 
-                    'gaussian': [d3, d2, d1, d0], 
-                    'laplacian': [p2, p1, p0]}
-        
-        else:
-            return d0
+        sample['pred'] = d0
+        sample['loss'] = out['loss']
+        sample['gaussian'] = [d3, d2, d1, d0]
+        sample['laplacian'] = [p2, p1, p0]
+        return sample

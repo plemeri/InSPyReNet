@@ -69,7 +69,7 @@ class Decoder(nn.Module):
         x1, x2, x3, x4, x5 = xs
         B, _, H, W  = shape
 
-        f3, d3 = self.decoder(x5, x4, x3) #16
+        f3, d3 = self.decoder(x3, x4, x5) #16
 
         f2, p2 = self.attention2(torch.cat([x2, self.res(f3, (H // 4,  W // 4 ))], dim=1), d3.detach())
         d2 = self.pyr.rec(d3.detach(), p2) #4

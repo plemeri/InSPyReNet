@@ -2,9 +2,7 @@ Model:
     name: "InSPyReNet_SwinB"
     depth: 64
     pretrained: True
-    base_size: 384
-
-
+    base_size: [384, 384]
 
 Train:
     Dataset:

@@ -132,7 +132,7 @@ class ASCA(nn.Module):
         self.channel = channel
         self.lmap_in = lmap_in
         if base_size is not None and stage is not None:
-            self.stage_size = base_size // (2 ** stage)
+            self.stage_size = (base_size[0] // (2 ** stage), base_size[1] // (2 ** stage))
         else:
             self.stage_size = None
         
@@ -186,8 +186,8 @@ class ASCA(nn.Module):
 
         # reshape feature & prob
         if self.stage_size is not None:
-            shape = (self.stage_size, self.stage_size)
-            shape_mul = self.stage_size * self.stage_size
+            shape = self.stage_size
+            shape_mul = self.stage_size[0] * self.stage_size[1]
         else:
             shape = (h, w)
             shape_mul = h * w        
