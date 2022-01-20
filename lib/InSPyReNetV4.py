@@ -21,13 +21,13 @@ class InSPyReNetV4(nn.Module):
         
         self.reduce = conv(4, 3, 3)
         
-        self.context1 = PAA_e(self.in_channels[0], self.depth)
-        self.context2 = PAA_e(self.in_channels[1], self.depth)
-        self.context3 = PAA_e(self.in_channels[2], self.depth)
-        self.context4 = PAA_e(self.in_channels[3], self.depth)
-        self.context5 = PAA_e(self.in_channels[4], self.depth)
+        self.context1 = PAA_e(self.in_channels[0], self.depth, base_size=base_size, stage=0)
+        self.context2 = PAA_e(self.in_channels[1], self.depth, base_size=base_size, stage=1)
+        self.context3 = PAA_e(self.in_channels[2], self.depth, base_size=base_size, stage=2)
+        self.context4 = PAA_e(self.in_channels[3], self.depth, base_size=base_size, stage=3)
+        self.context5 = PAA_e(self.in_channels[4], self.depth, base_size=base_size, stage=4)
 
-        self.decoder = PAA_d(self.depth)
+        self.decoder = PAA_d(self.depth, base_size=base_size, stage=2)
 
         self.attention0_1 = Attn(self.depth    , depth, decoder=False)
         self.attention1_1 = Attn(self.depth * 2, depth, decoder=False)
