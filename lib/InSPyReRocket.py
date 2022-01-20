@@ -47,12 +47,6 @@ class InSPyReRocket(nn.Module):
         self = super(InSPyReRocket, self).cuda()
         return self
     
-    def resize(self, x):
-        b, _, h, w = x.shape
-        h = h if h % 32 == 0 else (h // 32) * 32
-        w = w if w % 32 == 0 else (w // 32) * 32
-        return self.res(x, (h, w))
-    
     def forward(self, sample):
         if type(sample) == dict:
             x = sample['image']
@@ -60,8 +54,6 @@ class InSPyReRocket(nn.Module):
         else:
             x, dh = sample
             
-        x = self.resize(x)
-        dh = self.resize(dh)
         B, _, H, W = x.shape    
         
         dh1 = self.pyr.down(dh)

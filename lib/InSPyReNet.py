@@ -45,19 +45,12 @@ class InSPyReNet(nn.Module):
         self = super(InSPyReNet, self).cuda()
         return self
     
-    def resize(self, x):
-        b, _, h, w = x.shape
-        h = h if h % 32 == 0 else (h // 32) * 32
-        w = w if w % 32 == 0 else (w // 32) * 32
-        return self.res(x, (h, w))
-    
     def forward(self, sample):
         if type(sample) == dict:
             x = sample['image']
         else:
             x = sample
             
-        x = self.resize(x)
         B, _, H, W = x.shape
     
         x1, x2, x3, x4, x5 = self.backbone(x)

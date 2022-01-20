@@ -52,12 +52,6 @@ class InSPyReNetV3(nn.Module):
         self = super(InSPyReNetV3, self).cuda()
         return self
     
-    def resize(self, x):
-        b, _, h, w = x.shape
-        h = h if h % 32 == 0 else (h // 32) * 32
-        w = w if w % 32 == 0 else (w // 32) * 32
-        return self.res(x, (h, w))
-    
     def forward(self, sample):
         if type(sample) == dict:
             x = sample['image']
@@ -65,8 +59,6 @@ class InSPyReNetV3(nn.Module):
         else:
             x, dx = sample
 
-        x = self.resize(x)
-        dx = self.resize(dx)
         B, _, H, W = x.shape
             
         # x = torch.cat([x, dx], dim=1)
