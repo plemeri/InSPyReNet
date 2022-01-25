@@ -9,6 +9,7 @@ from lib.modules.context_module import *
 from lib.modules.attention_module import *
 from lib.modules.decoder_module import *
 
+from lib.backbones.ResNet import resnet50
 from lib.backbones.Res2Net_v1b import res2net50_v1b_26w_4s, res2net101_v1b_26w_4s
 from lib.backbones.SwinTransformer import SwinT, SwinS, SwinB, SwinL
 
@@ -105,6 +106,8 @@ class InSPyReNet(nn.Module):
         else:
             return d0
     
+def InSPyReNet_ResNet50(depth, pretrained):
+    return InSPyReNet(resnet50(pretrained=pretrained), [64, 256, 512, 1024, 2048], depth)
     
 def InSPyReNet_Res2Net50(depth, pretrained):
     return InSPyReNet(res2net50_v1b_26w_4s(pretrained=pretrained), [64, 256, 512, 1024, 2048], depth)
