@@ -58,7 +58,7 @@ Test:
         sets: ['DUTS-TE', 'DUT-OMRON', 'ECSSD', 'HKU-IS', 'PASCAL-S']
         transforms:
             resize:
-                size: [384, 384]
+                size: NULL #[384, 384]
                 pm : False
             tonumpy: NULL
             normalize: 
