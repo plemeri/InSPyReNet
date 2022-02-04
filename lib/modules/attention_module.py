@@ -125,9 +125,9 @@ class Attn(nn.Module):
 
         return x, out
 
-class ASCA(nn.Module):
+class SICA(nn.Module):
     def __init__(self, in_channel, channel, base_size=None, stage=None, lmap_in=False):
-        super(ASCA, self).__init__()
+        super(SICA, self).__init__()
         self.in_channel = in_channel
         self.channel = channel
         self.lmap_in = lmap_in

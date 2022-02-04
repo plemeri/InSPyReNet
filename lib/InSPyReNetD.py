@@ -30,9 +30,9 @@ class InSPyReNetD(nn.Module):
 
         self.decoder = PAA_d(self.depth, base_size=base_size, stage=2)
 
-        self.attention0 = ASCA(self.depth    , depth, base_size=base_size, stage=0, lmap_in=True)
-        self.attention1 = ASCA(self.depth * 2, depth, base_size=base_size, stage=1, lmap_in=True)
-        self.attention2 = ASCA(self.depth * 2, depth, base_size=base_size, stage=2              )
+        self.attention0 = SICA(self.depth    , depth, base_size=base_size, stage=0, lmap_in=True)
+        self.attention1 = SICA(self.depth * 2, depth, base_size=base_size, stage=1, lmap_in=True)
+        self.attention2 = SICA(self.depth * 2, depth, base_size=base_size, stage=2              )
 
         self.loss_fn = lambda x, y: weighted_tversky_bce_loss(x, y, alpha=0.2, beta=0.8, gamma=2)
         self.pyramidal_consistency_loss_fn = nn.L1Loss()

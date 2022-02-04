@@ -3,15 +3,14 @@ Model:
     depth: 64
     pretrained: True
     base_size: [384, 384]
-PM:
-    patch_size: 384
-    stride: 192
+    
+
 
 Train:
     Dataset:
-        type: "RGB_Dataset"
-        root: "data/RGB_Dataset/Train_Dataset"
-        sets: ['DUTS-TR']
+        type: "RGBD_Dataset"
+        root: "data/RGBD_Dataset/Train_Dataset"
+        sets: ['NJU2K+NLPR']
         transforms:
             resize: 
                 size: [384, 384]
@@ -33,7 +32,7 @@ Train:
         batch_size: 6
         shuffle: True
         num_workers: 8
-        pin_memory: True
+        pin_memory: False
     Optimizer:
         type: "Adam"
         lr: 1.0e-05
@@ -41,7 +40,7 @@ Train:
         mixed_precision: False
     Scheduler:
         type: "PolyLr"
-        epoch: 60
+        epoch: 300
         gamma: 0.9
         minimum_lr: 1.0e-07
         warmup_iteration: 12000
@@ -53,15 +52,15 @@ Train:
     HyperTune:
         HyperParameter: ['Train', 'Optimizer', 'lr']
         Range: [1.0e-6, 2.4e-5, 24]
-
+    
 Test:
     Dataset:
-        type: "RGB_Dataset"
-        root: "data/RGB_Dataset/Test_Dataset"
-        sets: ['DUTS-TE', 'DUT-OMRON', 'ECSSD', 'HKU-IS', 'PASCAL-S']
+        type: "RGBD_Dataset"
+        root: "data/RGBD_Dataset/Test_Dataset"
+        sets: ['DES', 'LFSD', 'NJU2K', 'NLPR', 'SIP', 'STERE']
         transforms:
-            # resize: 
-                # size: [384, 384]
+            resize:
+                size: [384, 384]
             tonumpy: NULL
             normalize: 
                 mean: [0.485, 0.456, 0.406]
@@ -83,8 +82,8 @@ Test:
         checkpoint_dir: "snapshots/InSPyReNetD_Res2Net50"
 
 Eval:
-    gt_root: "data/RGB_Dataset/Test_Dataset"
+    gt_root: "data/RGBD_Dataset/Test_Dataset"
     pred_root: "snapshots/InSPyReNetD_Res2Net50"
     result_path: "results"
-    datasets: ['DUTS-TE', 'DUT-OMRON', 'ECSSD', 'HKU-IS', 'PASCAL-S']
+    datasets: ['DES', 'LFSD', 'NJU2K', 'NLPR', 'SIP', 'STERE']
     metrics: ['Sm', 'mae', 'adpEm', 'maxEm', 'avgEm', 'adpFm', 'maxFm', 'avgFm', 'wFm']

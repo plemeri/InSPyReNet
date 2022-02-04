@@ -1,5 +1,4 @@
-from lib.InSPyReNet import InSPyReNet_ResNet50, InSPyReNet_Res2Net50, InSPyReNet_Res2Net101, InSPyReNet_SwinT, InSPyReNet_SwinS, InSPyReNet_SwinB, InSPyReNet_SwinL
-from lib.InSPyReNetD import InSPyReNetD_Res2Net50, InSPyReNetD_Res2Net101, InSPyReNetD_SwinT, InSPyReNetD_SwinS, InSPyReNetD_SwinB, InSPyReNetD_SwinL
+from lib.InSPyReNet import InSPyReNet_ResNet50, InSPyReNet_Res2Net50, InSPyReNet_Res2Net101, InSPyReNet_SwinT, InSPyReNet_SwinS, InSPyReNet_SwinB, InSPyReNet_SwinL, InSPyReNetD_Res2Net50, InSPyReNetD_Res2Net101, InSPyReNetD_SwinT, InSPyReNetD_SwinS, InSPyReNetD_SwinB, InSPyReNetD_SwinL
 from lib.PPM import PPM
 from lib.SPM import SPM
 
