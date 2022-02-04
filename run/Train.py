@@ -70,7 +70,7 @@ def train(opt, args):
                             pin_memory=opt.Train.Dataloader.pin_memory,
                             drop_last=True)
 
-    model = eval(opt.Model.name)(depth=opt.Model.depth, pretrained=opt.Model.pretrained)
+    model = eval(opt.Model.name)(**opt.Model)
     if model_ckpt is not None:
         model.load_state_dict(model_ckpt)
 

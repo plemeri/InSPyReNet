@@ -2,9 +2,8 @@ Model:
     name: "PA_KRN"
     depth: None
     pretrained: True
-    PM:
-        patch_size: 384
-        stride: 96
+    
+
 
 Test:
     Dataset:
@@ -20,9 +19,9 @@ Test:
                 div: 1
             totensor: NULL
         transforms_PM:
-            dynamic_resize:
-                patch_size: 384
-                stride: 192
+            resize:
+                size: NULL
+                pm : True
             tonumpy: NULL
             normalize: 
                 mean: [104.00699, 116.66877, 122.67892]

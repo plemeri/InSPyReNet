@@ -162,7 +162,7 @@ class Encoder(nn.Module):
 
 
 class LDF(nn.Module):
-    def __init__(self, depth, pretrained=False):
+    def __init__(self, depth, pretrained=False, **kwargs):
         super(LDF, self).__init__()
         self.bkbone   = ResNet()
         self.conv5b   = nn.Sequential(nn.Conv2d(2048, 64, kernel_size=1), nn.Conv2d(64, 64, kernel_size=3, padding=1), nn.BatchNorm2d(64), nn.ReLU(inplace=True))
@@ -183,7 +183,16 @@ class LDF(nn.Module):
         self.linear   = nn.Sequential(nn.Conv2d(128, 64, kernel_size=3, padding=1), nn.BatchNorm2d(64), nn.ReLU(inplace=True), nn.Conv2d(64, 1, kernel_size=3, padding=1))
         self.initialize()
 
+    def resize(self, x):
+        b, _, h, w = x.shape
+        h = h if h % 32 == 0 else (h // 32) * 32
+        w = w if w % 32 == 0 else (w // 32) * 32
+        return F.interpolate(x, (h, w), mode='bilinear', align_corners=True)
+    
+
+
     def forward(self, x, shape=None):
+        x = self.resize(x)
         out1, out2, out3, out4, out5 = self.bkbone(x)
         out2b, out3b, out4b, out5b   = self.conv2b(out2), self.conv3b(out3), self.conv4b(out4), self.conv5b(out5)
         out2d, out3d, out4d, out5d   = self.conv2d(out2), self.conv3d(out3), self.conv4d(out4), self.conv5d(out5)

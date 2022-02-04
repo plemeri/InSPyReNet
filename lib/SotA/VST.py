@@ -999,7 +999,7 @@ class Decoder(nn.Module):
         return [mask_1_16, mask_1_8, mask_1_4, mask_1_1], [contour_1_16, contour_1_8, contour_1_4, contour_1_1]
 
 class VST(nn.Module):
-    def __init__(self, depth, pretrained=False):
+    def __init__(self, depth, pretrained=False, **kwargs):
         super(VST, self).__init__()
 
         # VST Encoder

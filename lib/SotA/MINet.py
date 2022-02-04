@@ -458,7 +458,7 @@ class AIM(nn.Module):
 
 
 class MINet_Res50(nn.Module):
-    def __init__(self, depth, pretrained=False):
+    def __init__(self, depth, pretrained=False, **kwargs):
         super(MINet_Res50, self).__init__()
         self.div_2, self.div_4, self.div_8, self.div_16, self.div_32 = Backbone_ResNet50_in3()
 

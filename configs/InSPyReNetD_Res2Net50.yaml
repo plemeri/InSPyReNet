@@ -1,5 +1,5 @@
 Model:
-    name: "InSPyReNet_SwinL"
+    name: "InSPyReNetD_Res2Net50"
     depth: 64
     pretrained: True
     base_size: [384, 384]
@@ -33,7 +33,7 @@ Train:
         batch_size: 6
         shuffle: True
         num_workers: 8
-        pin_memory: False
+        pin_memory: True
     Optimizer:
         type: "Adam"
         lr: 1.0e-05
@@ -47,21 +47,21 @@ Train:
         warmup_iteration: 12000
     Checkpoint:
         checkpoint_epoch: 1
-        checkpoint_dir: "snapshots/InSPyReNet_SwinL"
+        checkpoint_dir: "snapshots/InSPyReNetD_Res2Net50"
     Debug:
         keys: ['gaussian', 'laplacian']
     HyperTune:
         HyperParameter: ['Train', 'Optimizer', 'lr']
         Range: [1.0e-6, 2.4e-5, 24]
-    
+
 Test:
     Dataset:
         type: "RGB_Dataset"
         root: "data/RGB_Dataset/Test_Dataset"
         sets: ['DUTS-TE', 'DUT-OMRON', 'ECSSD', 'HKU-IS', 'PASCAL-S']
         transforms:
-            resize:
-                size: [384, 384]
+            # resize: 
+                # size: [384, 384]
             tonumpy: NULL
             normalize: 
                 mean: [0.485, 0.456, 0.406]
@@ -80,11 +80,11 @@ Test:
         num_workers: 8
         pin_memory: True
     Checkpoint:
-        checkpoint_dir: "snapshots/InSPyReNet_SwinL"
+        checkpoint_dir: "snapshots/InSPyReNetD_Res2Net50"
 
 Eval:
     gt_root: "data/RGB_Dataset/Test_Dataset"
-    pred_root: "snapshots/InSPyReNet_SwinL"
+    pred_root: "snapshots/InSPyReNetD_Res2Net50"
     result_path: "results"
     datasets: ['DUTS-TE', 'DUT-OMRON', 'ECSSD', 'HKU-IS', 'PASCAL-S']
     metrics: ['Sm', 'mae', 'adpEm', 'maxEm', 'avgEm', 'adpFm', 'maxFm', 'avgFm', 'wFm']

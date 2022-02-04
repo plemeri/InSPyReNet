@@ -44,15 +44,15 @@ def get_format(source):
         return ''
 
 def inference(opt, args):
-    model = eval(opt.Model.name)(depth=opt.Model.depth, pretrained=False)
+    model = eval(opt.Model.name)(**opt.Model)
     model.load_state_dict(torch.load(os.path.join(
         opt.Test.Checkpoint.checkpoint_dir, 'latest.pth'), map_location=torch.device('cpu')), strict=True)
     
     if args.PM is True:
         if 'InSPyRe' in opt.Model.name:
-            model = PPM(model, opt.Model.PM.patch_size, opt.Model.PM.stride)
+            model = PPM(model)
         else:
-            model = SPM(model, opt.Model.PM.patch_size, opt.Model.PM.stride)
+            model = SPM(model)
     
     if args.gpu is True:
         model = model.cuda()
@@ -60,7 +60,8 @@ def inference(opt, args):
         
     if args.jit is True:
         if os.path.isfile(os.path.join(opt.Test.Checkpoint.checkpoint_dir, 'jit.pt')) is False:
-            model = torch.jit.trace(model, torch.rand(1, 3, 384, 384).cuda())
+            model = TOJIT(model)
+            model = torch.jit.trace(model, {'image': torch.rand(1, 3, *opt.Model.base_size).cuda()}, strict=False)
             torch.jit.save(model, os.path.join(opt.Test.Checkpoint.checkpoint_dir, 'jit.pt'))
         
         else:
@@ -112,8 +113,11 @@ def inference(opt, args):
             sample = to_cuda(sample)
 
         with torch.no_grad():
-            out = model(sample['image'])
-        pred = to_numpy(out, sample['shape'])
+            if args.jit is True:
+                out = model({'image': sample['image']})
+            else:
+                out = model(sample)
+        pred = to_numpy(out['pred'], sample['shape'])
 
         img = np.array(sample['original'])
         if args.type == 'map':

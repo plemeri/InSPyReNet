@@ -694,7 +694,7 @@ def weights_init(m):
             m.bias.data.zero_()
             
 class PA_KRN(nn.Module):
-    def __init__(self, depth, pretrained=False):
+    def __init__(self, depth, pretrained=False, **kwargs):
         super().__init__()
         self.net = KRN('resnet', *extra_layer('resnet', resnet50_locate()))
         self.net = self.net #.cuda()

@@ -1,17 +1,16 @@
 Model:
-    name: "InSPyReNet_SwinL"
+    name: "InSPyReNetD_SwinB"
     depth: 64
     pretrained: True
     base_size: [384, 384]
-PM:
-    patch_size: 384
-    stride: 192
+    
+
 
 Train:
     Dataset:
-        type: "RGB_Dataset"
-        root: "data/RGB_Dataset/Train_Dataset"
-        sets: ['DUTS-TR']
+        type: "RGBD_Dataset"
+        root: "data/RGBD_Dataset/Train_Dataset"
+        sets: ['NJU2K+NLPR']
         transforms:
             resize: 
                 size: [384, 384]
@@ -41,13 +40,13 @@ Train:
         mixed_precision: False
     Scheduler:
         type: "PolyLr"
-        epoch: 60
+        epoch: 300
         gamma: 0.9
         minimum_lr: 1.0e-07
         warmup_iteration: 12000
     Checkpoint:
         checkpoint_epoch: 1
-        checkpoint_dir: "snapshots/InSPyReNet_SwinL"
+        checkpoint_dir: "snapshots/InSPyReNetD_SwinB"
     Debug:
         keys: ['gaussian', 'laplacian']
     HyperTune:
@@ -56,9 +55,9 @@ Train:
     
 Test:
     Dataset:
-        type: "RGB_Dataset"
-        root: "data/RGB_Dataset/Test_Dataset"
-        sets: ['DUTS-TE', 'DUT-OMRON', 'ECSSD', 'HKU-IS', 'PASCAL-S']
+        type: "RGBD_Dataset"
+        root: "data/RGBD_Dataset/Test_Dataset"
+        sets: ['DES', 'LFSD', 'NJU2K', 'NLPR', 'SIP', 'STERE']
         transforms:
             resize:
                 size: [384, 384]
@@ -80,11 +79,11 @@ Test:
         num_workers: 8
         pin_memory: True
     Checkpoint:
-        checkpoint_dir: "snapshots/InSPyReNet_SwinL"
+        checkpoint_dir: "snapshots/InSPyReNetD_SwinB"
 
 Eval:
-    gt_root: "data/RGB_Dataset/Test_Dataset"
-    pred_root: "snapshots/InSPyReNet_SwinL"
+    gt_root: "data/RGBD_Dataset/Test_Dataset"
+    pred_root: "snapshots/InSPyReNetD_SwinB"
     result_path: "results"
-    datasets: ['DUTS-TE', 'DUT-OMRON', 'ECSSD', 'HKU-IS', 'PASCAL-S']
+    datasets: ['DES', 'LFSD', 'NJU2K', 'NLPR', 'SIP', 'STERE']
     metrics: ['Sm', 'mae', 'adpEm', 'maxEm', 'avgEm', 'adpFm', 'maxFm', 'avgFm', 'wFm']

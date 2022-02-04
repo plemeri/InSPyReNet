@@ -9,16 +9,18 @@ from lib.modules.context_module import *
 from lib.modules.attention_module import *
 from lib.modules.decoder_module import *
 
-from lib.backbones.ResNet import resnet50
 from lib.backbones.Res2Net_v1b import res2net50_v1b_26w_4s, res2net101_v1b_26w_4s
 from lib.backbones.SwinTransformer import SwinT, SwinS, SwinB, SwinL
 
-class InSPyReNet(nn.Module):
+class InSPyReNetD(nn.Module):
     def __init__(self, backbone, in_channels, depth=64, base_size=384, **kwargs):
-        super(InSPyReNet, self).__init__()
+        super(InSPyReNetD, self).__init__()
         self.backbone = backbone
         self.in_channels = in_channels
         self.depth = depth
+        self.base_size = base_size
+        
+        self.reduce = conv(4, 3, 3)
         
         self.context1 = PAA_e(self.in_channels[0], self.depth, base_size=base_size, stage=0)
         self.context2 = PAA_e(self.in_channels[1], self.depth, base_size=base_size, stage=1)
@@ -43,13 +45,14 @@ class InSPyReNet(nn.Module):
         
     def cuda(self):
         self.pyr = self.pyr.cuda()
-        self = super(InSPyReNet, self).cuda()
+        self = super(InSPyReNetD, self).cuda()
         return self
     
     def forward(self, sample):
-        x = sample['image']
+        x = torch.cat([sample['image'], sample['depth']], dim=1)
         B, _, H, W = x.shape
-    
+        
+        x = self.reduce(x)        
         x1, x2, x3, x4, x5 = self.backbone(x)
         
         x1 = self.context1(x1) #4
@@ -100,23 +103,20 @@ class InSPyReNet(nn.Module):
         sample['laplacian'] = [p2, p1, p0]
         return sample
     
-def InSPyReNet_ResNet50(depth, pretrained):
-    return InSPyReNet(resnet50(pretrained=pretrained), [64, 256, 512, 1024, 2048], depth)
+def InSPyReNetD_Res2Net50(depth, pretrained, base_size, **kwargs):
+    return InSPyReNetD(res2net50_v1b_26w_4s(pretrained=pretrained), [64, 256, 512, 1024, 2048], depth, base_size, **kwargs)
+
+def InSPyReNetD_Res2Net101(depth, pretrained, base_size, **kwargs):
+    return InSPyReNetD(res2net101_v1b_26w_4s(pretrained=pretrained), [64, 256, 512, 1024, 2048], depth, base_size, **kwargs)
+
+def InSPyReNetD_SwinS(depth, pretrained, base_size, **kwargs):
+    return InSPyReNetD(SwinS(pretrained=pretrained), [96, 96, 192, 384, 768], depth, base_size, **kwargs)
+
+def InSPyReNetD_SwinT(depth, pretrained, base_size, **kwargs):
+    return InSPyReNetD(SwinT(pretrained=pretrained), [96, 96, 192, 384, 768], depth, base_size, **kwargs)
     
-def InSPyReNet_Res2Net50(depth, pretrained, base_size, **kwargs):
-    return InSPyReNet(res2net50_v1b_26w_4s(pretrained=pretrained), [64, 256, 512, 1024, 2048], depth, base_size, **kwargs)
+def InSPyReNetD_SwinB(depth, pretrained, base_size, **kwargs):
+    return InSPyReNetD(SwinB(pretrained=pretrained), [128, 128, 256, 512, 1024], depth, base_size, **kwargs)
 
-def InSPyReNet_Res2Net101(depth, pretrained, base_size, **kwargs):
-    return InSPyReNet(res2net101_v1b_26w_4s(pretrained=pretrained), [64, 256, 512, 1024, 2048], depth, base_size, **kwargs)
-
-def InSPyReNet_SwinS(depth, pretrained, base_size, **kwargs):
-    return InSPyReNet(SwinS(pretrained=pretrained), [96, 96, 192, 384, 768], depth, base_size, **kwargs)
-
-def InSPyReNet_SwinT(depth, pretrained, base_size, **kwargs):
-    return InSPyReNet(SwinT(pretrained=pretrained), [96, 96, 192, 384, 768], depth, base_size, **kwargs)
-    
-def InSPyReNet_SwinB(depth, pretrained, base_size, **kwargs):
-    return InSPyReNet(SwinB(pretrained=pretrained), [128, 128, 256, 512, 1024], depth, base_size, **kwargs)
-
-def InSPyReNet_SwinL(depth, pretrained, base_size, **kwargs):
-    return InSPyReNet(SwinL(pretrained=pretrained), [192, 192, 384, 768, 1536], depth, base_size, **kwargs)
+def InSPyReNetD_SwinL(depth, pretrained, base_size, **kwargs):
+    return InSPyReNetD(SwinL(pretrained=pretrained), [192, 192, 384, 768, 1536], depth, base_size, **kwargs)

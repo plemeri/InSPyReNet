@@ -1,6 +1,11 @@
 # InSPyReNet: Inverse Saliency Pyramid Reconstruction Network for Salient Object Detection
 <p align="center">
 
+  <img src="./figures/Title.png" alt="Logo" width="200" height="auto">
+
+</p>
+<p align="center">
+
   <img src="./figures/figure1.png" alt="Logo" width="300" height="auto">
 
 </p>

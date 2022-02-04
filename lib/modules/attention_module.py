@@ -52,13 +52,89 @@ class simple_attention(nn.Module):
         out = out + map
 
         return x, out
+    
+class Attn(nn.Module):
+    def __init__(self, in_channel, channel, decoder, base_size=None, stage=None, lmap_in=False):
+        super(Attn, self).__init__()
+        self.in_channel = in_channel
+        self.channel = channel
+        self.decoder = decoder
+        if base_size is not None and stage is not None:
+            self.stage_size = base_size // (2 ** stage)
+        else:
+            self.stage_size = None
+        
+        self.conv_query = nn.Sequential(conv(in_channel, channel, 3, relu=True),
+                                        conv(channel, channel, 3, relu=True))
+        self.conv_key   = nn.Sequential(conv(in_channel, channel, 1, relu=True),
+                                        conv(channel, channel, 1, relu=True))
+        self.conv_value = nn.Sequential(conv(in_channel, channel, 1, relu=True),
+                                        conv(channel, channel, 1, relu=True))
+
+        self.conv_out1 = conv(channel, channel, 3, relu=True)
+        self.conv_out2 = conv(in_channel + channel, channel, 3, relu=True)
+        if self.decoder is True:
+            self.conv_out3 = conv(channel, channel, 3, relu=True)
+            self.conv_out4 = conv(channel, 1, 1)
+
+    def forward(self, x, smap):
+        b, c, h, w = x.shape
+        
+        # compute class probability
+        smap = F.interpolate(smap, size=x.shape[-2:], mode='bilinear', align_corners=False)
+        if smap.max() > 1 or smap.min() < 0:
+            smap = torch.sigmoid(smap)
+        prob = [smap, 1 - smap]
+        prob = torch.cat(prob, dim=1)
+
+        # reshape feature & prob
+        if self.stage_size is not None:
+            shape = (self.stage_size, self.stage_size)
+            shape_mul = self.stage_size * self.stage_size
+        else:
+            shape = (h, w)
+            shape_mul = h * w        
+        
+        f = F.interpolate(x, size=shape, mode='bilinear', align_corners=False).view(b, shape_mul, -1)
+        prob = F.interpolate(prob, size=shape, mode='bilinear', align_corners=False).view(b, 2, shape_mul)
+        
+        # compute context vector
+        context = torch.bmm(prob, f).permute(0, 2, 1).unsqueeze(3) # b, 3, c
+
+        # k q v compute
+        query = self.conv_query(x).view(b, self.channel, -1).permute(0, 2, 1)
+        key = self.conv_key(context).view(b, self.channel, -1)
+        value = self.conv_value(context).view(b, self.channel, -1).permute(0, 2, 1)
+
+        # compute similarity map
+        sim = torch.bmm(query, key) # b, hw, c x b, c, 2
+        sim = (self.channel ** -.5) * sim
+        sim = F.softmax(sim, dim=-1)
+
+        # compute refined feature
+        context = torch.bmm(sim, value).permute(0, 2, 1).contiguous().view(b, -1, h, w)
+        context = self.conv_out1(context)
+        
+        x = torch.cat([x, context], dim=1)
+        x = self.conv_out2(x)
+        if self.decoder is True:
+            x = self.conv_out3(x)
+            out = self.conv_out4(x)
+        else:
+            out = None
+
+        return x, out
 
 class ASCA(nn.Module):
-    def __init__(self, in_channel, channel, lmap_in=False):
+    def __init__(self, in_channel, channel, base_size=None, stage=None, lmap_in=False):
         super(ASCA, self).__init__()
         self.in_channel = in_channel
         self.channel = channel
         self.lmap_in = lmap_in
+        if base_size is not None and stage is not None:
+            self.stage_size = (base_size[0] // (2 ** stage), base_size[1] // (2 ** stage))
+        else:
+            self.stage_size = None
         
         self.conv_query = nn.Sequential(conv(in_channel, channel, 3, relu=True),
                                         conv(channel, channel, 3, relu=True))
@@ -106,6 +182,88 @@ class ASCA(nn.Module):
         else:
             prob = [fg, bg, cg]
 
+        prob = torch.cat(prob, dim=1)
+
+        # reshape feature & prob
+        if self.stage_size is not None:
+            shape = self.stage_size
+            shape_mul = self.stage_size[0] * self.stage_size[1]
+        else:
+            shape = (h, w)
+            shape_mul = h * w        
+        
+        f = F.interpolate(x, size=shape, mode='bilinear', align_corners=False).view(b, shape_mul, -1)
+        prob = F.interpolate(prob, size=shape, mode='bilinear', align_corners=False).view(b, self.ctx, shape_mul)
+        
+        # compute context vector
+        context = torch.bmm(prob, f).permute(0, 2, 1).unsqueeze(3) # b, 3, c
+
+        # k q v compute
+        query = self.conv_query(x).view(b, self.channel, -1).permute(0, 2, 1)
+        key = self.conv_key(context).view(b, self.channel, -1)
+        value = self.conv_value(context).view(b, self.channel, -1).permute(0, 2, 1)
+
+        # compute similarity map
+        sim = torch.bmm(query, key) # b, hw, c x b, c, 2
+        sim = (self.channel ** -.5) * sim
+        sim = F.softmax(sim, dim=-1)
+
+        # compute refined feature
+        context = torch.bmm(sim, value).permute(0, 2, 1).contiguous().view(b, -1, h, w)
+        context = self.conv_out1(context)
+        
+        x = torch.cat([x, context], dim=1)
+        x = self.conv_out2(x)
+        x = self.conv_out3(x)
+        out = self.conv_out4(x)
+
+        return x, out
+    
+    
+class DACA(nn.Module):
+    def __init__(self, in_channel, channel, lmap_in=False):
+        super(DACA, self).__init__()
+        self.in_channel = in_channel
+        self.channel = channel
+        self.lmap_in = lmap_in
+        
+        self.conv_query = nn.Sequential(conv(in_channel, channel, 3, relu=True),
+                                        conv(channel, channel, 3, relu=True))
+        self.conv_key   = nn.Sequential(conv(in_channel, channel, 1, relu=True),
+                                        conv(channel, channel, 1, relu=True))
+        self.conv_value = nn.Sequential(conv(in_channel, channel, 1, relu=True),
+                                        conv(channel, channel, 1, relu=True))
+
+        if self.lmap_in is True:
+            self.ctx = 7
+        else:
+            self.ctx = 5
+
+        self.conv_out1 = conv(channel, channel, 3, relu=True)
+        self.conv_out2 = conv(in_channel + channel, channel, 3, relu=True)
+        self.conv_out3 = conv(channel, channel, 3, relu=True)
+        self.conv_out4 = conv(channel, 1, 1)
+
+    def forward(self, x, smap, dmap, lmap: Optional[torch.Tensor]=None):
+        assert not xor(self.lmap_in is True, lmap is not None)
+        b, c, h, w = x.shape
+        
+        # compute class probability
+        smap = F.interpolate(smap, size=x.shape[-2:], mode='bilinear', align_corners=False)
+        smap = torch.sigmoid(smap)
+        rmap = 1 - smap
+        umap = - (smap * torch.log(smap + torch.finfo(torch.float32).eps)) + (1 - smap) * torch.log(1 - smap + torch.finfo(torch.float32).eps)
+
+        dmap = F.interpolate(dmap, size=x.shape[-2:], mode='bilinear', align_corners=False)
+        drmap = 1 - dmap
+
+        prob = [smap, rmap, umap, dmap, drmap]
+
+        if self.lmap_in is True and lmap is not None:
+            lmap = F.interpolate(lmap, size=x.shape[-2:], mode='bilinear', align_corners=False)
+            lmap = torch.sigmoid(lmap)
+            lrmap = 1 - lmap
+            prob.extend([lmap, lrmap])
         prob = torch.cat(prob, dim=1)
 
         # reshape feature & prob

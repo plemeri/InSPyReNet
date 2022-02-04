@@ -100,7 +100,7 @@ class conv(nn.Module):
 
 
 class self_attn(nn.Module):
-    def __init__(self, in_channels, mode='hw'):
+    def __init__(self, in_channels, mode='hw', stage_size=None):
         super(self_attn, self).__init__()
 
         self.mode = mode
@@ -111,26 +111,48 @@ class self_attn(nn.Module):
 
         self.gamma = Parameter(torch.zeros(1))
         self.softmax = nn.Softmax(dim=-1)
+        
+        self.stage_size = stage_size
 
     def forward(self, x):
         batch_size, channel, height, width = x.size()
 
-        axis = 1
+        o_axis = 1
         if 'h' in self.mode:
-            axis *= height
+            o_axis *= height
         if 'w' in self.mode:
-            axis *= width
+            o_axis *= width
 
-        view = (batch_size, -1, axis)
+        if self.stage_size is not None:
+            r_axis = 1
+            if 'h' in self.mode:
+                r_axis *= self.stage_size
+            if 'w' in self.mode:
+                r_axis *= self.stage_size
+        else:
+            r_axis = o_axis
 
-        projected_query = self.query_conv(x).view(*view).permute(0, 2, 1)
-        projected_key = self.key_conv(x).view(*view)
+        o_view = (batch_size, -1, o_axis) # b, ch, w
+        r_view = (batch_size, -1, r_axis) # b, ch, w
+        
+        if self.stage_size is not None:
+            r_height, r_width = height, width
+            if 'h' in self.mode:
+                r_height = self.stage_size
+            if 'w' in self.mode:
+                r_width =  self.stage_size
+            rx = F.interpolate(x, (r_height, r_width), mode='bilinear', align_corners=True)
+        else:
+            rx = x
+                    
+        projected_query = self.query_conv(x).view(*o_view).permute(0, 2, 1) # b, w', ch'
+        projected_key = self.key_conv(rx).view(*r_view) # b, ch', w
 
-        attention_map = torch.bmm(projected_query, projected_key)
+        attention_map = torch.bmm(projected_query, projected_key) # b, w', w
         attention = self.softmax(attention_map)
-        projected_value = self.value_conv(x).view(*view)
+        projected_value = self.value_conv(rx).view(*r_view) # b, ch, w'
 
-        out = torch.bmm(projected_value, attention.permute(0, 2, 1))
+        out = torch.bmm(projected_value, attention.permute(0, 2, 1)) #b, ch, w' x b, w', w
         out = out.view(batch_size, channel, height, width)
 
         out = self.gamma * out + x

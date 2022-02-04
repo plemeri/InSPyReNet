@@ -150,7 +150,7 @@ class Decoder(nn.Module):
 
 
 class F3Net(nn.Module):
-    def __init__(self, depth, pretrained=False):
+    def __init__(self, depth, pretrained=False, **kwargs):
         super(F3Net, self).__init__()
         self.bkbone   = ResNet()
         self.squeeze5 = nn.Sequential(nn.Conv2d(2048, 64, 1), nn.BatchNorm2d(64), nn.ReLU(inplace=True))

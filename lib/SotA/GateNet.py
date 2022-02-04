@@ -154,7 +154,7 @@ class Bottleneck(nn.Module):
 
 
 class GateNet(nn.Module):
-    def __init__(self,depth, pretrained=False):
+    def __init__(self,depth, pretrained=False, **kwargs):
         super(GateNet, self).__init__()
 ################################ResNet50---keep the last resolution#######################################
         block1 = Bottleneck
