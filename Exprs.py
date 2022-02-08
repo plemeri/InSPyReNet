@@ -35,7 +35,10 @@ if __name__ == "__main__":
     
     print('Expr key:', exp_key)
     
-    devices = args.devices.split(',')
+    if args.devices == 'all':
+        devices = [str(i) for i in range(torch.cuda.device_count())]
+    else:
+        devices = args.devices.split(',')
     opt = load_config(args.config, easy=False)
 
     os.makedirs('temp', exist_ok=True)
