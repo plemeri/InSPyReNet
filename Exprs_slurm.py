@@ -61,6 +61,6 @@ if __name__ == "__main__":
         command += '--partition ' + args.partition + ' '
         command += '--nodelist ' + args.nodelist + ' '
             
-        command += ' slurm_submit.sh {}'.format(os.path.join('temp', exp[0] + '.yaml'))
-        # os.system(command)
-        print(command)
+        command += ' slurm-submit.sh {}'.format(os.path.join('temp', exp[0] + '.yaml'))
+        os.system(command)
+        # print(command)

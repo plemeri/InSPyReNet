@@ -34,8 +34,8 @@ class PAA_kernel(nn.Module):
         self.conv1 = conv(out_channel, out_channel, kernel_size=(1, receptive_size))
         self.conv2 = conv(out_channel, out_channel, kernel_size=(receptive_size, 1))
         self.conv3 = conv(out_channel, out_channel, 3, dilation=receptive_size)
-        self.Hattn = self_attn(out_channel, 'h', stage_size[0])
-        self.Wattn = self_attn(out_channel, 'w', stage_size[1])
+        self.Hattn = self_attn(out_channel, 'h', stage_size[0] if stage_size is not None else None)
+        self.Wattn = self_attn(out_channel, 'w', stage_size[1] if stage_size is not None else None)
 
     def forward(self, x):
         x = self.conv0(x)

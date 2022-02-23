@@ -1,10 +1,12 @@
 import os
 import argparse
+import gdown
 
 def gdrive_download(key, filename):
-    os.system("curl -c ./cookie -s -L \"https://drive.google.com/uc?export=download&id={}\" > /dev/null".format(key))
-    os.system("curl -Lb ./cookie \"https://drive.google.com/uc?export=download&confirm=`awk '/download/ {{print $NF}}' ./cookie`&id={}\" -o {}".format(key, filename))
-    os.system("rm cookie")
+    # os.system("curl -c ./cookie -s -L \"https://drive.google.com/uc?export=download&id={}\" > /dev/null".format(key))
+    # os.system("curl -Lb ./cookie \"https://drive.google.com/uc?export=download&confirm=`awk '/download/ {{print $NF}}' ./cookie`&id={}\" -o {}".format(key, filename))
+    # os.system("rm cookie")
+    gdown.download("https://drive.google.com/uc?export=download&id={}".format(key), filename, quiet=False)
     
 def unzip(file, dest):
     os.system("unzip {} -d {}".format(file, dest))

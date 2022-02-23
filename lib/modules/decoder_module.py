@@ -85,8 +85,8 @@ class PAA_d(nn.Module):
         else:
             self.stage_size = None
 
-        self.Hattn = self_attn(channel, 'h', self.stage_size[0])
-        self.Wattn = self_attn(channel, 'w', self.stage_size[1])
+        self.Hattn = self_attn(channel, 'h', self.stage_size[0] if stage is not None else None)
+        self.Wattn = self_attn(channel, 'w', self.stage_size[1] if stage is not None else None)
 
         self.upsample = lambda img, size: F.interpolate(img, size=size, mode='bilinear', align_corners=True)
         

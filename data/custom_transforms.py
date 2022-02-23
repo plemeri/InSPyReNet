@@ -214,6 +214,17 @@ class random_gaussian_blur:
 
         return sample
 
+class random_lens_generation:
+    def __init__(self, radius):
+        self.radius = radius
+
+    def __call__(self, sample):
+        sample['lens'] = np.ones_like(np.array(sample['image'])).astype(np.uint8) * 255
+        if np.random.random() < 0.5:
+            sample['lens']
+
+        return sample
+
 
 class histogram_equalization:
     def __init__(self):
