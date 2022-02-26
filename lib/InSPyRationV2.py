@@ -26,7 +26,7 @@ class InSPyRationV2(nn.Module):
         self.context4 = PAA_e(self.in_channels[3], self.depth, base_size=base_size, stage=3)
         self.context5 = PAA_e(self.in_channels[4], self.depth, base_size=base_size, stage=4)
 
-        self.decoder = PAA_d(self.depth, base_size=base_size, stage=2)
+        self.decoder = PAA_d2(self.depth, base_size=base_size, stage=2)
 
         self.attention0d = SICA(self.depth    , depth, base_size=base_size, stage=0)
         self.attention0p = SICA(self.depth * 2, depth, base_size=base_size, stage=0)

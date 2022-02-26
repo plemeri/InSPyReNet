@@ -64,11 +64,11 @@ class resize:
         return sample
 class resize_pm:
     def __init__(self, size=None):
-        if size is not None:
-            assert size[0] / size[1] == 1
-            self.size = size
-        else:
-            self.size = None
+        # if size is not None:
+        #     assert size[0] / size[1] == 1
+        #     self.size = size
+        # else:
+        self.patch_size = size
 
     def __call__(self, sample):
         if 'image' in sample.keys():
@@ -82,6 +82,8 @@ class resize_pm:
             size = (int(self.patch_size * hx), int(self.patch_size * wx))
             
             sample['image'] = sample['image'].resize(size, Image.BILINEAR)
+            sample['patch_size'] = self.patch_size
+            sample['stride'] = self.patch_size // 2
 
         return sample
 
