@@ -183,17 +183,17 @@ class LDF(nn.Module):
         self.linear   = nn.Sequential(nn.Conv2d(128, 64, kernel_size=3, padding=1), nn.BatchNorm2d(64), nn.ReLU(inplace=True), nn.Conv2d(64, 1, kernel_size=3, padding=1))
         self.initialize()
 
-    def resize(self, x):
-        b, _, h, w = x.shape
-        h = h if h % 32 == 0 else (h // 32) * 32
-        w = w if w % 32 == 0 else (w // 32) * 32
-        return F.interpolate(x, (h, w), mode='bilinear', align_corners=True)
+    # def resize(self, x):
+    #     b, _, h, w = x.shape
+    #     h = h if h % 32 == 0 else (h // 32) * 32
+    #     w = w if w % 32 == 0 else (w // 32) * 32
+    #     return F.interpolate(x, (h, w), mode='bilinear', align_corners=True)
     
 
 
     def forward(self, x, shape=None):
-        x = self.resize(x)
-        out1, out2, out3, out4, out5 = self.bkbone(x)
+        # x = self.resize(x)
+        out1, out2, out3, out4, out5 = self.bkbone(x['image'])
         out2b, out3b, out4b, out5b   = self.conv2b(out2), self.conv3b(out3), self.conv4b(out4), self.conv5b(out5)
         out2d, out3d, out4d, out5d   = self.conv2d(out2), self.conv3d(out3), self.conv4d(out4), self.conv5d(out5)
 
@@ -206,7 +206,7 @@ class LDF(nn.Module):
         out2  = torch.cat([outb2, outd2], dim=1)
 
         if shape is None:
-            shape = x.size()[2:]
+            shape = x['image'].size()[2:]
         out1  = F.interpolate(self.linear(out1),   size=shape, mode='bilinear')
         outb1 = F.interpolate(self.linearb(outb1), size=shape, mode='bilinear')
         outd1 = F.interpolate(self.lineard(outd1), size=shape, mode='bilinear')
@@ -215,7 +215,7 @@ class LDF(nn.Module):
         outb2 = F.interpolate(self.linearb(outb2), size=shape, mode='bilinear')
         outd2 = F.interpolate(self.lineard(outd2), size=shape, mode='bilinear')
         # return outb1, outd1, out1, outb2, outd2, out2
-        return out2
+        return {'pred': out2}
 
     def initialize(self):
         weight_init(self)

@@ -483,7 +483,7 @@ class MINet_Res50(nn.Module):
         self.classifier = nn.Conv2d(32, 1, 1)
 
     def forward(self, in_data):
-        in_data_2 = self.div_2(in_data)
+        in_data_2 = self.div_2(in_data['image'])
         in_data_4 = self.div_4(in_data_2)
         in_data_8 = self.div_8(in_data_4)
         in_data_16 = self.div_16(in_data_8)
@@ -510,4 +510,4 @@ class MINet_Res50(nn.Module):
         out_data_1 = self.upconv1(self.upsample(out_data_2, scale_factor=2))  # 32
         out_data = self.classifier(out_data_1)
 
-        return out_data
+        return {'pred': out_data}

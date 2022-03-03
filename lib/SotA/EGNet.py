@@ -451,6 +451,7 @@ class TUN_bone(nn.Module):
             self.merge2 = merge2_layers
 
     def forward(self, x):
+        x = x['image']
         x_size = x.size()[2:]
         conv2merge = self.base(x)        
         if self.base_model_cfg == 'resnet':            
@@ -458,7 +459,7 @@ class TUN_bone(nn.Module):
         up_edge, edge_feature, up_sal, sal_feature = self.merge1(conv2merge, x_size)
         up_sal_final = self.merge2(edge_feature, sal_feature, x_size)
         # return up_edge, up_sal, up_sal_final
-        return up_sal_final[-1]
+        return {'pred': up_sal_final[-1]}
 
 
 # build the whole network

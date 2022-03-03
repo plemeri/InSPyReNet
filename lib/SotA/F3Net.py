@@ -170,12 +170,12 @@ class F3Net(nn.Module):
         self.initialize()
 
     def forward(self, x, shape=None):
-        out2h, out3h, out4h, out5v        = self.bkbone(x)
+        out2h, out3h, out4h, out5v        = self.bkbone(x['image'])
         out2h, out3h, out4h, out5v        = self.squeeze2(out2h), self.squeeze3(out3h), self.squeeze4(out4h), self.squeeze5(out5v)
         out2h, out3h, out4h, out5v, pred1 = self.decoder1(out2h, out3h, out4h, out5v)
         out2h, out3h, out4h, out5v, pred2 = self.decoder2(out2h, out3h, out4h, out5v, pred1)
 
-        shape = x.size()[2:] if shape is None else shape
+        shape = x['image'].size()[2:] if shape is None else shape
         pred1 = F.interpolate(self.linearp1(pred1), size=shape, mode='bilinear')
         pred2 = F.interpolate(self.linearp2(pred2), size=shape, mode='bilinear')
 
@@ -184,7 +184,7 @@ class F3Net(nn.Module):
         out4h = F.interpolate(self.linearr4(out4h), size=shape, mode='bilinear')
         out5h = F.interpolate(self.linearr5(out5v), size=shape, mode='bilinear')
         # return pred1, pred2, out2h, out3h, out4h, out5h
-        return pred2
+        return {'pred': pred2}
 
 
     def initialize(self):

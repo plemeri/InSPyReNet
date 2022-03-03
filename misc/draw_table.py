@@ -4,10 +4,11 @@ import numpy as np
 
 root = 'results'
 # root = 'temp'
-datasets = ['ECSSD', 'HKU-IS', 'PASCAL-S'] #['DUTS-TE', 'DUT-OMRON']  #['DUTS-TE', 'DUT-OMRON', 'ECSSD', 'HKU-IS', 'PASCAL-S'] 
+datasets = ['DUTS-TE', 'DUT-OMRON', 'ECSSD', 'HKU-IS', 'PASCAL-S'] 
 # metrics = {'Sm': 'max', 'maxEm': 'max', 'maxFm': 'max', 'mae': 'min'}
-metrics = {'Sm': 'max', 'maxEm': 'max', 'avgEm': 'max', 'maxFm': 'max', 'avgFm': 'max', 'wFm': 'max', 'mae': 'min'}
+# metrics = {'Sm': 'max', 'maxEm': 'max', 'avgEm': 'max', 'maxFm': 'max', 'avgFm': 'max', 'wFm': 'max', 'mae': 'min'}
 
+metrics = {'Sm': 'max', 'maxFm': 'max', 'mae': 'min'}
 # methods =   ['PoolNet',   'BASNet',    'EGNet',     'CPD',       'MINet',     'F3Net',     'GateNet',     'LDF',       'UCNet',     'PA_KRN',    'VST',        'ABiUNet',   'TTSOD',     'RFBB',             'InSPyReNet_Res2Net50', 'InSPyReNet_Res2Net101', 'InSPyReNet_SwinT', 'InSPyReNet_SwinS', 'InSPyReNet_SwinB']#, 'InSPyReNet_SwinL']
 # tablename = [
 # 'PoolNet \cite{liu2019simple}                ',
@@ -34,7 +35,7 @@ metrics = {'Sm': 'max', 'maxEm': 'max', 'avgEm': 'max', 'maxFm': 'max', 'avgFm':
 # macs =      [128.4        ,286.6       ,350.2       ,21.1        ,125.3       ,19.6         ,162.1        ,18.5        ,'-'         ,256.5,       23.2,         '-'      ,   '-',         '-',               59.4                   ,68.8                    ,70.4               ,84.1               ,101.3]#, 157.4]
 # params =    [69.5         ,87.1        ,111.7       ,47.9        ,162.4       ,25.5         ,128.6        ,25.2        ,'-'         ,141.1,       44.0,         '35.0'   ,   '-',         '-',               28.1                   ,47.6                    ,31.1               ,52.4               ,90.5 ]#,  199.0]
 
-methods =   ['PoolNet',   'BASNet',    'EGNet',     'CPD',       'MINet',     'F3Net',     'GateNet',     'LDF',       'UCNet',     'PA_KRN',    'VST',        'ABiUNet',   'TTSOD',      'InSPyReNet_Res2Net50', 'InSPyReNet_Res2Net101', 'InSPyReNet_SwinT', 'InSPyReNet_SwinS', 'InSPyReNet_SwinB']#, 'InSPyReNet_SwinL']
+methods =   ['PoolNet',   'BASNet',    'EGNet',     'CPD',       'MINet',     'F3Net',     'GateNet',     'LDF',       'UCNet',     'PA_KRN',    'VST',        'ABiUNet',   'TTSOD',      'InSPyReNet_Res2Net50', 'InSPyReNet_SwinB']#, 'InSPyReNet_SwinL']
 tablename = [
 'PoolNet \cite{liu2019simple}                ',
 'BASNet \cite{qin2019basnet}                 ',
@@ -51,13 +52,10 @@ tablename = [
 'TTSOD \cite{mao2021transformer}             ',
 'Ours                                        ',
 'Ours                                        ',
-'Ours                                        ',
-'Ours                                        ',
-'Ours                                        '
 ]
 backbones = ['ResNet50', 'ResNet34', 'ResNet50', 'ResNet50', 'ResNet50', 'ResNet50', 'ResNeXt101', 'ResNet50', 'ResNet50', 'ResNet50', 'T2T-ViT-14', 'PVT'    ,   'SwinB$^*$',  'Res2Net50',            'Res2Net101',            'SwinT',            'SwinS',            'SwinB$^*$'       ]#, 'SwinL$^*$']
-macs =      [128.4        ,286.6       ,350.2       ,21.1        ,125.3       ,19.6         ,162.1        ,18.5        ,'-'         ,256.5,       23.2,         '-'      ,   '-',            59.4                   ,68.8                    ,70.4               ,84.1               ,101.3]#, 157.4]
-params =    [69.5         ,87.1        ,111.7       ,47.9        ,162.4       ,25.5         ,128.6        ,25.2        ,'-'         ,141.1,       44.0,         '35.0'   ,   '-',            28.1                   ,47.6                    ,31.1               ,52.4               ,90.5 ]#,  199.0]
+macs =      [128.4        ,286.6       ,350.2       ,21.1        ,125.3       ,19.6         ,162.1        ,18.5        ,'-'         ,256.5,       23.2,         '-'      ,   '-',            59.4                                  ,101.3]#, 157.4]
+params =    [69.5         ,87.1        ,111.7       ,47.9        ,162.4       ,25.5         ,128.6        ,25.2        ,'-'         ,141.1,       44.0,         '35.0'   ,   '-',            28.1                                  ,90.5 ]#,  199.0]
 
 
 
@@ -83,7 +81,8 @@ rv = 3
 for i, ent in enumerate(tab.iterrows()):
     method, vals = ent
     head = tablename[i] # method if 'InSPyRe' not in method else 'InSPyReNet (Ours)'
-    out +=  head + ' & ' + str(backbones[i]) #+ ' & ' + str(macs[i]) + ' & ' + str(params[i])
+    # out +=  head + ' & ' + str(backbones[i]) #+ ' & ' + str(macs[i]) + ' & ' + str(params[i])
+    out +=  head + ' & ' + str(macs[i]) + ' & ' + str(params[i])
     for j, (key, value) in enumerate(zip(vals.index, vals.values)):
         # print(key, value, min[i, j], max[i, j])
         if metrics[key] == 'min':

@@ -367,7 +367,7 @@ class BASNet(nn.Module):
 
     def forward(self, x):
 
-        hx = x
+        hx = x['image']
 
         ## -------------Encoder-------------
         hx = self.inconv(hx)
@@ -456,4 +456,4 @@ class BASNet(nn.Module):
         ## -------------Refine Module-------------
         dout = self.refunet(d1) # 256
 
-        return dout #, F.sigmoid(d1), F.sigmoid(d2), F.sigmoid(d3), F.sigmoid(d4), F.sigmoid(d5), F.sigmoid(d6), F.sigmoid(db)
+        return {'pred': dout} #, F.sigmoid(d1), F.sigmoid(d2), F.sigmoid(d3), F.sigmoid(d4), F.sigmoid(d5), F.sigmoid(d6), F.sigmoid(db)

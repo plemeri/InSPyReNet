@@ -50,9 +50,9 @@ def draw_figure(methods, datasets):
         print(stats[score[:5]])
                 
         # targets = np.random.choice(imlist, 1)
-        targets = [imlist[i] for i in score[10:15]]
+        # targets = [imlist[i] for i in score[10:15]]
         # targets = [imlist[stats[-1]]]
-        # targets = cfg[dataset]
+        targets = cfg[dataset]
         
         for target in targets:
             # print(target.split('.')[0] + '.jpg')
@@ -85,7 +85,7 @@ if __name__ == "__main__":
     theirs = ['PoolNet', 'BASNet', 'EGNet', 'CPD', 'MINet', 'F3Net', 'GateNet', 'LDF', 'PA_KRN', 'VST', 'TTSOD']
     theirs = [os.path.join('snapshots', 'SotA', i) for i in theirs]
     
-    ours = ['InSPyReNet_Res2Net50', 'InSPyReNet_Res2Net101', 'InSPyReNet_SwinT', 'InSPyReNet_SwinS', 'InSPyReNet_SwinB']#, 'InSPyReNet_SwinL']
+    ours = ['InSPyReNet_Res2Net50', 'InSPyReNet_SwinB']#, 'InSPyReNet_SwinL']
     ours = [os.path.join('snapshots', i) for i in ours]
 
     methods = ours + theirs

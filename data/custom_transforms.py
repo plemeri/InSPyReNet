@@ -114,6 +114,8 @@ class dynamic_resize:
             size = (int(self.patch_size * hx), int(self.patch_size * wx))
             
             sample['image'] = sample['image'].resize(size, Image.BILINEAR)
+            sample['patch_size'] = self.patch_size
+            sample['stride'] = self.patch_size // self.stride
 
         return sample
 
