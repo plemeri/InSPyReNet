@@ -114,8 +114,8 @@ class InSPyReNet(nn.Module):
 #         return super(InSPyReNetD, self).forward(sample)
     
     
-def InSPyReNet_ResNet50(depth, pretrained):
-    return InSPyReNet(resnet50(pretrained=pretrained), [64, 256, 512, 1024, 2048], depth)
+def InSPyReNet_ResNet50(depth, pretrained, base_size, **kwargs):
+    return InSPyReNet(resnet50(pretrained=pretrained), [64, 256, 512, 1024, 2048], depth, base_size)
     
 def InSPyReNet_Res2Net50(depth, pretrained, base_size, **kwargs):
     return InSPyReNet(res2net50_v1b_26w_4s(pretrained=pretrained), [64, 256, 512, 1024, 2048], depth, base_size, **kwargs)
