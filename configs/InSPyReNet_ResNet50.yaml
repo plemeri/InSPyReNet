@@ -2,9 +2,10 @@ Model:
     name: "InSPyReNet_ResNet50"
     depth: 64
     pretrained: True
-    PM:
-        patch_size: 384
-        stride: 192
+    base_size: [384, 384]
+PM:
+    patch_size: 384
+    stride: 192
 
 Train:
     Dataset:
