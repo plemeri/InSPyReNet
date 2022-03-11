@@ -45,7 +45,10 @@ class Pyr:
         return down, lap
 
     def rec(self, down, lap):
-        return self.up(down) + lap
+        down = self.up(down)
+        if lap.shape != down:
+            lap = F.interpolate(lap, down.shape[-2:], mode='bilinear', align_corners=True)
+        return down + lap
 
 class conv(nn.Module):
     def __init__(self, in_channels, out_channels, kernel_size, stride=1, dilation=1, groups=1, padding='same', bias=False, bn=True, relu=False):

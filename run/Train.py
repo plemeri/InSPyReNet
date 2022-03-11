@@ -24,6 +24,9 @@ from lib.optim import *
 from data.dataloader import *
 from utils.misc import *
 
+torch.backends.cuda.matmul.allow_tf32 = False
+torch.backends.cudnn.allow_tf32 = False
+
 def _args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--config',     type=str, default='configs/InSPyReNet_SwinB.yaml')

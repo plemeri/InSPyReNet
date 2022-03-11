@@ -18,6 +18,8 @@ from lib import *
 from utils.misc import *
 from data.dataloader import *
 
+torch.backends.cuda.matmul.allow_tf32 = False
+torch.backends.cudnn.allow_tf32 = False
 
 def _args():
     parser = argparse.ArgumentParser()
