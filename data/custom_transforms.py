@@ -119,6 +119,25 @@ class dynamic_resize:
 
         return sample
 
+class random_dilation_erosion:
+    def __init__(self, kernel_range):
+        self.kernel_range = kernel_range
+
+    def __call__(self, sample):
+        gt = sample['gt']
+        gt = np.array(gt)
+        key = np.random.random()
+        # kernel = np.ones(tuple([np.random.randint(*self.kernel_range)]) * 2, dtype=np.uint8)
+        kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (np.random.randint(*self.kernel_range), ) * 2)
+        if key < 1/3:
+            gt = cv2.dilate(gt, kernel)
+        elif 1/3 <= key < 2/3:
+            gt = cv2.erode(gt, kernel)
+
+        sample['depth'] = Image.fromarray(gt)
+
+        return sample
+
 class random_scale_crop:
     def __init__(self, range=[0.75, 1.25]):
         self.range = range

@@ -2,6 +2,7 @@ from lib.InSPyReNet import InSPyReNet_ResNet50, InSPyReNet_Res2Net50, InSPyReNet
 from lib.InSPyReNetD2 import InSPyReNetD2_Res2Net50, InSPyReNetD2_Res2Net101, InSPyReNetD2_SwinT, InSPyReNetD2_SwinS, InSPyReNetD2_SwinB, InSPyReNetD2_SwinL
 from lib.InSPyRation import InSPyRation_Res2Net50, InSPyRation_Res2Net101, InSPyRation_SwinT, InSPyRation_SwinS, InSPyRation_SwinB, InSPyRation_SwinL
 from lib.InSPyRationV2 import InSPyRationV2_Res2Net50, InSPyRationV2_Res2Net101, InSPyRationV2_SwinT, InSPyRationV2_SwinS, InSPyRationV2_SwinB, InSPyRationV2_SwinL
+from lib.InSPyRationV3 import InSPyRationV3_Res2Net50, InSPyRationV3_Res2Net101, InSPyRationV3_SwinT, InSPyRationV3_SwinS, InSPyRationV3_SwinB, InSPyRationV3_SwinL
 from lib.PPM import PPM
 from lib.SPM import SPM
 

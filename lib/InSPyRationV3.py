@@ -13,9 +13,9 @@ from lib.backbones.ResNet import resnet50
 from lib.backbones.Res2Net_v1b import res2net50_v1b_26w_4s, res2net101_v1b_26w_4s
 from lib.backbones.SwinTransformer import SwinT, SwinS, SwinB, SwinL
 
-class InSPyRationV2(nn.Module):
+class InSPyRationV3(nn.Module):
     def __init__(self, backbone, in_channels, depth=64, base_size=[384, 384], **kwargs):
-        super(InSPyRationV2, self).__init__()
+        super(InSPyRationV3, self).__init__()
         self.backbone = backbone
         self.in_channels = in_channels
         self.depth = depth
@@ -41,21 +41,22 @@ class InSPyRationV2(nn.Module):
         self.des = lambda x, size: F.interpolate(x, size=size, mode='nearest')
         
         self.pyr = Pyr(7, 1)
+        self.reduce = conv(4, 3, 7)
         
         self.forward = self.forward_inference
         
     def cuda(self):
         self.pyr = self.pyr.cuda()
-        self = super(InSPyRationV2, self).cuda()
+        self = super(InSPyRationV3, self).cuda()
         return self
     
     def train(self):
-        self = super(InSPyRationV2, self).train(mode=True)
+        self = super(InSPyRationV3, self).train(mode=True)
         self.forward = self.forward_train
         return self
     
     def eval(self):
-        self = super(InSPyRationV2, self).train(mode=False)
+        self = super(InSPyRationV3, self).train(mode=False)
         self.forward = self.forward_inference
         return self
     
@@ -83,12 +84,7 @@ class InSPyRationV2(nn.Module):
         f3 = self.res(f3, (H,  W))
         
         if d is not None:
-            # d3 = torch.maximum(self.res(d, (H // 8, W // 8)), d3)
             d3 = self.res(d, (H // 2, W // 2))
-            # d3[d3 > 0] = d[d3 > 0]
-            # d3[(d > 0 ) & (d3 < 0)] = d[(d > 0) & (d3 < 0)]
-            
-            # d3 = torch.maximum(d, d3)            
             
         f2, p2 = self.attention2(torch.cat([x2, f3], dim=1), d3.detach())
         d2 = self.pyr.rec(d3.detach(), p2) #4
@@ -107,39 +103,30 @@ class InSPyRationV2(nn.Module):
     
     def forward_train(self, sample):
         x = sample['image']
+        m = sample['depth']
+        
         B, _, H, W = x.shape
     
+        x = self.reduce(torch.cat([x, m], dim=1))
         x1, x2, x3, x4, x5 = self.forward_encoder(x)
         d3, d2, d1, d0, p2, p1, p0, _, _, _, _ = self.forward_decoder([x1, x2, x3, x4, x5])
-        
-        hx = self.res(x, (H // 2, W // 2))
-        hx1, hx2, hx3, hx4, hx5 = self.forward_encoder(hx)
-        hd3, hd2, hd1, hd0, hp2, hp1, hp0, _, _, _, _ = self.forward_decoder([hx1, hx2, hx3, hx4, hx5])
-        
-        if type(sample) == dict and 'gt' in sample.keys() and sample['gt'] is not None:
-            y = sample['gt']
             
-            y1 = self.pyr.down(y)
-            y2 = self.pyr.down(y1)
-            y3 = self.pyr.down(y2)
+        y = sample['gt']
+            
+        y1 = self.pyr.down(y)
+        y2 = self.pyr.down(y1)
+        y3 = self.pyr.down(y2)
 
-            ploss =  self.pyramidal_consistency_loss_fn(self.des(d3, (H, W)), self.des(self.pyr.down(d2), (H, W)).detach()) * 0.0001
-            ploss += self.pyramidal_consistency_loss_fn(self.des(d2, (H, W)), self.des(self.pyr.down(d1), (H, W)).detach()) * 0.0001
-            ploss += self.pyramidal_consistency_loss_fn(self.des(d1, (H, W)), self.des(self.pyr.down(d0), (H, W)).detach()) * 0.0001
-            
-            sloss = self.pyramidal_consistency_loss_fn(self.des(d3, (H, W)), self.des(hd2, (H, W)).detach()) *  0.001
-            sloss += self.pyramidal_consistency_loss_fn(self.des(d2, (H, W)), self.des(hd1, (H, W)).detach()) * 0.001
-            sloss += self.pyramidal_consistency_loss_fn(self.des(d1, (H, W)), self.des(hd0, (H, W)).detach()) * 0.001
-            
-            closs =  self.loss_fn(self.des(d3, (H, W)), self.des(y3, (H, W)))
-            closs += self.loss_fn(self.des(d2, (H, W)), self.des(y2, (H, W)))
-            closs += self.loss_fn(self.des(d1, (H, W)), self.des(y1, (H, W)))
-            closs += self.loss_fn(self.des(d0, (H, W)), self.des(y, (H, W)))
-            
-            loss = ploss + sloss + closs
-
-        else:
-            loss = 0
+        ploss =  self.pyramidal_consistency_loss_fn(self.des(d3, (H, W)), self.des(self.pyr.down(d2), (H, W)).detach()) * 0.0001
+        ploss += self.pyramidal_consistency_loss_fn(self.des(d2, (H, W)), self.des(self.pyr.down(d1), (H, W)).detach()) * 0.0001
+        ploss += self.pyramidal_consistency_loss_fn(self.des(d1, (H, W)), self.des(self.pyr.down(d0), (H, W)).detach()) * 0.0001
+        
+        closs =  self.loss_fn(self.des(d3, (H, W)), self.des(y3, (H, W)))
+        closs += self.loss_fn(self.des(d2, (H, W)), self.des(y2, (H, W)))
+        closs += self.loss_fn(self.des(d1, (H, W)), self.des(y1, (H, W)))
+        closs += self.loss_fn(self.des(d0, (H, W)), self.des(y, (H, W)))
+        
+        loss = ploss + closs
 
         sample['pred'] = d0
         sample['loss'] = loss
@@ -149,8 +136,10 @@ class InSPyRationV2(nn.Module):
     
     def forward_inference(self, sample):
         x = sample['image']
+        m = sample['depth']
         B, _, H, W = x.shape
     
+        x = self.reduce(torch.cat([x, m], dim=1))
         xs = self.forward_encoder(self.res(x, self.base_size))
         dp = self.forward_decoder(xs)
         
@@ -166,7 +155,6 @@ class InSPyRationV2(nn.Module):
         sample['gaussian'] = [d3, d2, d1, d0]
         sample['laplacian'] = [p2, p1, p0]
         return sample
-     
     
     # def forward(self, sample):
     #     x = sample['image']
@@ -192,9 +180,9 @@ class InSPyRationV2(nn.Module):
     
     
 
-# class InSPyRationV2D(InSPyRationV2):
+# class InSPyRationV3D(InSPyRationV3):
 #     def __init__(self, backbone, in_channels, depth=64, base_size=384, **kwargs):
-#         super(InSPyRationV2D, self).__init__(backbone, in_channels, depth, base_size, **kwargs)
+#         super(InSPyRationV3D, self).__init__(backbone, in_channels, depth, base_size, **kwargs)
 #         self.reduce = conv(4, 3, 3)
         
 #     def forward(self, sample):
@@ -202,45 +190,45 @@ class InSPyRationV2(nn.Module):
 #         x = self.reduce(x)
         
 #         sample['image'] = x
-#         return super(InSPyRationV2D, self).forward(sample)
+#         return super(InSPyRationV3D, self).forward(sample)
     
     
-def InSPyRationV2_ResNet50(depth, pretrained, base_size, **kwargs):
-    return InSPyRationV2(resnet50(pretrained=pretrained), [64, 256, 512, 1024, 2048], depth, base_size)
+def InSPyRationV3_ResNet50(depth, pretrained, base_size, **kwargs):
+    return InSPyRationV3(resnet50(pretrained=pretrained), [64, 256, 512, 1024, 2048], depth, base_size)
     
-def InSPyRationV2_Res2Net50(depth, pretrained, base_size, **kwargs):
-    return InSPyRationV2(res2net50_v1b_26w_4s(pretrained=pretrained), [64, 256, 512, 1024, 2048], depth, base_size, **kwargs)
+def InSPyRationV3_Res2Net50(depth, pretrained, base_size, **kwargs):
+    return InSPyRationV3(res2net50_v1b_26w_4s(pretrained=pretrained), [64, 256, 512, 1024, 2048], depth, base_size, **kwargs)
 
-def InSPyRationV2_Res2Net101(depth, pretrained, base_size, **kwargs):
-    return InSPyRationV2(res2net101_v1b_26w_4s(pretrained=pretrained), [64, 256, 512, 1024, 2048], depth, base_size, **kwargs)
+def InSPyRationV3_Res2Net101(depth, pretrained, base_size, **kwargs):
+    return InSPyRationV3(res2net101_v1b_26w_4s(pretrained=pretrained), [64, 256, 512, 1024, 2048], depth, base_size, **kwargs)
 
-def InSPyRationV2_SwinS(depth, pretrained, base_size, **kwargs):
-    return InSPyRationV2(SwinS(pretrained=pretrained), [96, 96, 192, 384, 768], depth, base_size, **kwargs)
+def InSPyRationV3_SwinS(depth, pretrained, base_size, **kwargs):
+    return InSPyRationV3(SwinS(pretrained=pretrained), [96, 96, 192, 384, 768], depth, base_size, **kwargs)
 
-def InSPyRationV2_SwinT(depth, pretrained, base_size, **kwargs):
-    return InSPyRationV2(SwinT(pretrained=pretrained), [96, 96, 192, 384, 768], depth, base_size, **kwargs)
+def InSPyRationV3_SwinT(depth, pretrained, base_size, **kwargs):
+    return InSPyRationV3(SwinT(pretrained=pretrained), [96, 96, 192, 384, 768], depth, base_size, **kwargs)
     
-def InSPyRationV2_SwinB(depth, pretrained, base_size, **kwargs):
-    return InSPyRationV2(SwinB(pretrained=pretrained), [128, 128, 256, 512, 1024], depth, base_size, **kwargs)
+def InSPyRationV3_SwinB(depth, pretrained, base_size, **kwargs):
+    return InSPyRationV3(SwinB(pretrained=pretrained), [128, 128, 256, 512, 1024], depth, base_size, **kwargs)
 
-def InSPyRationV2_SwinL(depth, pretrained, base_size, **kwargs):
-    return InSPyRationV2(SwinL(pretrained=pretrained), [192, 192, 384, 768, 1536], depth, base_size, **kwargs)
+def InSPyRationV3_SwinL(depth, pretrained, base_size, **kwargs):
+    return InSPyRationV3(SwinL(pretrained=pretrained), [192, 192, 384, 768, 1536], depth, base_size, **kwargs)
 
 
-# def InSPyRationV2D_Res2Net50(depth, pretrained, base_size, **kwargs):
-#     return InSPyRationV2D(res2net50_v1b_26w_4s(pretrained=pretrained), [64, 256, 512, 1024, 2048], depth, base_size, **kwargs)
+# def InSPyRationV3D_Res2Net50(depth, pretrained, base_size, **kwargs):
+#     return InSPyRationV3D(res2net50_v1b_26w_4s(pretrained=pretrained), [64, 256, 512, 1024, 2048], depth, base_size, **kwargs)
 
-# def InSPyRationV2D_Res2Net101(depth, pretrained, base_size, **kwargs):
-#     return InSPyRationV2D(res2net101_v1b_26w_4s(pretrained=pretrained), [64, 256, 512, 1024, 2048], depth, base_size, **kwargs)
+# def InSPyRationV3D_Res2Net101(depth, pretrained, base_size, **kwargs):
+#     return InSPyRationV3D(res2net101_v1b_26w_4s(pretrained=pretrained), [64, 256, 512, 1024, 2048], depth, base_size, **kwargs)
 
-# def InSPyRationV2D_SwinS(depth, pretrained, base_size, **kwargs):
-#     return InSPyRationV2D(SwinS(pretrained=pretrained), [96, 96, 192, 384, 768], depth, base_size, **kwargs)
+# def InSPyRationV3D_SwinS(depth, pretrained, base_size, **kwargs):
+#     return InSPyRationV3D(SwinS(pretrained=pretrained), [96, 96, 192, 384, 768], depth, base_size, **kwargs)
 
-# def InSPyRationV2D_SwinT(depth, pretrained, base_size, **kwargs):
-#     return InSPyRationV2D(SwinT(pretrained=pretrained), [96, 96, 192, 384, 768], depth, base_size, **kwargs)
+# def InSPyRationV3D_SwinT(depth, pretrained, base_size, **kwargs):
+#     return InSPyRationV3D(SwinT(pretrained=pretrained), [96, 96, 192, 384, 768], depth, base_size, **kwargs)
     
-# def InSPyRationV2D_SwinB(depth, pretrained, base_size, **kwargs):
-#     return InSPyRationV2D(SwinB(pretrained=pretrained), [128, 128, 256, 512, 1024], depth, base_size, **kwargs)
+# def InSPyRationV3D_SwinB(depth, pretrained, base_size, **kwargs):
+#     return InSPyRationV3D(SwinB(pretrained=pretrained), [128, 128, 256, 512, 1024], depth, base_size, **kwargs)
 
-# def InSPyRationV2D_SwinL(depth, pretrained, base_size, **kwargs):
-#     return InSPyRationV2D(SwinL(pretrained=pretrained), [192, 192, 384, 768, 1536], depth, base_size, **kwargs)
+# def InSPyRationV3D_SwinL(depth, pretrained, base_size, **kwargs):
+#     return InSPyRationV3D(SwinL(pretrained=pretrained), [192, 192, 384, 768, 1536], depth, base_size, **kwargs)
