@@ -1,8 +1,8 @@
 Model:
-    name: "BASNet"
+    name: "EGNet_SwinB"
     depth: None
     pretrained: True
-    
+
 Test:
     Dataset:
         type: "RGB_Dataset"
@@ -11,30 +11,20 @@ Test:
         transforms:
             resize:
                 size: [384, 384]
-                pm: False
             tonumpy: NULL
             normalize: 
-                mean: [0.485, 0.456, 0.406]
-                std: [0.229, 0.224, 0.225]
-            totensor: NULL
-        transforms_PM:
-            dynamic_resize:
-                patch_size: 384
-                stride: 192
-            tonumpy: NULL
-            normalize: 
-                mean: [0.485, 0.456, 0.406]
-                std: [0.229, 0.224, 0.225]
+                mean: [104.00699, 116.66877, 122.67892]
+                div: 1
             totensor: NULL
     Dataloader:
         num_workers: 8
         pin_memory: True
     Checkpoint:
-        checkpoint_dir: "snapshots/SotA/BASNet"
+        checkpoint_dir: "snapshots/SotA/EGNet_SwinB"
 
 Eval:
     gt_root: "data/RGB_Dataset/Test_Dataset"
-    pred_root: "snapshots/SotA/BASNet"
+    pred_root: "snapshots/SotA/EGNet_SwinB"
     result_path: "results"
     datasets: ['DUTS-TE', 'DUT-OMRON', 'ECSSD', 'HKU-IS', 'PASCAL-S', 'HRSOD']
     metrics: ['Sm', 'mae', 'adpEm', 'maxEm', 'avgEm', 'adpFm', 'maxFm', 'avgFm', 'wFm']

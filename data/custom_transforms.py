@@ -126,14 +126,10 @@ class random_dilation_erosion:
     def __call__(self, sample):
         gt = sample['gt']
         gt = np.array(gt)
-        key = np.random.random()
-        # kernel = np.ones(tuple([np.random.randint(*self.kernel_range)]) * 2, dtype=np.uint8)
-        kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (np.random.randint(*self.kernel_range), ) * 2)
-        if key < 1/3:
-            gt = cv2.dilate(gt, kernel)
-        elif 1/3 <= key < 2/3:
-            gt = cv2.erode(gt, kernel)
-
+        iou_max = 1.0
+        iou_min = 0.8
+        iou_target = np.random.rand()*(iou_max-iou_min) + iou_min
+        gt = modify_boundary(gt, iou_target=iou_target)
         sample['depth'] = Image.fromarray(gt)
 
         return sample

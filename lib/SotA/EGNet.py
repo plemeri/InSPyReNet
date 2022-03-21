@@ -10,6 +10,8 @@ import numpy as np
 
 affine_par = True
 
+from lib.backbones.SwinTransformer import SwinB
+
 def conv3x3(in_planes, out_planes, stride=1):
     "3x3 convolution with padding"
     return nn.Conv2d(in_planes, out_planes, kernel_size=3, stride=stride,
@@ -297,9 +299,8 @@ def resnet101(pretrained=False):
 
 
 config_vgg = {'convert': [[128,256,512,512,512],[64,128,256,512,512]], 'merge1': [[128, 256, 128, 3,1], [256, 512, 256, 3, 1], [512, 0, 512, 5, 2], [512, 0, 512, 5, 2],[512, 0, 512, 7, 3]], 'merge2': [[128], [256, 512, 512, 512]]}  # no convert layer, no conv6
-
 config_resnet = {'convert': [[64,256,512,1024,2048],[128,256,512,512,512]], 'deep_pool': [[512, 512, 256, 256, 128], [512, 256, 256, 128, 128], [False, True, True, True, False], [True, True, True, True, False]], 'score': 256, 'edgeinfo':[[16, 16, 16, 16], 128, [16,8,4,2]],'edgeinfoc':[64,128], 'block': [[512, [16]], [256, [16]], [256, [16]], [128, [16]]], 'fuse': [[16, 16, 16, 16], True], 'fuse_ratio': [[16,1], [8,1], [4,1], [2,1]],  'merge1': [[128, 256, 128, 3,1], [256, 512, 256, 3, 1], [512, 0, 512, 5, 2], [512, 0, 512, 5, 2],[512, 0, 512, 7, 3]], 'merge2': [[128], [256, 512, 512, 512]]}
-
+config_swin = {'convert': [[128,128,256,512,1024],[128,256,512,512,512]], 'deep_pool': [[512, 512, 256, 256, 128], [512, 256, 256, 128, 128], [False, True, True, True, False], [True, True, True, True, False]], 'score': 256, 'edgeinfo':[[16, 16, 16, 16], 128, [16,8,4,2]],'edgeinfoc':[64,128], 'block': [[512, [16]], [256, [16]], [256, [16]], [128, [16]]], 'fuse': [[16, 16, 16, 16], True], 'fuse_ratio': [[16,1], [8,1], [4,1], [2,1]],  'merge1': [[128, 256, 128, 3,1], [256, 512, 256, 3, 1], [512, 0, 512, 5, 2], [512, 0, 512, 5, 2],[512, 0, 512, 7, 3]], 'merge2': [[128], [256, 512, 512, 512]]}
 
 class ConvertLayer(nn.Module):
     def __init__(self, list_k):
@@ -426,6 +427,8 @@ def extra_layer(base_model_cfg, vgg):
         config = config_vgg
     elif base_model_cfg == 'resnet':
         config = config_resnet
+    elif base_model_cfg == 'swin':
+        config = config_swin
     merge1_layers = MergeLayer1(config['merge1'])
     merge2_layers = MergeLayer2(config['merge2'])
 
@@ -449,12 +452,20 @@ class TUN_bone(nn.Module):
             self.base = base
             self.merge1 = merge1_layers
             self.merge2 = merge2_layers
+    
+        elif self.base_model_cfg == 'swin':
+            self.convert = ConvertLayer(config_swin['convert'])
+            self.base = base
+            self.merge1 = merge1_layers
+            self.merge2 = merge2_layers
 
     def forward(self, x):
         x = x['image']
         x_size = x.size()[2:]
         conv2merge = self.base(x)        
         if self.base_model_cfg == 'resnet':            
+            conv2merge = self.convert(conv2merge)
+        if self.base_model_cfg == 'swin':            
             conv2merge = self.convert(conv2merge)
         up_edge, edge_feature, up_sal, sal_feature = self.merge1(conv2merge, x_size)
         up_sal_final = self.merge2(edge_feature, sal_feature, x_size)
@@ -471,6 +482,9 @@ class TUN_bone(nn.Module):
 
 def EGNet_ResNet(depth, pretrained=False, **kwargs):
     return TUN_bone('resnet', *extra_layer('resnet', resnet50()))
+
+def EGNet_SwinB(depth, pretrained=False, **kwargs):
+    return TUN_bone('swin', *extra_layer('swin', SwinB()))
 
 # weight init
 def xavier(param):
