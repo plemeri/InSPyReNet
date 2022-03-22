@@ -100,8 +100,11 @@ class InSPyReNet(nn.Module):
 
         else:
             loss = 0
+            
+        pred = torch.sigmoid(d0)
+        pred = (pred - pred.min()) / (pred.max() - pred.min() + 1e-8)
 
-        sample['pred'] = d0
+        sample['pred'] = pred
         sample['loss'] = loss
         sample['gaussian'] = [d3, d2, d1, d0]
         sample['laplacian'] = [p2, p1, p0]

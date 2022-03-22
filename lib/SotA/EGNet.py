@@ -470,7 +470,7 @@ class TUN_bone(nn.Module):
         up_edge, edge_feature, up_sal, sal_feature = self.merge1(conv2merge, x_size)
         up_sal_final = self.merge2(edge_feature, sal_feature, x_size)
         # return up_edge, up_sal, up_sal_final
-        return {'pred': up_sal_final[-1]}
+        return {'pred': torch.sigmoid(up_sal_final[-1])}
 
 
 # build the whole network

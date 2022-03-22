@@ -512,7 +512,7 @@ class MINet_Res50(nn.Module):
         out_data_1 = self.upconv1(self.upsample(out_data_2, scale_factor=2))  # 32
         out_data = self.classifier(out_data_1)
 
-        return {'pred': out_data}
+        return {'pred': torch.sigmoid(out_data)}
     
 class MINet_SwinB(nn.Module):
     def __init__(self, **kwargs):
@@ -570,4 +570,4 @@ class MINet_SwinB(nn.Module):
         out_data_1 = self.upconv1(self.upsample(out_data_2, scale_factor=2))  # 32
         out_data = self.classifier(out_data_1)
 
-        return {'pred': out_data}
+        return {'pred': torch.sigmoid(out_data)}

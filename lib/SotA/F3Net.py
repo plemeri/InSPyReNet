@@ -186,7 +186,7 @@ class F3Net(nn.Module):
         out4h = F.interpolate(self.linearr4(out4h), size=shape, mode='bilinear')
         out5h = F.interpolate(self.linearr5(out5v), size=shape, mode='bilinear')
         # return pred1, pred2, out2h, out3h, out4h, out5h
-        return {'pred': pred2}
+        return {'pred': torch.sigmoid(pred2)}
 
 
     def initialize(self):
@@ -227,7 +227,7 @@ class F3Net_SwinB(nn.Module):
         out4h = F.interpolate(self.linearr4(out4h), size=shape, mode='bilinear')
         out5h = F.interpolate(self.linearr5(out5v), size=shape, mode='bilinear')
         # return pred1, pred2, out2h, out3h, out4h, out5h
-        return {'pred': pred2}
+        return {'pred': torch.sigmoid(pred2)}
 
 
 

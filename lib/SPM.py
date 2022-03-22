@@ -26,6 +26,9 @@ class SPM(nn.Module):
         out = self.model(x)
         out['pred'], _ = unpatch(out['pred'], (b, 1, h, w), patch_size, stride)
 
-        sample['pred'] = out['pred']
+        pred = torch.sigmoid(out['pred'])
+        pred = (pred - pred.min()) / (pred.max() - pred.min() + 1e-8)
+
+        sample['pred'] = pred
         sample['loss'] = out['loss']
         return sample

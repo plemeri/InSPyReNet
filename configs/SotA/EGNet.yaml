@@ -7,13 +7,12 @@ Test:
     Dataset:
         type: "RGB_Dataset"
         root: "data/RGB_Dataset/Test_Dataset"
-        sets: ['DUTS-TE', 'DUT-OMRON', 'ECSSD', 'HKU-IS', 'PASCAL-S', 'HRSOD']
+        sets: ['HRSOD'] #['DUTS-TE', 'DUT-OMRON', 'ECSSD', 'HKU-IS', 'PASCAL-S', 'HRSOD']
         transforms:
-            resize:
-                size: [384, 384]
+            cvtcolor: NULL
             tonumpy: NULL
             normalize: 
-                mean: [104.00699, 116.66877, 122.67892]
+                mean: [122.67892, 116.66877, 104.00699]
                 div: 1
             totensor: NULL
     Dataloader:

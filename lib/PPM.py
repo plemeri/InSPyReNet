@@ -49,7 +49,10 @@ class PPM(nn.Module):
         p0, _  = unpatch(pp0, (b, 1, h     , w     ), patch_size, stride, indice_map = F.pixel_shuffle(torch.cat([i1] * 4, dim=1), 2))
         d0 =  self.pyr.rec(d1.detach(), p0)
         
-        sample['pred'] = d0
+        pred = torch.sigmoid(d0)
+        pred = (pred - pred.min()) / (pred.max() - pred.min() + 1e-8)
+        
+        sample['pred'] = pred
         sample['loss'] = out['loss']
         sample['gaussian'] = [d3, d2, d1, d0]
         sample['laplacian'] = [p2, p1, p0]
