@@ -36,7 +36,7 @@ class RGB_Dataset(Dataset):
             images = [os.path.join(image_root, f) for f in os.listdir(image_root) if f.lower().endswith(('.jpg', '.png'))]
             images = sort(images)
             
-            gts = [os.path.join(gt_root, f) for f in os.listdir(gt_root) if f.lower().endswith('.png')]
+            gts = [os.path.join(gt_root, f) for f in os.listdir(gt_root) if f.lower().endswith(('.jpg', '.png'))]
             gts = sort(gts)
             
             self.images.extend(images)

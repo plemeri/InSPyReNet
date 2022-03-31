@@ -1,11 +1,8 @@
 Model:
-    name: "InSPyReNet_SwinT"
+    name: "GLoSPyRe_Res2Net50"
     depth: 64
     pretrained: True
     base_size: [384, 384]
-PM:
-    patch_size: 384
-    stride: 192
 
 Train:
     Dataset:
@@ -47,7 +44,7 @@ Train:
         warmup_iteration: 12000
     Checkpoint:
         checkpoint_epoch: 1
-        checkpoint_dir: "snapshots/InSPyReNet_SwinT"
+        checkpoint_dir: "snapshots/GLoSPyRe_Res2Net50"
     Debug:
         keys: ['gaussian', 'laplacian']
     HyperTune:
@@ -58,10 +55,10 @@ Test:
     Dataset:
         type: "RGB_Dataset"
         root: "data/RGB_Dataset/Test_Dataset"
-        sets: ['DUTS-TE', 'DUT-OMRON', 'ECSSD', 'HKU-IS', 'PASCAL-S']
+        sets: ['DUTS-TE', 'DUT-OMRON', 'ECSSD', 'HKU-IS', 'PASCAL-S', 'HRSOD']
         transforms:
             resize:
-                size: [384, 384]
+                size: 1024
             tonumpy: NULL
             normalize: 
                 mean: [0.485, 0.456, 0.406]
@@ -71,11 +68,11 @@ Test:
         num_workers: 8
         pin_memory: True
     Checkpoint:
-        checkpoint_dir: "snapshots/InSPyReNet_SwinT"
+        checkpoint_dir: "snapshots/GLoSPyRe_Res2Net50"
 
 Eval:
     gt_root: "data/RGB_Dataset/Test_Dataset"
-    pred_root: "snapshots/InSPyReNet_SwinT"
+    pred_root: "snapshots/GLoSPyRe_Res2Net50"
     result_path: "results"
-    datasets: ['DUTS-TE', 'DUT-OMRON', 'ECSSD', 'HKU-IS', 'PASCAL-S']
+    datasets: ['DUTS-TE', 'DUT-OMRON', 'ECSSD', 'HKU-IS', 'PASCAL-S', 'HRSOD']
     metrics: ['Sm', 'mae', 'adpEm', 'maxEm', 'avgEm', 'adpFm', 'maxFm', 'avgFm', 'wFm']

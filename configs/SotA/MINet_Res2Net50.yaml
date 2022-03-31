@@ -1,5 +1,5 @@
 Model:
-    name: "F3Net"
+    name: "MINet_Res2Net50"
     depth: None
     pretrained: True
     
@@ -22,11 +22,11 @@ Test:
         num_workers: 8
         pin_memory: True
     Checkpoint:
-        checkpoint_dir: "snapshots/SotA/F3Net"
+        checkpoint_dir: "snapshots/SotA/MINet_Res2Net50"
 
 Eval:
     gt_root: "data/RGB_Dataset/Test_Dataset"
-    pred_root: "snapshots/SotA/F3Net"
+    pred_root: "snapshots/SotA/MINet_Res2Net50"
     result_path: "results"
     datasets: ['DUTS-TE', 'DUT-OMRON', 'ECSSD', 'HKU-IS', 'PASCAL-S', 'HRSOD']
     metrics: ['Sm', 'mae', 'adpEm', 'maxEm', 'avgEm', 'adpFm', 'maxFm', 'avgFm', 'wFm']

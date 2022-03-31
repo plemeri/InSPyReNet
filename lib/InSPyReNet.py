@@ -74,12 +74,6 @@ class InSPyReNet(nn.Module):
         _, p0 = self.attention0(f1, d1.detach(), p1.detach()) #2
         d0 = self.pyr.rec(d1.detach(), p0) #2
         
-        if 'gpred' in sample.keys():
-            d3 = self.ret(sample['gpred'], d3)
-            d2 = self.pyr.rec(d3, p2)
-            d1 = self.pyr.rec(d2, p1)
-            d0 = self.pyr.rec(d1, p0)
-        
         if type(sample) == dict and 'gt' in sample.keys() and sample['gt'] is not None:
             y = sample['gt']
             

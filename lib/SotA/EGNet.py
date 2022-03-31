@@ -11,6 +11,7 @@ import numpy as np
 affine_par = True
 
 from lib.backbones.SwinTransformer import SwinB
+from lib.backbones.Res2Net_v1b import res2net50_v1b_26w_4s
 
 def conv3x3(in_planes, out_planes, stride=1):
     "3x3 convolution with padding"
@@ -485,6 +486,9 @@ def EGNet_ResNet(depth, pretrained=False, **kwargs):
 
 def EGNet_SwinB(depth, pretrained=False, **kwargs):
     return TUN_bone('swin', *extra_layer('swin', SwinB()))
+
+def EGNet_Res2Net50(depth, pretrained=False, **kwargs):
+    return TUN_bone('resnet', *extra_layer('resnet', res2net50_v1b_26w_4s()))
 
 # weight init
 def xavier(param):

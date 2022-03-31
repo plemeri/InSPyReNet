@@ -9,9 +9,9 @@ from lib.SotA.BASNet import BASNet, BASNet_SwinB
 from lib.SotA.CPD import CPD_ResNet
 from lib.SotA.GateNet import GateNet
 from lib.SotA.PoolNet import PoolNet_ResNet
-from lib.SotA.EGNet import EGNet_ResNet, EGNet_SwinB
-from lib.SotA.F3Net import F3Net, F3Net_SwinB
-from lib.SotA.MINet import MINet_Res50, MINet_SwinB
+from lib.SotA.EGNet import EGNet_ResNet, EGNet_SwinB, EGNet_Res2Net50
+from lib.SotA.F3Net import F3Net, F3Net_Res2Net50, F3Net_SwinB
+from lib.SotA.MINet import MINet_Res50, MINet_Res2Net50, MINet_SwinB
 from lib.SotA.LDF import LDF
 from lib.SotA.VST import VST
 from lib.SotA.PA_KRN import PA_KRN

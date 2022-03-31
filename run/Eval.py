@@ -51,7 +51,7 @@ def evaluate(opt, args):
 
         preds = os.listdir(pred_root)
         gts = os.listdir(gt_root)
-
+        
         preds = sort(preds)
         gts = sort(gts)
         
@@ -63,6 +63,7 @@ def evaluate(opt, args):
         SM = Smeasure()
         EM = Emeasure()
         MAE = Mae()
+        MSE = Mse()
 
         if args.verbose is True:
             samples = tqdm.tqdm(enumerate(zip(preds, gts)), desc=dataset + ' - Evaluation', total=len(
@@ -89,12 +90,14 @@ def evaluate(opt, args):
             SM.step( pred=pred_mask, gt=gt_mask)
             EM.step( pred=pred_mask, gt=gt_mask)
             MAE.step(pred=pred_mask, gt=gt_mask)
+            MSE.step(pred=pred_mask, gt=gt_mask)
             
         result = []
 
         Sm =  SM.get_results()["sm"]
         wFm = WFM.get_results()["wfm"]
         mae = MAE.get_results()["mae"]
+        mse = MSE.get_results()["mse"]
         
         Fm =  FM.get_results()["fm"]
         Em =  EM.get_results()["em"]

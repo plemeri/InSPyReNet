@@ -14,44 +14,24 @@ sys.path.append(repopath)
 from utils.misc import *
 
 class resize:
-    def __init__(self, size=None, pm=False):
-        if size is not None:
+    def __init__(self, size=384):
+        if hasattr(size, '__iter__'):
             self.size = size[::-1]
         else:
-            self.size = None
+            self.size = size
             
-        self.pm = pm
-        self.MAX = 2.0e6
-
     def __call__(self, sample):
-        if self.size is None:
-            size = list(sample['image'].size)
-            if size[0] * size[1] > self.MAX:
-                scale = size[0] * size[1]
-                size[0] /= np.sqrt(scale)
-                size[0] *= np.sqrt(self.MAX)
-                size[1] /= np.sqrt(scale)
-                size[1] *= np.sqrt(self.MAX)
-            size = (int(size[0] // 32) * 32, int(size[1] // 32) * 32)
-        elif self.pm is False:
+        if hasattr(self.size, '__iter__'):
             size = self.size
-        
-        if self.pm is True:
-            ar = size[0] / size[1]
-            hx, wx = 1, 1
-            
-            if ar > 1:
-                patch_size = size[1]
-                stride = patch_size // 2
-                hx = round(2 * ar) / 2
-            else:
-                patch_size = size[0]
-                stride = patch_size // 2
-                wx = round(2 / ar) / 2
-            
-            size = (int(patch_size * hx), int(patch_size * wx))
-            sample['patch_size'] = patch_size
-            sample['stride'] = stride
+        else:
+            size = list(sample['image'].size)
+            if (size[0] > size[1]) and size[1] > self.size: 
+                size[0] = size[0] / (size[1] / self.size)
+                size[1] = self.size
+            elif (size[1] > size[0]) and size[0] > self.size:
+                size[1] = size[1] / (size[0] / self.size)
+                size[0] = self.size
+            size = (int(round(size[0] / 32)) * 32, int(round(size[1] / 32)) * 32)
         
         if 'image' in sample.keys():
             sample['image'] = sample['image'].resize(size, Image.BILINEAR)

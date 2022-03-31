@@ -177,6 +177,48 @@ class Mae(object):
         return dict(mae=mae)
 
 
+class Mse(object):
+    def __init__(self):
+        """
+        MAE(mean absolute error) for SOD.
+
+        ::
+
+            @inproceedings{MAE,
+                title={Saliency filters: Contrast based filtering for salient region detection},
+                author={Perazzi, Federico and Kr{\"a}henb{\"u}hl, Philipp and Pritch, Yael and Hornung, Alexander},
+                booktitle=CVPR,
+                pages={733--740},
+                year={2012}
+            }
+        """
+        self.mses = []
+
+    def step(self, pred: np.ndarray, gt: np.ndarray):
+        pred, gt = _prepare_data(pred, gt)
+
+        mse = self.cal_mse(pred, gt)
+        self.mses.append(mse)
+
+    def cal_mse(self, pred: np.ndarray, gt: np.ndarray) -> np.ndarray:
+        """
+        Calculate the mean absolute error.
+
+        :return: mse
+        """
+        mse = np.mean((pred - gt) ** 2)
+        return mse
+
+    def get_results(self) -> dict:
+        """
+        Return the results about MSE.
+
+        :return: dict(mse=mse)
+        """
+        mse = np.mean(np.array(self.mses, _TYPE))
+        return dict(mse=mse)
+
+
 class Smeasure(object):
     def __init__(self, alpha: float = 0.5):
         """

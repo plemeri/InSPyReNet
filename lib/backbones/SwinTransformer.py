@@ -168,7 +168,7 @@ class SwinTransformerBlock(nn.Module):
 
     def __init__(self, dim, num_heads, window_size=7, shift_size=0,
                  mlp_ratio=4., qkv_bias=True, qk_scale=None, drop=0., attn_drop=0., drop_path=0.,
-                 act_layer=nn.GELU, norm_layer=nn.LayerNorm, base_size=None):
+                 act_layer=nn.GELU, norm_layer=nn.LayerNorm):
         super().__init__()
         self.dim = dim
         self.num_heads = num_heads
@@ -189,8 +189,6 @@ class SwinTransformerBlock(nn.Module):
 
         self.H = None
         self.W = None
-        
-        self.base_size = base_size
 
     def forward(self, x, mask_matrix):
         """ Forward function.
@@ -204,15 +202,10 @@ class SwinTransformerBlock(nn.Module):
         H, W = self.H, self.W
         assert L == H * W, "input feature has wrong size"
 
-################################### b hw c
         shortcut = x
         x = self.norm1(x)
-################################## b h w c    
-        
         x = x.view(B, H, W, C)
-        if self.base_size is not None: 
-            H, W = self.base_size, self.base_size
-            x = F.interpolate(x.view(B, C, self.H, self.W), (self.base_size, self.base_size), mode='bilinear', align_corners=True).view(B, H, W, C)
+
         # pad feature maps to multiples of window size
         pad_l = pad_t = 0
         pad_r = (self.window_size - W % self.window_size) % self.window_size
@@ -248,10 +241,6 @@ class SwinTransformerBlock(nn.Module):
         if pad_r > 0 or pad_b > 0:
             x = x[:, :H, :W, :].contiguous()
 
-        if self.base_size is not None:
-            H, W = self.H, self.W
-            x = F.interpolate(x.view(B, C, self.base_size, self.base_size), (H, W), mode='bilinear', align_corners=True).view(B, H, W, C)
-################################## b hw c
         x = x.view(B, H * W, C)
 
         # FFN
@@ -336,14 +325,12 @@ class BasicLayer(nn.Module):
                  drop_path=0.,
                  norm_layer=nn.LayerNorm,
                  downsample=None,
-                 use_checkpoint=False,
-                 base_size=None):
+                 use_checkpoint=False):
         super().__init__()
         self.window_size = window_size
         self.shift_size = window_size // 2
         self.depth = depth
         self.use_checkpoint = use_checkpoint
-        self.base_size = base_size
 
         # build blocks
         self.blocks = nn.ModuleList([
@@ -358,8 +345,7 @@ class BasicLayer(nn.Module):
                 drop=drop,
                 attn_drop=attn_drop,
                 drop_path=drop_path[i] if isinstance(drop_path, list) else drop_path,
-                norm_layer=norm_layer,
-                base_size=self.base_size)
+                norm_layer=norm_layer)
             for i in range(depth)])
 
         # patch merging layer
@@ -377,12 +363,8 @@ class BasicLayer(nn.Module):
         """
 
         # calculate attention mask for SW-MSA
-        # Hp = int(np.ceil(H / self.window_size)) * self.window_size
-        # Wp = int(np.ceil(W / self.window_size)) * self.window_size
-        
-        Hp = int(np.ceil(self.base_size if self.base_size is not None else H / self.window_size)) * self.window_size
-        Wp = int(np.ceil(self.base_size if self.base_size is not None else W / self.window_size)) * self.window_size
-    
+        Hp = int(np.ceil(H / self.window_size)) * self.window_size
+        Wp = int(np.ceil(W / self.window_size)) * self.window_size
         img_mask = torch.zeros((1, Hp, Wp, 1), device=x.device)  # 1 Hp Wp 1
         h_slices = (slice(0, -self.window_size),
                     slice(-self.window_size, -self.shift_size),
@@ -506,8 +488,7 @@ class SwinTransformer(nn.Module):
                  patch_norm=True,
                  out_indices=(0, 1, 2, 3),
                  frozen_stages=-1,
-                 use_checkpoint=False,
-                 fix_scale=False):
+                 use_checkpoint=False):
         super().__init__()
 
         self.pretrain_img_size = pretrain_img_size
@@ -553,8 +534,7 @@ class SwinTransformer(nn.Module):
                 drop_path=dpr[sum(depths[:i_layer]):sum(depths[:i_layer + 1])],
                 norm_layer=norm_layer,
                 downsample=PatchMerging if (i_layer < self.num_layers - 1) else None,
-                use_checkpoint=use_checkpoint,
-                base_size=pretrain_img_size // 2 ** (i_layer + 2) if fix_scale is True else None)
+                use_checkpoint=use_checkpoint)
             self.layers.append(layer)
 
         num_features = [int(embed_dim * 2 ** i) for i in range(self.num_layers)]
@@ -642,29 +622,29 @@ class SwinTransformer(nn.Module):
         super(SwinTransformer, self).train(mode)
         self._freeze_stages()
 
-def SwinT(pretrained=True, fix_scale=False):
-    model = SwinTransformer(pretrain_img_size=384, embed_dim=96, depths=[2, 2, 6, 2], num_heads=[3, 6, 12, 24], window_size=7, fix_scale=fix_scale)
+def SwinT(pretrained=True):
+    model = SwinTransformer(embed_dim=96, depths=[2, 2, 6, 2], num_heads=[3, 6, 12, 24], window_size=7)
     if pretrained is True:
         model.load_state_dict(torch.load('data/backbone_ckpt/swin_tiny_patch4_window7_224.pth')['model'], strict=False)
         
     return model
 
-def SwinS(pretrained=True, fix_scale=False):
-    model = SwinTransformer(pretrain_img_size=384, embed_dim=96, depths=[2, 2, 18, 2], num_heads=[3, 6, 12, 24], window_size=7, fix_scale=fix_scale)
+def SwinS(pretrained=True):
+    model = SwinTransformer(embed_dim=96, depths=[2, 2, 18, 2], num_heads=[3, 6, 12, 24], window_size=7)
     if pretrained is True:
         model.load_state_dict(torch.load('data/backbone_ckpt/swin_small_patch4_window7_224.pth')['model'], strict=False)
         
     return model
 
-def SwinB(pretrained=True, fix_scale=False):
-    model = SwinTransformer(pretrain_img_size=384, embed_dim=128, depths=[2, 2, 18, 2], num_heads=[4, 8, 16, 32], window_size=12, fix_scale=fix_scale)
+def SwinB(pretrained=True):
+    model = SwinTransformer(embed_dim=128, depths=[2, 2, 18, 2], num_heads=[4, 8, 16, 32], window_size=12)
     if pretrained is True:
         model.load_state_dict(torch.load('data/backbone_ckpt/swin_base_patch4_window12_384_22kto1k.pth')['model'], strict=False)
         
     return model
 
-def SwinL(pretrained=True, fix_scale=False):
-    model = SwinTransformer(pretrain_img_size=384, embed_dim=192, depths=[2, 2, 18, 2], num_heads=[6, 12, 24, 48], window_size=12, fix_scale=fix_scale)
+def SwinL(pretrained=True):
+    model = SwinTransformer(embed_dim=192, depths=[2, 2, 18, 2], num_heads=[6, 12, 24, 48], window_size=12)
     if pretrained is True:
         model.load_state_dict(torch.load('data/backbone_ckpt/swin_large_patch4_window12_384_22kto1k.pth')['model'], strict=False)
 

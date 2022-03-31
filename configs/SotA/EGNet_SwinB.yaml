@@ -9,6 +9,8 @@ Test:
         root: "data/RGB_Dataset/Test_Dataset"
         sets: ['DUTS-TE', 'DUT-OMRON', 'ECSSD', 'HKU-IS', 'PASCAL-S', 'HRSOD']
         transforms:
+            resize:
+                size: [384, 384]
             cvtcolor: NULL
             tonumpy: NULL
             normalize: 

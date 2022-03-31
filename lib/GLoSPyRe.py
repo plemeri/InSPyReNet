@@ -12,24 +12,36 @@ from lib.backbones.Res2Net_v1b import res2net50_v1b_26w_4s, res2net101_v1b_26w_4
 from lib.backbones.SwinTransformer import SwinT, SwinS, SwinB, SwinL
 
 from lib.InSPyReNet import InSPyReNet
-
 class GLoSPyRe(InSPyReNet):
     def __init__(self, backbone, in_channels, depth=64, base_size=[384, 384], **kwargs):
         super(GLoSPyRe, self).__init__(backbone, in_channels, depth, base_size, **kwargs)
-        
+
     def forward(self, sample):
         x = sample['image']
         B, _, H, W = x.shape
 
         sample['image'] = self.res(x, self.base_size)
         gout = super(GLoSPyRe, self).forward(sample)
-        sample['gpred'] = gout['gaussian'][-1]
+        gd3, gd2, gd1, gd0 = gout['gaussian']
+        gp2, gp1, gp0 = gout['laplacian']
+        
         sample['image'] = x
         lout = super(GLoSPyRe, self).forward(sample)
+        ld3, ld2, ld1, ld0 = lout['gaussian']
+        lp2, lp1, lp0 = lout['laplacian']
 
-        sample['pred'] = lout['pred']
+
+        d3 = self.ret(gd0, ld3) 
+        d2 = self.pyr.rec(d3, lp2)
+        d1 = self.pyr.rec(d2, lp1)
+        d0 = self.pyr.rec(d1, lp0)
+        
+        pred = torch.sigmoid(d0)
+        pred = (pred - pred.min()) / (pred.max() - pred.min() + 1e-8)
+
+        sample['pred'] = pred
         sample['loss'] = lout['loss'] + gout['loss']
-        sample['gaussian'] = lout['gaussian']
+        sample['gaussian'] = d3, d2, d1, d0
         sample['laplacian'] = lout['laplacian']
         return sample
     

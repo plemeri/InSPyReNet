@@ -1,5 +1,5 @@
 Model:
-    name: "F3Net"
+    name: "F3Net_Res2Net50"
     depth: None
     pretrained: True
     
@@ -9,7 +9,7 @@ Test:
     Dataset:
         type: "RGB_Dataset"
         root: "data/RGB_Dataset/Test_Dataset"
-        sets: ['DUTS-TE', 'DUT-OMRON', 'ECSSD', 'HKU-IS', 'PASCAL-S', 'HRSOD']
+        sets: ['DUTS-TE', 'DUT-OMRON', 'ECSSD', 'HKU-IS', 'PASCAL-S']
         transforms:
             resize:
                 size: [384, 384]
@@ -22,11 +22,11 @@ Test:
         num_workers: 8
         pin_memory: True
     Checkpoint:
-        checkpoint_dir: "snapshots/SotA/F3Net"
+        checkpoint_dir: "snapshots/SotA/F3Net_Res2Net50"
 
 Eval:
     gt_root: "data/RGB_Dataset/Test_Dataset"
-    pred_root: "snapshots/SotA/F3Net"
+    pred_root: "snapshots/SotA/F3Net_Res2Net50"
     result_path: "results"
-    datasets: ['DUTS-TE', 'DUT-OMRON', 'ECSSD', 'HKU-IS', 'PASCAL-S', 'HRSOD']
+    datasets: ['DUTS-TE', 'DUT-OMRON', 'ECSSD', 'HKU-IS', 'PASCAL-S']
     metrics: ['Sm', 'mae', 'adpEm', 'maxEm', 'avgEm', 'adpFm', 'maxFm', 'avgFm', 'wFm']

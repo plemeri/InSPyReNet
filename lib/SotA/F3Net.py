@@ -6,6 +6,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+from lib.backbones.Res2Net_v1b import res2net50_v1b_26w_4s
 from lib.backbones.SwinTransformer import SwinB
 
 def weight_init(module):
@@ -151,6 +152,7 @@ class Decoder(nn.Module):
         weight_init(self)
 
 
+        
 class F3Net(nn.Module):
     def __init__(self, depth, pretrained=False, **kwargs):
         super(F3Net, self).__init__()
@@ -173,6 +175,46 @@ class F3Net(nn.Module):
 
     def forward(self, x, shape=None):
         out2h, out3h, out4h, out5v        = self.bkbone(x['image'])
+        out2h, out3h, out4h, out5v        = self.squeeze2(out2h), self.squeeze3(out3h), self.squeeze4(out4h), self.squeeze5(out5v)
+        out2h, out3h, out4h, out5v, pred1 = self.decoder1(out2h, out3h, out4h, out5v)
+        out2h, out3h, out4h, out5v, pred2 = self.decoder2(out2h, out3h, out4h, out5v, pred1)
+
+        shape = x['image'].size()[2:] if shape is None else shape
+        pred1 = F.interpolate(self.linearp1(pred1), size=shape, mode='bilinear')
+        pred2 = F.interpolate(self.linearp2(pred2), size=shape, mode='bilinear')
+
+        out2h = F.interpolate(self.linearr2(out2h), size=shape, mode='bilinear')
+        out3h = F.interpolate(self.linearr3(out3h), size=shape, mode='bilinear')
+        out4h = F.interpolate(self.linearr4(out4h), size=shape, mode='bilinear')
+        out5h = F.interpolate(self.linearr5(out5v), size=shape, mode='bilinear')
+        # return pred1, pred2, out2h, out3h, out4h, out5h
+        return {'pred': torch.sigmoid(pred2)}
+
+
+    def initialize(self):
+        weight_init(self)
+class F3Net_Res2Net50(nn.Module):
+    def __init__(self, depth, pretrained=False, **kwargs):
+        super(F3Net_Res2Net50, self).__init__()
+        self.bkbone   = res2net50_v1b_26w_4s(pretrained=pretrained)
+        self.squeeze5 = nn.Sequential(nn.Conv2d(2048, 64, 1), nn.BatchNorm2d(64), nn.ReLU(inplace=True))
+        self.squeeze4 = nn.Sequential(nn.Conv2d(1024, 64, 1), nn.BatchNorm2d(64), nn.ReLU(inplace=True))
+        self.squeeze3 = nn.Sequential(nn.Conv2d( 512, 64, 1), nn.BatchNorm2d(64), nn.ReLU(inplace=True))
+        self.squeeze2 = nn.Sequential(nn.Conv2d( 256, 64, 1), nn.BatchNorm2d(64), nn.ReLU(inplace=True))
+
+        self.decoder1 = Decoder()
+        self.decoder2 = Decoder()
+        self.linearp1 = nn.Conv2d(64, 1, kernel_size=3, stride=1, padding=1)
+        self.linearp2 = nn.Conv2d(64, 1, kernel_size=3, stride=1, padding=1)
+
+        self.linearr2 = nn.Conv2d(64, 1, kernel_size=3, stride=1, padding=1)
+        self.linearr3 = nn.Conv2d(64, 1, kernel_size=3, stride=1, padding=1)
+        self.linearr4 = nn.Conv2d(64, 1, kernel_size=3, stride=1, padding=1)
+        self.linearr5 = nn.Conv2d(64, 1, kernel_size=3, stride=1, padding=1)
+        # self.initialize()
+
+    def forward(self, x, shape=None):
+        _, out2h, out3h, out4h, out5v        = self.bkbone(x['image'])
         out2h, out3h, out4h, out5v        = self.squeeze2(out2h), self.squeeze3(out3h), self.squeeze4(out4h), self.squeeze5(out5v)
         out2h, out3h, out4h, out5v, pred1 = self.decoder1(out2h, out3h, out4h, out5v)
         out2h, out3h, out4h, out5v, pred2 = self.decoder2(out2h, out3h, out4h, out5v, pred1)
