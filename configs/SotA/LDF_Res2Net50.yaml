@@ -1,5 +1,5 @@
 Model:
-    name: "LDF"
+    name: "LDF_Res2Net50"
     depth: None
     pretrained: True
     
@@ -22,11 +22,11 @@ Test:
         num_workers: 8
         pin_memory: True
     Checkpoint:
-        checkpoint_dir: "snapshots/SotA/LDF"
+        checkpoint_dir: "snapshots/SotA/LDF_Res2Net50"
 
 Eval:
     gt_root: "data/RGB_Dataset/Test_Dataset"
-    pred_root: "snapshots/SotA/LDF"
+    pred_root: "snapshots/SotA/LDF_Res2Net50"
     result_path: "results"
     datasets: ['DUTS-TE', 'DUT-OMRON', 'ECSSD', 'HKU-IS', 'PASCAL-S']
     metrics: ['Sm', 'mae', 'adpEm', 'maxEm', 'avgEm', 'adpFm', 'maxFm', 'avgFm', 'wFm']

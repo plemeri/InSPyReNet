@@ -42,31 +42,7 @@ class resize:
             
 
         return sample
-class resize_pm:
-    def __init__(self, size=None):
-        # if size is not None:
-        #     assert size[0] / size[1] == 1
-        #     self.size = size
-        # else:
-        self.patch_size = size
-
-    def __call__(self, sample):
-        if 'image' in sample.keys():
-            ar = sample['image'].size[0] / sample['image'].size[1]
-            hx, wx = 1, 1
-            if ar > 1:
-                hx = round(2 * ar) / 2
-            else:
-                wx = round(2 / ar) / 2
-            
-            size = (int(self.patch_size * hx), int(self.patch_size * wx))
-            
-            sample['image'] = sample['image'].resize(size, Image.BILINEAR)
-            sample['patch_size'] = self.patch_size
-            sample['stride'] = self.patch_size // 2
-
-        return sample
-
+    
 class cvtcolor:
     def __init__(self):
         pass
