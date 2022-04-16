@@ -13,21 +13,18 @@ from easydict import EasyDict as ed
 import torch.nn as nn
 import torch.nn.functional as F
 
-class TOJIT(nn.Module):
-    def __init__(self, model, scale=[0.5, 2]):
-        super(TOJIT, self).__init__()
+class Simplify(nn.Module):
+    def __init__(self, model):
+        super(Simplify, self).__init__()
         self.model = model
         
     def cuda(self):
         self.model = self.model.cuda()
         return self
         
-    def forward(self, sample):
-        x = sample['image']
-        b, c, h, w = x.shape
-        
+    def forward(self, x):
         out = self.model({'image': x})
-        return {'pred': out['pred']}
+        return out['pred']
 
 def sort(x):
     convert = lambda text: int(text) if text.isdigit() else text.lower()
@@ -52,12 +49,14 @@ def to_numpy(pred, shape):
     pred = pred.numpy().squeeze()
     return pred
 
-def debug_tile(deblist, size=(100, 100)):
+def debug_tile(deblist, size=(100, 100), activation=None):
     debugs = []
     for debs in deblist:
         debug = []
         for deb in debs:
-            log = torch.sigmoid(deb).cpu().detach().numpy().squeeze()
+            if activation is not None:
+                deb = activation(deb)
+            log = deb.cpu().detach().numpy().squeeze()
             log = ((log - log.min()) / (log.max() - log.min()) * 255).astype(np.uint8)
             log = cv2.cvtColor(log, cv2.COLOR_GRAY2RGB)
             log = cv2.resize(log, size)

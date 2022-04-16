@@ -25,7 +25,7 @@ class resize:
             size = self.size
         else:
             size = list(sample['image'].size)
-            if (size[0] > size[1]) and size[1] > self.size: 
+            if (size[0] >= size[1]) and size[1] > self.size: 
                 size[0] = size[0] / (size[1] / self.size)
                 size[1] = self.size
             elif (size[1] > size[0]) and size[0] > self.size:

@@ -33,7 +33,7 @@ class InSPyReNet(nn.Module):
         self.attention1 = SICA(self.depth * 2, depth, base_size=base_size, stage=1, lmap_in=True)
         self.attention2 = SICA(self.depth * 2, depth, base_size=base_size, stage=2              )
 
-        self.loss_fn = lambda x, y: weighted_tversky_bce_loss(x, y, alpha=0.2, beta=0.8, gamma=2)
+        self.loss_fn = lambda x, y: weighted_tversky_bce_loss_with_logits(x, y, alpha=0.2, beta=0.8, gamma=2)
         self.pyramidal_consistency_loss_fn = nn.L1Loss()
 
         self.ret = lambda x, target: F.interpolate(x, size=target.shape[-2:], mode='bilinear', align_corners=False)

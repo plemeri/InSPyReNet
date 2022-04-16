@@ -29,4 +29,4 @@ Eval:
     pred_root: "snapshots/SotA/LDF_SwinB"
     result_path: "results"
     datasets: ['HRSOD'] #['DUTS-TE', 'DUT-OMRON', 'ECSSD', 'HKU-IS', 'PASCAL-S']
-    metrics: ['Sm', 'mae', 'adpEm', 'maxEm', 'avgEm', 'adpFm', 'maxFm', 'avgFm', 'wFm']
+    metrics: ['Sm', 'mae', 'adpEm', 'maxEm', 'avgEm', 'adpFm', 'maxFm', 'avgFm', 'wFm', 'mBA']

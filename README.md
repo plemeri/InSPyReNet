@@ -101,7 +101,7 @@ Salient object detection (SOD) requires multi-scale features from intermediate b
     pred_root: "[DIR_FOR_YOUR_PRE_COMPUTED_SALIENCY_MAP]"
     result_path: "results"
     datasets: ['DUTS-TE', 'DUT-OMRON', 'ECSSD', 'HKU-IS', 'PASCAL-S']
-    metrics: ['Sm', 'mae', 'adpEm', 'maxEm', 'avgEm', 'adpFm', 'maxFm', 'avgFm', 'wFm']
+    metrics: ['Sm', 'mae', 'adpEm', 'maxEm', 'avgEm', 'adpFm', 'maxFm', 'avgFm', 'wFm', 'mBA']
   ``` 
 
 ## 4. Inference on your own data

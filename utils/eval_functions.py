@@ -6,6 +6,8 @@
 import numpy as np
 from scipy.ndimage import convolve
 from scipy.ndimage import distance_transform_edt as bwdist
+import cv2
+from PIL import Image
 
 _EPS = 1e-16
 _TYPE = np.float64
@@ -628,3 +630,98 @@ class WeightedFmeasure(object):
         """
         weighted_fm = np.mean(np.array(self.weighted_fms, dtype=_TYPE))
         return dict(wfm=weighted_fm)
+
+class BoundaryAccuracy(object):
+    def __init__(self):
+        """
+        MAE(mean absolute error) for SOD.
+
+        ::
+
+            @inproceedings{MAE,
+                title={Saliency filters: Contrast based filtering for salient region detection},
+                author={Perazzi, Federico and Kr{\"a}henb{\"u}hl, Philipp and Pritch, Yael and Hornung, Alexander},
+                booktitle=CVPR,
+                pages={733--740},
+                year={2012}
+            }
+        """
+        self.bas = []
+        self.all_h = 0
+        self.all_w = 0
+        self.all_max = 0
+
+    def step(self, pred: np.ndarray, gt: np.ndarray):
+        # pred, gt = _prepare_data(pred, gt)
+        
+        refined = gt.copy()
+
+        rmin = cmin = 0
+        rmax, cmax = gt.shape
+
+        self.all_h += rmax
+        self.all_w += cmax
+        self.all_max += max(rmax, cmax)
+
+        refined_h, refined_w = refined.shape
+        if refined_h != cmax:
+            refined = np.array(Image.fromarray(pred).resize((cmax, rmax), Image.BILINEAR))
+
+        if not(gt.sum() < 32*32):
+            if not((cmax==cmin) or (rmax==rmin)):
+                class_refined_prob = np.array(Image.fromarray(pred).resize((cmax-cmin, rmax-rmin), Image.BILINEAR))
+                refined[rmin:rmax, cmin:cmax] = class_refined_prob
+        
+        pred = pred > 128
+        gt = gt > 128
+
+        ba = self.cal_ba(pred, gt)
+        self.bas.append(ba)
+        
+    def get_disk_kernel(self, radius):
+        return cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (radius*2+1, radius*2+1))
+
+    def cal_ba(self, pred: np.ndarray, gt: np.ndarray) -> np.ndarray:
+        """
+        Calculate the mean absolute error.
+
+        :return: ba
+        """
+    
+        gt = gt.astype(np.uint8)
+        pred = pred.astype(np.uint8)
+
+        h, w = gt.shape
+
+        min_radius = 1
+        max_radius = (w+h)/300
+        num_steps = 5
+
+        pred_acc = [None] * num_steps
+
+        for i in range(num_steps):
+            curr_radius = min_radius + int((max_radius-min_radius)/num_steps*i)
+
+            kernel = self.get_disk_kernel(curr_radius)
+            boundary_region = cv2.morphologyEx(gt, cv2.MORPH_GRADIENT, kernel) > 0
+
+            gt_in_bound = gt[boundary_region]
+            pred_in_bound = pred[boundary_region]
+
+            num_edge_pixels = (boundary_region).sum()
+            num_pred_gd_pix = ((gt_in_bound) * (pred_in_bound) + (1-gt_in_bound) * (1-pred_in_bound)).sum()
+
+            pred_acc[i] = num_pred_gd_pix / num_edge_pixels
+
+        ba = sum(pred_acc)/num_steps
+        print(ba)
+        return ba
+
+    def get_results(self) -> dict:
+        """
+        Return the results about MAE.
+
+        :return: dict(mae=mae)
+        """
+        mba = np.mean(np.array(self.bas, _TYPE))
+        return dict(mba=mba)

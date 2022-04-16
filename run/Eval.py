@@ -64,6 +64,7 @@ def evaluate(opt, args):
         EM = Emeasure()
         MAE = Mae()
         MSE = Mse()
+        MBA = BoundaryAccuracy()
 
         if args.verbose is True:
             samples = tqdm.tqdm(enumerate(zip(preds, gts)), desc=dataset + ' - Evaluation', total=len(
@@ -73,6 +74,7 @@ def evaluate(opt, args):
 
         for i, sample in samples:
             pred, gt = sample
+            print(pred)
 
             pred_mask = np.array(Image.open(os.path.join(pred_root, pred)).convert('L'))
             gt_mask = np.array(Image.open(os.path.join(gt_root, gt)).convert('L'))
@@ -91,6 +93,9 @@ def evaluate(opt, args):
             EM.step( pred=pred_mask, gt=gt_mask)
             MAE.step(pred=pred_mask, gt=gt_mask)
             MSE.step(pred=pred_mask, gt=gt_mask)
+            MBA.step(pred=pred_mask, gt=gt_mask)
+            
+            break
             
         result = []
 
@@ -98,6 +103,7 @@ def evaluate(opt, args):
         wFm = WFM.get_results()["wfm"]
         mae = MAE.get_results()["mae"]
         mse = MSE.get_results()["mse"]
+        mBA = MBA.get_results()["mba"]
         
         Fm =  FM.get_results()["fm"]
         Em =  EM.get_results()["em"]

@@ -54,13 +54,13 @@ class simple_attention(nn.Module):
         return x, out
     
 class Attn(nn.Module):
-    def __init__(self, in_channel, channel, decoder, base_size=None, stage=None, lmap_in=False):
+    def __init__(self, in_channel, channel, head=True, base_size=None, stage=None):
         super(Attn, self).__init__()
         self.in_channel = in_channel
         self.channel = channel
-        self.decoder = decoder
+        self.head = head
         if base_size is not None and stage is not None:
-            self.stage_size = base_size // (2 ** stage)
+            self.stage_size = (base_size[0] // (2 ** stage), base_size[1] // (2 ** stage))
         else:
             self.stage_size = None
         
@@ -73,7 +73,8 @@ class Attn(nn.Module):
 
         self.conv_out1 = conv(channel, channel, 3, relu=True)
         self.conv_out2 = conv(in_channel + channel, channel, 3, relu=True)
-        if self.decoder is True:
+        
+        if self.head is True:
             self.conv_out3 = conv(channel, channel, 3, relu=True)
             self.conv_out4 = conv(channel, 1, 1)
 
@@ -82,18 +83,19 @@ class Attn(nn.Module):
         
         # compute class probability
         smap = F.interpolate(smap, size=x.shape[-2:], mode='bilinear', align_corners=False)
-        if smap.max() > 1 or smap.min() < 0:
-            smap = torch.sigmoid(smap)
-        prob = [smap, 1 - smap]
+        if smap.min() < 0:
+            prob = [torch.clip(smap, 0, 1), -torch.clip(smap, 0, 1)]
+        else:
+            prob = [smap, 1 - smap]
         prob = torch.cat(prob, dim=1)
 
         # reshape feature & prob
         if self.stage_size is not None:
-            shape = (self.stage_size, self.stage_size)
-            shape_mul = self.stage_size * self.stage_size
+            shape = self.stage_size
+            shape_mul = self.stage_size[0] * self.stage_size[1]
         else:
             shape = (h, w)
-            shape_mul = h * w        
+            shape_mul = h * w           
         
         f = F.interpolate(x, size=shape, mode='bilinear', align_corners=False).view(b, shape_mul, -1)
         prob = F.interpolate(prob, size=shape, mode='bilinear', align_corners=False).view(b, 2, shape_mul)
@@ -117,7 +119,7 @@ class Attn(nn.Module):
         
         x = torch.cat([x, context], dim=1)
         x = self.conv_out2(x)
-        if self.decoder is True:
+        if self.head is True:
             x = self.conv_out3(x)
             out = self.conv_out4(x)
         else:

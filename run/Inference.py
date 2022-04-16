@@ -63,7 +63,7 @@ def inference(opt, args):
         
     if args.jit is True:
         if os.path.isfile(os.path.join(opt.Test.Checkpoint.checkpoint_dir, 'jit.pt')) is False:
-            model = TOJIT(model)
+            model = Simplify(model)
             model = torch.jit.trace(model, {'image': torch.rand(1, 3, *opt.Model.base_size).cuda()}, strict=False)
             torch.jit.save(model, os.path.join(opt.Test.Checkpoint.checkpoint_dir, 'jit.pt'))
         
@@ -91,7 +91,7 @@ def inference(opt, args):
     if save_dir is not None:
         os.makedirs(save_dir, exist_ok=True)
     
-    sample_list = eval(_format + 'Loader')(args.source, opt.Test.Dataset.transforms_PM if args.PM else opt.Test.Dataset.transforms)
+    sample_list = eval(_format + 'Loader')(args.source, opt.Test.Dataset.transforms)
 
     if args.verbose is True:
         samples = tqdm.tqdm(sample_list, desc='Inference', total=len(
@@ -120,9 +120,11 @@ def inference(opt, args):
                 out = model({'image': sample['image']})
             else:
                 out = model(sample)
+                
+                    
         pred = to_numpy(out['pred'], sample['shape'])
-
         img = np.array(sample['original'])
+        
         if args.type == 'map':
             img = (np.stack([pred] * 3, axis=-1) * 255).astype(np.uint8)
         elif args.type == 'rgba':
@@ -139,6 +141,19 @@ def inference(opt, args):
                 background = cv2.cvtColor(cv2.imread(args.type), cv2.COLOR_BGR2RGB)
                 background = cv2.resize(background, img.shape[:2][::-1])
             img = img * pred[..., np.newaxis] + background * (1 - pred[..., np.newaxis])
+        elif args.type == 'debug':
+            debs = []
+            for k in opt.Train.Debug.keys:
+                debs.extend(out[k])
+            for i, j in enumerate(debs):
+                log = torch.sigmoid(j).cpu().detach().numpy().squeeze()
+                log = ((log - log.min()) / (log.max() - log.min()) * 255).astype(np.uint8)
+                log = cv2.cvtColor(log, cv2.COLOR_GRAY2RGB)
+                log = cv2.resize(log, img.shape[:2][::-1])
+                Image.fromarray(log).save(os.path.join(save_dir, sample['name'] + '_' + str(i) + '.png'))    
+                # size=img.shape[:2][::-1]
+            
+            
         img = img.astype(np.uint8)
         
         if _format == 'Image':

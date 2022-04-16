@@ -19,30 +19,17 @@ from utils.misc import *
 def _args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--config',     type=str, default='configs/InSPyReNet_SwinB.yaml')
-    parser.add_argument('--PM',      action='store_true', default=False)
-    parser.add_argument('--verbose', action='store_true', default=False)
+    parser.add_argument('--input_size', type=int, nargs='+', default=[384, 384])
+    parser.add_argument('--verbose',    action='store_true', default=False)
     return parser.parse_args()
 
 def benchmark(opt, args):
-    model = eval(opt.Model.name)(depth=opt.Model.depth, pretrained=False)
-    print(model.backbone.fc)
-    if args.PM is True:
-        if 'InSPyRe' in opt.Model.name:
-            model = PPM(model, opt.Model.PM.patch_size, opt.Model.PM.stride)
-        else:
-            model = SPM(model, opt.Model.PM.patch_size, opt.Model.PM.stride)
-        print('PM')
-            
+    model = Simplify(eval(opt.Model.name)(**opt.Model))
     model = model.cuda()
     
-    if args.PM is True:
-        input = torch.rand(1, 3, opt.Test.Dataset.transforms_PM.dynamic_resize.patch_size, opt.Test.Dataset.transforms_PM.dynamic_resize.patch_size * 2)
-    else:
-        input = torch.rand(1, 3, *opt.Test.Dataset.transforms.resize.size)
-        
+    input = torch.rand(1, 3, *args.input_size)   
     input = input.cuda()
     
-    # with torch.no_grad():
     macs, params = profile(model, inputs=(input, ), verbose=False)
     macs, params = clever_format([macs, params], "%.3f")
     

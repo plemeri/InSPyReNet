@@ -154,7 +154,7 @@ class InSPyRation(nn.Module):
         self.depth = depth
         self.base_size = base_size
         
-        self.encoder = nn.Sequential(conv(3, depth, 3, relu=True), conv(depth, depth, 3, relu=True))
+        # self.encoder = nn.Sequential(conv(3, depth, 3, relu=True), conv(depth, depth, 3, relu=True))
         
         self.context1 = PAA_e(self.in_channels[0], self.depth, base_size=base_size, stage=0)
         self.context2 = PAA_e(self.in_channels[1], self.depth, base_size=base_size, stage=1)
@@ -164,12 +164,16 @@ class InSPyRation(nn.Module):
 
         self.decoder = PAA_d(self.depth, base_size=base_size, stage=2)
 
-        self.attention0 = SICA(self.depth * 2, depth, base_size=base_size, stage=0, lmap_in=True)
-        self.attention1 = SICA(self.depth * 2, depth, base_size=base_size, stage=1, lmap_in=True)
-        self.attention2 = SICA(self.depth * 2, depth, base_size=base_size, stage=2              )
+        self.attention0 = Attn(self.depth    , depth, base_size=base_size, head=False, stage=0)
+        self.attention1 = Attn(self.depth * 2, depth, base_size=base_size, head=False, stage=1)
+        self.attention2 = Attn(self.depth * 2, depth, base_size=base_size, head=True,  stage=2)
+        
+        self.L_attention0 = Attn(self.depth * 2, depth, base_size=base_size, head=True, stage=0)
+        self.L_attention1 = Attn(self.depth * 2, depth, base_size=base_size, head=True, stage=1)
 
         self.loss_fn = lambda x, y: weighted_tversky_bce_loss(x, y, alpha=0.2, beta=0.8, gamma=2)
         self.pyramidal_consistency_loss_fn = nn.L1Loss()
+        self.ploss_fn = lap_loss
 
         self.ret = lambda x, target: F.interpolate(x, size=target.shape[-2:], mode='bilinear', align_corners=False)
         self.res = lambda x, size: F.interpolate(x, size=size, mode='bilinear', align_corners=False)
@@ -186,7 +190,7 @@ class InSPyRation(nn.Module):
         x = sample['image']
         B, _, H, W = x.shape
     
-        x0 = self.encoder(x)
+        # x0 = self.encoder(x)
         x1, x2, x3, x4, x5 = self.backbone(x)
         
         x1 = self.context1(x1) #4
@@ -196,27 +200,33 @@ class InSPyRation(nn.Module):
         x5 = self.context5(x5) #32
 
         f3, d3 = self.decoder(x3, x4, x5) #16
+        d3 = torch.sigmoid(d3)
 
         f3 = self.res(f3, (H // 4,  W // 4 ))
-        f2, p2 = self.attention2(torch.cat([x2, f3.detach()], dim=1), d3.detach())
-        d2 = self.pyr.rec(d3.detach(), p2) #4
+        f2, p2 = self.attention2(torch.cat([x2, f3], dim=1), d3)
+        p2 = torch.tanh(p2)
+        d2 = self.pyr.rec(d3, p2) #4
 
         x1 = self.res(x1, (H // 2, W // 2))
         f2 = self.res(f2, (H // 2, W // 2))
-        f1, p1 = self.attention1(torch.cat([x1, f2.detach()], dim=1), d2.detach(), p2.detach()) #2
-        d1 = self.pyr.rec(d2.detach(), p1) #2
+        f1, _  =   self.attention1(torch.cat([x1, f2], dim=1), d2) #2
+        f1, p1 = self.L_attention1(torch.cat([f1, f2], dim=1), p2) #2
+        p1 = torch.tanh(p1)
+        d1 = self.pyr.rec(d2, p1) #2
         
         f1 = self.res(f1, (H, W))
-        _, p0 = self.attention0(torch.cat([x0, f1.detach()], dim=1), d1.detach(), p1.detach()) #2
-        d0 = self.pyr.rec(d1.detach(), p0) #2
+        f0, _ =   self.attention0(f1, d1) #2
+        _, p0 = self.L_attention0(torch.cat([f0, f1], dim=1), p1) #2
+        p0 = torch.tanh(p0)
+        d0 = self.pyr.rec(d1, p0) #2
         
         if type(sample) == dict and 'gt' in sample.keys() and sample['gt'] is not None:
             y = sample['gt']
             
-            y1 = self.pyr.down(y)
-            y2 = self.pyr.down(y1)
-            y3 = self.pyr.down(y2)
-
+            y1, yp0 = self.pyr.dec(y)
+            y2, yp1 = self.pyr.dec(y1)
+            y3, yp2 = self.pyr.dec(y2)
+            
             ploss =  self.pyramidal_consistency_loss_fn(self.des(d3, (H, W)), self.des(self.pyr.down(d2), (H, W)).detach()) * 0.0001
             ploss += self.pyramidal_consistency_loss_fn(self.des(d2, (H, W)), self.des(self.pyr.down(d1), (H, W)).detach()) * 0.0001
             ploss += self.pyramidal_consistency_loss_fn(self.des(d1, (H, W)), self.des(self.pyr.down(d0), (H, W)).detach()) * 0.0001
@@ -225,13 +235,13 @@ class InSPyRation(nn.Module):
             closs += self.loss_fn(self.des(d2, (H, W)), self.des(y2, (H, W)))
             closs += self.loss_fn(self.des(d1, (H, W)), self.des(y1, (H, W)))
             closs += self.loss_fn(self.des(d0, (H, W)), self.des(y, (H, W)))
-            
+
             loss = ploss + closs
 
         else:
             loss = 0
             
-        pred = torch.sigmoid(d0)
+        pred = d0
         pred = (pred - pred.min()) / (pred.max() - pred.min() + 1e-8)
 
         sample['pred'] = pred
