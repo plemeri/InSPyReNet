@@ -714,7 +714,6 @@ class BoundaryAccuracy(object):
             pred_acc[i] = num_pred_gd_pix / num_edge_pixels
 
         ba = sum(pred_acc)/num_steps
-        print(ba)
         return ba
 
     def get_results(self) -> dict:

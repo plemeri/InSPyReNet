@@ -82,10 +82,10 @@ def draw_figure(methods, datasets):
     cv2.imwrite('Figure5.png', np.vstack(outs))
             
 if __name__ == "__main__":
-    theirs = ['PoolNet', 'BASNet', 'EGNet', 'CPD', 'MINet', 'F3Net', 'GateNet', 'LDF', 'PA_KRN', 'VST', 'TTSOD']
+    theirs = ['PoolNet', 'BASNet', 'EGNet', 'CPD', 'GateNet', 'F3Net', 'MINet', 'LDF', 'PA_KRN'] #, ['F3Net_SwinB', 'MINet_SwinB', 'LDF_SwinB', 'PA_KRN_SwinB', 'VST', 'TTSOD']
     theirs = [os.path.join('snapshots', 'SotA', i) for i in theirs]
     
-    ours = ['InSPyReNet_Res2Net50', 'InSPyReNet_SwinB']#, 'InSPyReNet_SwinL']
+    ours = ['InSPyReNet_Res2Net50'] #, 'InSPyReNet_SwinB']#, 'InSPyReNet_SwinL']
     ours = [os.path.join('snapshots', i) for i in ours]
 
     methods = ours + theirs

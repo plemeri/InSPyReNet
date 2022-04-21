@@ -1,3 +1,4 @@
+from email.mime import base
 import numpy as np
 from PIL import Image
 import os
@@ -14,7 +15,7 @@ sys.path.append(repopath)
 from utils.misc import *
 
 class resize:
-    def __init__(self, size=384):
+    def __init__(self, size=384, base_size=None):
         if hasattr(size, '__iter__'):
             self.size = size[::-1]
         else:
@@ -40,7 +41,6 @@ class resize:
         if 'depth' in sample.keys():
             sample['depth'] = sample['depth'].resize(size, Image.NEAREST)
             
-
         return sample
     
 class cvtcolor:
@@ -241,7 +241,7 @@ class tonumpy:
 
     def __call__(self, sample):
         for key in sample.keys():
-            if key in ['image', 'gt', 'depth']:
+            if key in ['image', 'gt', 'depth', 'image_resized']:
                 sample[key] = np.array(sample[key], dtype=np.float32)
 
         return sample
@@ -258,6 +258,11 @@ class normalize:
             sample['image'] -= self.mean
             sample['image'] /= self.std
 
+        if 'image_resized' in sample.keys():
+            sample['image_resized'] /= self.div
+            sample['image_resized'] -= self.mean
+            sample['image_resized'] /= self.std
+
         if 'gt' in sample.keys():
             sample['gt'] /= self.div
 
@@ -273,6 +278,10 @@ class totensor:
         if 'image' in sample.keys():
             sample['image'] = sample['image'].transpose((2, 0, 1))
             sample['image'] = torch.from_numpy(sample['image']).float()
+            
+        if 'image_resized' in sample.keys():
+            sample['image_resized'] = sample['image_resized'].transpose((2, 0, 1))
+            sample['image_resized'] = torch.from_numpy(sample['image_resized']).float()
         
         if 'gt' in sample.keys():
             sample['gt'] = torch.from_numpy(sample['gt'])

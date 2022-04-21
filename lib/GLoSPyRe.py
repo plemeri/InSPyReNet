@@ -1,3 +1,4 @@
+import cv2
 import torch.nn as nn
 import torch.nn.functional as F
 
@@ -17,11 +18,12 @@ from lib.InSPyReNet import InSPyReNet
 
 class Transition:
     def __init__(self, k=3):
-        self.kernel = torch.zeros(k, k)
-        for i in range(k):
-            for j in range(k):
-                if (i - (k // 2)) ** 2 + (j - (k //2)) ** 2 <= (k // 2) ** 2:
-                    self.kernel[i, j] = 1
+        # self.kernel = torch.zeros(k, k)
+        # for i in range(k):
+        #     for j in range(k):
+        #         if (i - (k // 2)) ** 2 + (j - (k //2)) ** 2 <= (k // 2) ** 2:
+        #             self.kernel[i, j] = 1
+        self.kernel = torch.tensor(cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (k, k))).float()
         
     def cuda(self):
         self.kernel = self.kernel.cuda()
@@ -48,20 +50,30 @@ class GLoSPyRe(InSPyReNet):
         self.transition2.cuda()
         return self
 
-    def forward(self, sample):
+    def forward(self, sample, mask=None):
         x = sample['image']
         B, _, H, W = x.shape
 
-        sample['image'] = self.res(x, self.base_size)
-        gout = super(GLoSPyRe, self).forward(sample)
-        gd3, gd2, gd1, gd0 = gout['gaussian']
-        gp2, gp1, gp0 = gout['laplacian']
-        
+        if mask is not None:
+            # Refinement Mode
+            gd0 = torch.logit(mask)
+            gd0 = torch.clip(gd0, -20, 20)
+
+        else:
+            # Standalone Mode (Global Saliency Pyramid & Reconstruction)
+            # gout = super(GLoSPyRe, self).forward({'image': sample['image_resized']})
+            sample['image'] = self.res(x, self.base_size)
+            gout = super(GLoSPyRe, self).forward(sample)
+            gd3, gd2, gd1, gd0 = gout['gaussian']
+            gp2, gp1, gp0 = gout['laplacian']
+            
+        # Local Saliency Pyramid
         sample['image'] = x
         lout = super(GLoSPyRe, self).forward(sample)
         ld3, ld2, ld1, ld0 = lout['gaussian']
         lp2, lp1, lp0 = lout['laplacian']
         
+        # Local Saliency Pyramid Reconstruction
         d3 = self.ret(gd0, ld3) 
         
         t2 = self.ret(self.transition2(d3), lp2)
@@ -80,7 +92,6 @@ class GLoSPyRe(InSPyReNet):
         pred = (pred - pred.min()) / (pred.max() - pred.min() + 1e-8)
 
         sample['pred'] = pred
-        sample['loss'] = lout['loss'] + gout['loss']
         sample['gaussian'] = [d3, d2, d1, d0]
         sample['laplacian'] = [p2, p1, p0]
         return sample

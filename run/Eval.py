@@ -74,7 +74,6 @@ def evaluate(opt, args):
 
         for i, sample in samples:
             pred, gt = sample
-            print(pred)
 
             pred_mask = np.array(Image.open(os.path.join(pred_root, pred)).convert('L'))
             gt_mask = np.array(Image.open(os.path.join(gt_root, gt)).convert('L'))
@@ -95,7 +94,6 @@ def evaluate(opt, args):
             MSE.step(pred=pred_mask, gt=gt_mask)
             MBA.step(pred=pred_mask, gt=gt_mask)
             
-            break
             
         result = []
 
