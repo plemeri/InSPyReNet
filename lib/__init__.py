@@ -1,5 +1,5 @@
 from lib.InSPyReNet import InSPyReNet_ResNet50, InSPyReNet_Res2Net50, InSPyReNet_Res2Net101, InSPyReNet_SwinT, InSPyReNet_SwinS, InSPyReNet_SwinB, InSPyReNet_SwinL #, InSPyReNetD_Res2Net50, InSPyReNetD_Res2Net101, InSPyReNetD_SwinT, InSPyReNetD_SwinS, InSPyReNetD_SwinB, InSPyReNetD_SwinL
-from lib.GLoSPyRe import GLoSPyRe_ResNet50, GLoSPyRe_Res2Net50, GLoSPyRe_Res2Net101, GLoSPyRe_SwinT, GLoSPyRe_SwinS, GLoSPyRe_SwinB, GLoSPyRe_SwinL
+from lib.GLoSS import GLoSS_ResNet50, GLoSS_Res2Net50, GLoSS_Res2Net101, GLoSS_SwinT, GLoSS_SwinS, GLoSS_SwinB, GLoSS_SwinL
 
 from lib.PPM import PPM
 from lib.SPM import SPM

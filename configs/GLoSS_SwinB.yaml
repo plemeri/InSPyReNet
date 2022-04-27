@@ -1,5 +1,5 @@
 Model:
-    name: "GLoSPyRe_SwinB"
+    name: "GLoSS_SwinB"
     depth: 64
     pretrained: True
     base_size: [384, 384]
@@ -44,7 +44,7 @@ Train:
         warmup_iteration: 12000
     Checkpoint:
         checkpoint_epoch: 1
-        checkpoint_dir: "snapshots/GLoSPyRe_SwinB"
+        checkpoint_dir: "snapshots/GLoSS_SwinB"
     Debug:
         keys: ['gaussian', 'laplacian']
     HyperTune:
@@ -69,11 +69,11 @@ Test:
         num_workers: 8
         pin_memory: True
     Checkpoint:
-        checkpoint_dir: "snapshots/GLoSPyRe_SwinB"
+        checkpoint_dir: "snapshots/GLoSS_SwinB"
 
 Eval:
     gt_root: "data/RGB_Dataset/Test_Dataset"
-    pred_root: "snapshots/GLoSPyRe_SwinB"
+    pred_root: "snapshots/GLoSS_SwinB"
     result_path: "results"
     datasets: ['DUTS-TE', 'DUT-OMRON', 'ECSSD', 'HKU-IS', 'PASCAL-S',  'DAVIS-S', 'HRSOD', 'UHRSD-TE']
     metrics: ['Sm', 'mae', 'adpEm', 'maxEm', 'avgEm', 'adpFm', 'maxFm', 'avgFm', 'wFm', 'mBA']

@@ -29,17 +29,17 @@ class Transition:
         dx = dilation(x, self.kernel)
         ex = erosion(x, self.kernel)
         
-        return dx - ex
+        return ((dx - ex) > .5).float()
         
-class GLoSPyRe(InSPyReNet):
+class GLoSS(InSPyReNet):
     def __init__(self, backbone, in_channels, depth=64, base_size=[384, 384], **kwargs):
-        super(GLoSPyRe, self).__init__(backbone, in_channels, depth, base_size, **kwargs)
+        super(GLoSS, self).__init__(backbone, in_channels, depth, base_size, **kwargs)
         self.transition0 = Transition(17)
         self.transition1 = Transition(9)
         self.transition2 = Transition(5)
         
     def cuda(self):
-        super(GLoSPyRe, self).cuda()
+        super(GLoSS, self).cuda()
         self.transition0.cuda()
         self.transition1.cuda()
         self.transition2.cuda()
@@ -51,13 +51,13 @@ class GLoSPyRe(InSPyReNet):
 
         # Global Saliency Pyramid & Reconstruction)
         sample['image'] = self.res(x, self.base_size)
-        gout = super(GLoSPyRe, self).forward(sample)
+        gout = super(GLoSS, self).forward(sample)
         gd3, gd2, gd1, gd0 = gout['gaussian']
         gp2, gp1, gp0 = gout['laplacian']
             
         # Local Saliency Pyramid
         sample['image'] = x
-        lout = super(GLoSPyRe, self).forward(sample)
+        lout = super(GLoSS, self).forward(sample)
         ld3, ld2, ld1, ld0 = lout['gaussian']
         lp2, lp1, lp0 = lout['laplacian']
         
@@ -84,23 +84,23 @@ class GLoSPyRe(InSPyReNet):
         sample['laplacian'] = [p2, p1, p0]
         return sample
     
-def GLoSPyRe_ResNet50(depth, pretrained, base_size, **kwargs):
-    return GLoSPyRe(resnet50(pretrained=pretrained), [64, 256, 512, 1024, 2048], depth, base_size)
+def GLoSS_ResNet50(depth, pretrained, base_size, **kwargs):
+    return GLoSS(resnet50(pretrained=pretrained), [64, 256, 512, 1024, 2048], depth, base_size)
     
-def GLoSPyRe_Res2Net50(depth, pretrained, base_size, **kwargs):
-    return GLoSPyRe(res2net50_v1b_26w_4s(pretrained=pretrained), [64, 256, 512, 1024, 2048], depth, base_size, **kwargs)
+def GLoSS_Res2Net50(depth, pretrained, base_size, **kwargs):
+    return GLoSS(res2net50_v1b_26w_4s(pretrained=pretrained), [64, 256, 512, 1024, 2048], depth, base_size, **kwargs)
 
-def GLoSPyRe_Res2Net101(depth, pretrained, base_size, **kwargs):
-    return GLoSPyRe(res2net101_v1b_26w_4s(pretrained=pretrained), [64, 256, 512, 1024, 2048], depth, base_size, **kwargs)
+def GLoSS_Res2Net101(depth, pretrained, base_size, **kwargs):
+    return GLoSS(res2net101_v1b_26w_4s(pretrained=pretrained), [64, 256, 512, 1024, 2048], depth, base_size, **kwargs)
 
-def GLoSPyRe_SwinS(depth, pretrained, base_size, **kwargs):
-    return GLoSPyRe(SwinS(pretrained=pretrained), [96, 96, 192, 384, 768], depth, base_size, **kwargs)
+def GLoSS_SwinS(depth, pretrained, base_size, **kwargs):
+    return GLoSS(SwinS(pretrained=pretrained), [96, 96, 192, 384, 768], depth, base_size, **kwargs)
 
-def GLoSPyRe_SwinT(depth, pretrained, base_size, **kwargs):
-    return GLoSPyRe(SwinT(pretrained=pretrained), [96, 96, 192, 384, 768], depth, base_size, **kwargs)
+def GLoSS_SwinT(depth, pretrained, base_size, **kwargs):
+    return GLoSS(SwinT(pretrained=pretrained), [96, 96, 192, 384, 768], depth, base_size, **kwargs)
     
-def GLoSPyRe_SwinB(depth, pretrained, base_size, **kwargs):
-    return GLoSPyRe(SwinB(pretrained=pretrained), [128, 128, 256, 512, 1024], depth, base_size, **kwargs)
+def GLoSS_SwinB(depth, pretrained, base_size, **kwargs):
+    return GLoSS(SwinB(pretrained=pretrained), [128, 128, 256, 512, 1024], depth, base_size, **kwargs)
 
-def GLoSPyRe_SwinL(depth, pretrained, base_size, **kwargs):
-    return GLoSPyRe(SwinL(pretrained=pretrained), [192, 192, 384, 768, 1536], depth, base_size, **kwargs)
+def GLoSS_SwinL(depth, pretrained, base_size, **kwargs):
+    return GLoSS(SwinL(pretrained=pretrained), [192, 192, 384, 768, 1536], depth, base_size, **kwargs)

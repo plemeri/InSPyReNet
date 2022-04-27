@@ -139,27 +139,24 @@ def inference(opt, args):
         elif args.type == 'overlay':
             bg = (np.stack([np.ones_like(pred)] * 3, axis=-1) * [120, 255, 155] + img) // 2
             img = bg * pred[..., np.newaxis] + img * (1 - pred[..., np.newaxis])
-            
-            bg = np.stack([np.ones_like(pred)] * 3, axis=-1) * [120, 255, 155]
             border = cv2.Canny(((pred > .5) * 255).astype(np.uint8), 50, 100)
             img[border != 0] = [120, 255, 155]
-            
         elif args.type.lower().endswith(('.jpg', '.jpeg', '.png')):
             if background is None:
                 background = cv2.cvtColor(cv2.imread(args.type), cv2.COLOR_BGR2RGB)
                 background = cv2.resize(background, img.shape[:2][::-1])
             img = img * pred[..., np.newaxis] + background * (1 - pred[..., np.newaxis])
-        elif args.type == 'debug':
-            debs = []
-            for k in opt.Train.Debug.keys:
-                debs.extend(out[k])
-            for i, j in enumerate(debs):
-                log = torch.sigmoid(j).cpu().detach().numpy().squeeze()
-                log = ((log - log.min()) / (log.max() - log.min()) * 255).astype(np.uint8)
-                log = cv2.cvtColor(log, cv2.COLOR_GRAY2RGB)
-                log = cv2.resize(log, img.shape[:2][::-1])
-                Image.fromarray(log).save(os.path.join(save_dir, sample['name'] + '_' + str(i) + '.png'))    
-                # size=img.shape[:2][::-1]
+        # elif args.type == 'debug':
+        #     debs = []
+        #     for k in opt.Train.Debug.keys:
+        #         debs.extend(out[k])
+        #     for i, j in enumerate(debs):
+        #         log = torch.sigmoid(j).cpu().detach().numpy().squeeze()
+        #         log = ((log - log.min()) / (log.max() - log.min()) * 255).astype(np.uint8)
+        #         log = cv2.cvtColor(log, cv2.COLOR_GRAY2RGB)
+        #         log = cv2.resize(log, img.shape[:2][::-1])
+        #         Image.fromarray(log).save(os.path.join(save_dir, sample['name'] + '_' + str(i) + '.png'))    
+        #         # size=img.shape[:2][::-1]
             
             
         img = img.astype(np.uint8)
