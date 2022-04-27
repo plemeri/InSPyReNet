@@ -18,7 +18,20 @@ cfg =   {'DUTS-TE':  [],
         'DUT-OMRON': [], 
         'ECSSD':     ['0001.png', '0760.png'], 
         'HKU-IS':    ['0247.png'], 
-        'PASCAL-S':  ['355.png', '25.png'],}
+        'PASCAL-S':  ['355.png', '25.png'],
+        'UHRSD-TE': [
+                     '1221.png',
+                     '1267.png',
+                     '1460.png',
+                     '1812.png',
+                     '2070.png',
+                     '3542.png',
+                     '4129.png',
+                     '4446.png',
+                     '5196.png',
+                     '5933.png',
+                     '5900.png'
+                     ]}
 
 def draw_figure(methods, datasets):
     outs = []
@@ -27,27 +40,27 @@ def draw_figure(methods, datasets):
         # imlist = os.listdir(os.path.join('snapshots', 'SotA', 'PoolNet', dataset))
         # targets = cfg[dataset]
         
-        stats = []
-        for method in methods:
-            stat = pickle.load(open(os.path.join(method, 'stat', dataset + '.pkl'), 'rb'))['score']
-            print(method)
-            stats.append(stat)
-            # print(stat.shape, method)
-        stats = np.stack(stats)
-        stats = np.argsort(stats, axis=0)
-        # print(stats)
-        # stats = stats[4] #.sum(axis=0)
-        # stats = stats.argsort()
+        # stats = []
+        # for method in methods:
+        #     stat = pickle.load(open(os.path.join(method, 'stat', dataset + '.pkl'), 'rb'))['score']
+        #     print(method)
+        #     stats.append(stat)
+        #     # print(stat.shape, method)
+        # stats = np.stack(stats)
+        # stats = np.argsort(stats, axis=0)
+        # # print(stats)
+        # # stats = stats[4] #.sum(axis=0)
+        # # stats = stats.argsort()
         
-        ours = stats[:5].mean(axis=0)
-        theirs = stats[5:].mean(axis=0)
+        # ours = stats[:5].mean(axis=0)
+        # theirs = stats[5:].mean(axis=0)
         
-        ours = stats[4]
-        theirs = stats[-1]
+        # ours = stats[4]
+        # theirs = stats[-1]
         
-        stats = ours - theirs
-        score = stats.argsort()[::-1]
-        print(stats[score[:5]])
+        # stats = ours - theirs
+        # score = stats.argsort()[::-1]
+        # print(stats[score[:5]])
                 
         # targets = np.random.choice(imlist, 1)
         # targets = [imlist[i] for i in score[10:15]]
@@ -82,14 +95,15 @@ def draw_figure(methods, datasets):
     cv2.imwrite('Figure5.png', np.vstack(outs))
             
 if __name__ == "__main__":
-    theirs = ['PoolNet', 'BASNet', 'EGNet', 'CPD', 'GateNet', 'F3Net', 'MINet', 'LDF', 'PA_KRN'] #, ['F3Net_SwinB', 'MINet_SwinB', 'LDF_SwinB', 'PA_KRN_SwinB', 'VST', 'TTSOD']
+    theirs = ['F3Net_SwinB', 'MINet_SwinB', 'LDF_SwinB', 'PA_KRN_SwinB', 'PGNet', 'PGNet_H', 'PGNet_HU'] #['PoolNet', 'BASNet', 'EGNet', 'CPD', 'GateNet', 'F3Net_Res2Net50', 'MINet_Res2Net50', 'LDF_Res2Net50', 'PA_KRN_Res2Net50'] #, ['F3Net_SwinB', 'MINet_SwinB', 'LDF_SwinB', 'PA_KRN_SwinB', 'VST', 'TTSOD']
     theirs = [os.path.join('snapshots', 'SotA', i) for i in theirs]
     
-    ours = ['InSPyReNet_Res2Net50'] #, 'InSPyReNet_SwinB']#, 'InSPyReNet_SwinL']
+    ours = ['inspyrenet_wo_sica', 'inspyrenet_w_sica', 'glospyre_wo_sica', 'glospyre_w_sica']#['InSPyReNet_Res2Net50'] #, 'InSPyReNet_SwinB']#, 'InSPyReNet_SwinL']
     ours = [os.path.join('snapshots', i) for i in ours]
 
     methods = ours + theirs
 
-    datasets = ['DUTS-TE', 'DUT-OMRON', 'ECSSD', 'HKU-IS', 'PASCAL-S']
+    # datasets = ['DUTS-TE', 'DUT-OMRON', 'ECSSD', 'HKU-IS', 'PASCAL-S']
+    datasets = ['UHRSD-TE']
     
     draw_figure(methods, datasets)

@@ -18,11 +18,6 @@ from lib.InSPyReNet import InSPyReNet
 
 class Transition:
     def __init__(self, k=3):
-        # self.kernel = torch.zeros(k, k)
-        # for i in range(k):
-        #     for j in range(k):
-        #         if (i - (k // 2)) ** 2 + (j - (k //2)) ** 2 <= (k // 2) ** 2:
-        #             self.kernel[i, j] = 1
         self.kernel = torch.tensor(cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (k, k))).float()
         
     def cuda(self):
@@ -50,22 +45,15 @@ class GLoSPyRe(InSPyReNet):
         self.transition2.cuda()
         return self
 
-    def forward(self, sample, mask=None):
+    def forward(self, sample):
         x = sample['image']
         B, _, H, W = x.shape
 
-        if mask is not None:
-            # Refinement Mode
-            gd0 = torch.logit(mask)
-            gd0 = torch.clip(gd0, -20, 20)
-
-        else:
-            # Standalone Mode (Global Saliency Pyramid & Reconstruction)
-            # gout = super(GLoSPyRe, self).forward({'image': sample['image_resized']})
-            sample['image'] = self.res(x, self.base_size)
-            gout = super(GLoSPyRe, self).forward(sample)
-            gd3, gd2, gd1, gd0 = gout['gaussian']
-            gp2, gp1, gp0 = gout['laplacian']
+        # Global Saliency Pyramid & Reconstruction)
+        sample['image'] = self.res(x, self.base_size)
+        gout = super(GLoSPyRe, self).forward(sample)
+        gd3, gd2, gd1, gd0 = gout['gaussian']
+        gp2, gp1, gp0 = gout['laplacian']
             
         # Local Saliency Pyramid
         sample['image'] = x

@@ -136,6 +136,14 @@ def inference(opt, args):
             img = img * pred[..., np.newaxis] + bg * (1 - pred[..., np.newaxis])
         elif args.type == 'blur':
             img = img * pred[..., np.newaxis] + cv2.GaussianBlur(img, (0, 0), 15) * (1 - pred[..., np.newaxis])
+        elif args.type == 'overlay':
+            bg = (np.stack([np.ones_like(pred)] * 3, axis=-1) * [120, 255, 155] + img) // 2
+            img = bg * pred[..., np.newaxis] + img * (1 - pred[..., np.newaxis])
+            
+            bg = np.stack([np.ones_like(pred)] * 3, axis=-1) * [120, 255, 155]
+            border = cv2.Canny(((pred > .5) * 255).astype(np.uint8), 50, 100)
+            img[border != 0] = [120, 255, 155]
+            
         elif args.type.lower().endswith(('.jpg', '.jpeg', '.png')):
             if background is None:
                 background = cv2.cvtColor(cv2.imread(args.type), cv2.COLOR_BGR2RGB)

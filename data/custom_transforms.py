@@ -15,11 +15,13 @@ sys.path.append(repopath)
 from utils.misc import *
 
 class resize:
-    def __init__(self, size=384, base_size=None):
+    def __init__(self, size=384, pad=False):
         if hasattr(size, '__iter__'):
             self.size = size[::-1]
         else:
             self.size = size
+            
+        self.pad = pad
             
     def __call__(self, sample):
         if hasattr(self.size, '__iter__'):
@@ -40,6 +42,11 @@ class resize:
             sample['gt'] = sample['gt'].resize(size, Image.NEAREST)
         if 'depth' in sample.keys():
             sample['depth'] = sample['depth'].resize(size, Image.NEAREST)
+            
+        # if self.pad is True:
+        #     for key in ['image', 'gt', 'depth']:
+        #         if key in sample.keys():
+        #             sample[key] = Image.new(sample[key].mode, (size[0] + 32, size[1] + 32)).paste(sample[key], (16, 16))
             
         return sample
     
@@ -241,7 +248,7 @@ class tonumpy:
 
     def __call__(self, sample):
         for key in sample.keys():
-            if key in ['image', 'gt', 'depth', 'image_resized']:
+            if key in ['image', 'gt', 'depth']:
                 sample[key] = np.array(sample[key], dtype=np.float32)
 
         return sample
@@ -257,11 +264,6 @@ class normalize:
             sample['image'] /= self.div
             sample['image'] -= self.mean
             sample['image'] /= self.std
-
-        if 'image_resized' in sample.keys():
-            sample['image_resized'] /= self.div
-            sample['image_resized'] -= self.mean
-            sample['image_resized'] /= self.std
 
         if 'gt' in sample.keys():
             sample['gt'] /= self.div
@@ -279,10 +281,6 @@ class totensor:
             sample['image'] = sample['image'].transpose((2, 0, 1))
             sample['image'] = torch.from_numpy(sample['image']).float()
             
-        if 'image_resized' in sample.keys():
-            sample['image_resized'] = sample['image_resized'].transpose((2, 0, 1))
-            sample['image_resized'] = torch.from_numpy(sample['image_resized']).float()
-        
         if 'gt' in sample.keys():
             sample['gt'] = torch.from_numpy(sample['gt'])
             sample['gt'] = sample['gt'].unsqueeze(dim=0)

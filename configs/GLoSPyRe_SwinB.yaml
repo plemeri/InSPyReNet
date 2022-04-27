@@ -59,6 +59,7 @@ Test:
         transforms:
             resize:
                 size: 1280
+                # pad: True
             tonumpy: NULL
             normalize: 
                 mean: [0.485, 0.456, 0.406]
