@@ -60,13 +60,8 @@ def test(opt, args):
             with torch.no_grad():
                 out = model(sample)
             
-            if args.debug:
-                debout = debug_tile(sum([out[k] for k in opt.Train.Debug.keys], []), activation=torch.sigmoid, size=(1000, 1000))
-                Image.fromarray(debout.astype(np.uint8)).save(os.path.join(save_path, sample['name'][0] + '.png'))
-
-            else:
-                pred = to_numpy(out['pred'], sample['shape'])
-                Image.fromarray((pred * 255).astype(np.uint8)).save(os.path.join(save_path, sample['name'][0] + '.png'))
+            pred = to_numpy(out['pred'], sample['shape'])
+            Image.fromarray((pred * 255).astype(np.uint8)).save(os.path.join(save_path, sample['name'][0] + '.png'))
 
 if __name__ == "__main__":
     args = _args()
