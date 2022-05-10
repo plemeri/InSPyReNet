@@ -128,32 +128,32 @@ class Attn(nn.Module):
         return x, out
 
 class SICA(nn.Module):
-    def __init__(self, in_channel, channel, base_size=None, stage=None, lmap_in=False):
+    def __init__(self, in_channel, out_channel=1, depth=64, base_size=None, stage=None, lmap_in=False):
         super(SICA, self).__init__()
         self.in_channel = in_channel
-        self.channel = channel
+        self.depth = depth
         self.lmap_in = lmap_in
         if base_size is not None and stage is not None:
             self.stage_size = (base_size[0] // (2 ** stage), base_size[1] // (2 ** stage))
         else:
             self.stage_size = None
         
-        self.conv_query = nn.Sequential(conv(in_channel, channel, 3, relu=True),
-                                        conv(channel, channel, 3, relu=True))
-        self.conv_key   = nn.Sequential(conv(in_channel, channel, 1, relu=True),
-                                        conv(channel, channel, 1, relu=True))
-        self.conv_value = nn.Sequential(conv(in_channel, channel, 1, relu=True),
-                                        conv(channel, channel, 1, relu=True))
+        self.conv_query = nn.Sequential(conv(in_channel, depth, 3, relu=True),
+                                        conv(depth, depth, 3, relu=True))
+        self.conv_key   = nn.Sequential(conv(in_channel, depth, 1, relu=True),
+                                        conv(depth, depth, 1, relu=True))
+        self.conv_value = nn.Sequential(conv(in_channel, depth, 1, relu=True),
+                                        conv(depth, depth, 1, relu=True))
 
         if self.lmap_in is True:
             self.ctx = 5
         else:
             self.ctx = 3
 
-        self.conv_out1 = conv(channel, channel, 3, relu=True)
-        self.conv_out2 = conv(in_channel + channel, channel, 3, relu=True)
-        self.conv_out3 = conv(channel, channel, 3, relu=True)
-        self.conv_out4 = conv(channel, 1, 1)
+        self.conv_out1 = conv(depth, depth, 3, relu=True)
+        self.conv_out2 = conv(in_channel + depth, depth, 3, relu=True)
+        self.conv_out3 = conv(depth, depth, 3, relu=True)
+        self.conv_out4 = conv(depth, out_channel, 1)
 
         self.threshold = Parameter(torch.tensor([0.5]))
         
@@ -201,13 +201,13 @@ class SICA(nn.Module):
         context = torch.bmm(prob, f).permute(0, 2, 1).unsqueeze(3) # b, 3, c
 
         # k q v compute
-        query = self.conv_query(x).view(b, self.channel, -1).permute(0, 2, 1)
-        key = self.conv_key(context).view(b, self.channel, -1)
-        value = self.conv_value(context).view(b, self.channel, -1).permute(0, 2, 1)
+        query = self.conv_query(x).view(b, self.depth, -1).permute(0, 2, 1)
+        key = self.conv_key(context).view(b, self.depth, -1)
+        value = self.conv_value(context).view(b, self.depth, -1).permute(0, 2, 1)
 
         # compute similarity map
         sim = torch.bmm(query, key) # b, hw, c x b, c, 2
-        sim = (self.channel ** -.5) * sim
+        sim = (self.depth ** -.5) * sim
         sim = F.softmax(sim, dim=-1)
 
         # compute refined feature

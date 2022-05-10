@@ -43,16 +43,17 @@ def train(opt, args):
     else:
         device_ids = os.environ["CUDA_VISIBLE_DEVICES"].split(',')
     device_num = len(device_ids)
+    model_ckpt = None
+    state_ckpt = None
     
     if args.resume is True:
-        print('Resume from checkpoint')
-        model_ckpt = torch.load(os.path.join(opt.Train.Checkpoint.checkpoint_dir, 'latest.pth'), map_location='cpu')
-        state_ckpt = torch.load(os.path.join(opt.Train.Checkpoint.checkpoint_dir,  'state.pth'), map_location='cpu')
+        if os.path.isfile(os.path.join(opt.Train.Checkpoint.checkpoint_dir, 'latest.pth')):
+            print('Resume from checkpoint')
+            model_ckpt = torch.load(os.path.join(opt.Train.Checkpoint.checkpoint_dir, 'latest.pth'), map_location='cpu')
+        if os.path.isfile(os.path.join(opt.Train.Checkpoint.checkpoint_dir, 'state.pth')):
+            print('Resume from state')
+            state_ckpt = torch.load(os.path.join(opt.Train.Checkpoint.checkpoint_dir,  'state.pth'), map_location='cpu')
         
-    else:
-        model_ckpt = None
-        state_ckpt = None
-
     train_dataset = eval(opt.Train.Dataset.type)(
         root=opt.Train.Dataset.root, 
         sets=opt.Train.Dataset.sets,

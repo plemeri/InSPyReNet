@@ -9,7 +9,6 @@ from lib.modules.context_module import *
 from lib.modules.attention_module import *
 from lib.modules.decoder_module import *
 
-from lib.backbones.ResNet import resnet50
 from lib.backbones.Res2Net_v1b import res2net50_v1b_26w_4s, res2net101_v1b_26w_4s
 from lib.backbones.SwinTransformer import SwinT, SwinS, SwinB, SwinL
 
@@ -21,17 +20,17 @@ class InSPyReNet(nn.Module):
         self.depth = depth
         self.base_size = base_size
         
-        self.context1 = PAA_e(self.in_channels[0], self.depth, base_size=base_size, stage=0)
-        self.context2 = PAA_e(self.in_channels[1], self.depth, base_size=base_size, stage=1)
-        self.context3 = PAA_e(self.in_channels[2], self.depth, base_size=base_size, stage=2)
-        self.context4 = PAA_e(self.in_channels[3], self.depth, base_size=base_size, stage=3)
-        self.context5 = PAA_e(self.in_channels[4], self.depth, base_size=base_size, stage=4)
+        self.context1 = PAA_e(self.in_channels[0], self.depth, base_size=self.base_size, stage=0)
+        self.context2 = PAA_e(self.in_channels[1], self.depth, base_size=self.base_size, stage=1)
+        self.context3 = PAA_e(self.in_channels[2], self.depth, base_size=self.base_size, stage=2)
+        self.context4 = PAA_e(self.in_channels[3], self.depth, base_size=self.base_size, stage=3)
+        self.context5 = PAA_e(self.in_channels[4], self.depth, base_size=self.base_size, stage=4)
 
-        self.decoder = PAA_d(self.depth, base_size=base_size, stage=2)
+        self.decoder = PAA_d(self.depth * 3, depth=self.depth, base_size=base_size, stage=2)
 
-        self.attention0 = SICA(self.depth    , depth, base_size=base_size, stage=0, lmap_in=True)
-        self.attention1 = SICA(self.depth * 2, depth, base_size=base_size, stage=1, lmap_in=True)
-        self.attention2 = SICA(self.depth * 2, depth, base_size=base_size, stage=2              )
+        self.attention0 = SICA(self.depth    , depth=self.depth, base_size=self.base_size, stage=0, lmap_in=True)
+        self.attention1 = SICA(self.depth * 2, depth=self.depth, base_size=self.base_size, stage=1, lmap_in=True)
+        self.attention2 = SICA(self.depth * 2, depth=self.depth, base_size=self.base_size, stage=2              )
 
         self.loss_fn = lambda x, y: weighted_tversky_bce_loss_with_logits(x, y, alpha=0.2, beta=0.8, gamma=2)
         self.pyramidal_consistency_loss_fn = nn.L1Loss()
@@ -59,7 +58,7 @@ class InSPyReNet(nn.Module):
         x4 = self.context4(x4) #16
         x5 = self.context5(x5) #32
 
-        f3, d3 = self.decoder(x3, x4, x5) #16
+        f3, d3 = self.decoder([x3, x4, x5]) #16
 
         f3 = self.res(f3, (H // 4,  W // 4 ))
         f2, p2 = self.attention2(torch.cat([x2, f3], dim=1), d3.detach())
@@ -105,9 +104,6 @@ class InSPyReNet(nn.Module):
         return sample
     
 
-    
-def InSPyReNet_ResNet50(depth, pretrained, base_size, **kwargs):
-    return InSPyReNet(resnet50(pretrained=pretrained), [64, 256, 512, 1024, 2048], depth, base_size)
     
 def InSPyReNet_Res2Net50(depth, pretrained, base_size, **kwargs):
     return InSPyReNet(res2net50_v1b_26w_4s(pretrained=pretrained), [64, 256, 512, 1024, 2048], depth, base_size, **kwargs)

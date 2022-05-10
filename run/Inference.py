@@ -23,14 +23,15 @@ torch.backends.cudnn.allow_tf32 = False
 
 def _args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--config',  type=str,            default='configs/InSPyReNet_SwinB.yaml')
-    parser.add_argument('--source',  type=str,            default='test')
-    parser.add_argument('--dest',    type=str,            default=None)
-    parser.add_argument('--type',    type=str,            default='map')
-    parser.add_argument('--gpu',     action='store_true', default=False)
-    parser.add_argument('--jit',     action='store_true', default=False)
-    parser.add_argument('--verbose', action='store_true', default=False)
-    parser.add_argument('--PM',      action='store_true', default=False)
+    parser.add_argument('--config',      type=str,            default='configs/InSPyReNet_SwinB.yaml')
+    parser.add_argument('--source',      type=str,            default='test')
+    parser.add_argument('--dest',        type=str,            default=None)
+    parser.add_argument('--type',        type=str,            default='map')
+    parser.add_argument('--thresh',      type=float,          default=None)
+    parser.add_argument('--gpu',         action='store_true', default=False)
+    parser.add_argument('--jit',         action='store_true', default=False)
+    parser.add_argument('--verbose',     action='store_true', default=False)
+    parser.add_argument('--PM',          action='store_true', default=False)
     return parser.parse_args()
 
 def get_format(source):
@@ -125,6 +126,9 @@ def inference(opt, args):
         pred = to_numpy(out['pred'], sample['shape'])
         img = np.array(sample['original'])
         
+        if args.thresh is not None:
+            pred = pred > args.thresh
+        
         if args.type == 'map':
             img = (np.stack([pred] * 3, axis=-1) * 255).astype(np.uint8)
         elif args.type == 'rgba':
@@ -146,17 +150,17 @@ def inference(opt, args):
                 background = cv2.cvtColor(cv2.imread(args.type), cv2.COLOR_BGR2RGB)
                 background = cv2.resize(background, img.shape[:2][::-1])
             img = img * pred[..., np.newaxis] + background * (1 - pred[..., np.newaxis])
-        # elif args.type == 'debug':
-        #     debs = []
-        #     for k in opt.Train.Debug.keys:
-        #         debs.extend(out[k])
-        #     for i, j in enumerate(debs):
-        #         log = torch.sigmoid(j).cpu().detach().numpy().squeeze()
-        #         log = ((log - log.min()) / (log.max() - log.min()) * 255).astype(np.uint8)
-        #         log = cv2.cvtColor(log, cv2.COLOR_GRAY2RGB)
-        #         log = cv2.resize(log, img.shape[:2][::-1])
-        #         Image.fromarray(log).save(os.path.join(save_dir, sample['name'] + '_' + str(i) + '.png'))    
-        #         # size=img.shape[:2][::-1]
+        elif args.type == 'debug':
+            debs = []
+            for k in opt.Train.Debug.keys:
+                debs.extend(out[k])
+            for i, j in enumerate(debs):
+                log = torch.sigmoid(j).cpu().detach().numpy().squeeze()
+                log = ((log - log.min()) / (log.max() - log.min()) * 255).astype(np.uint8)
+                log = cv2.cvtColor(log, cv2.COLOR_GRAY2RGB)
+                log = cv2.resize(log, img.shape[:2][::-1])
+                Image.fromarray(log).save(os.path.join(save_dir, sample['name'] + '_' + str(i) + '.png'))    
+                # size=img.shape[:2][::-1]
             
             
         img = img.astype(np.uint8)
