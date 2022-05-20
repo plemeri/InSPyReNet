@@ -367,6 +367,7 @@ class PoolNet(nn.Module):
             self.convert = convert_layers
 
     def forward(self, x, mode=1):
+        x = x['image']
         x_size = x.size()
         conv2merge, infos = self.base(x)
         if self.base_model_cfg == 'resnet':
@@ -388,7 +389,7 @@ class PoolNet(nn.Module):
             edge_merge = [self.block[i](kk).detach() for i, kk in enumerate(edge_merge)]
             edge_merge = self.edgeinfo(edge_merge, merge.size())
             merge = self.score(torch.cat([merge, edge_merge], dim=1), x_size)
-        return merge
+        return {'pred': merge}
 
 # def build_model(base_model_cfg='vgg'):
 #     if base_model_cfg == 'vgg':
@@ -396,7 +397,7 @@ class PoolNet(nn.Module):
 #     elif base_model_cfg == 'resnet':
 #         return PoolNet(base_model_cfg, *extra_layer(base_model_cfg, resnet50_locate()))
     
-def PoolNet_ResNet(depth, pretrained=False):
+def PoolNet_ResNet(depth, pretrained=False, **kwargs):
     net = PoolNet('resnet', *extra_layer('resnet', resnet50_locate()))
     # if pretrained is True:
         

@@ -18,17 +18,20 @@ from utils.misc import *
 from data.dataloader import *
 from data.custom_transforms import *
 
+torch.backends.cuda.matmul.allow_tf32 = False
+torch.backends.cudnn.allow_tf32 = False
+
 def _args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--config',  type=str,            default='configs/InSPyReNet_SwinB.yaml')
-    parser.add_argument('--source',  type=str,            default='test')
-    parser.add_argument('--dest',    type=str,            default=None)
-    parser.add_argument('--type',    type=str,            default='map')
-    parser.add_argument('--gpu',     action='store_true', default=False)
-    parser.add_argument('--jit',     action='store_true', default=False)
-    parser.add_argument('--verbose', action='store_true', default=False)
-    parser.add_argument('--PM',      action='store_true', default=False)
-    parser.add_argument('--MS',      action='store_true', default=False)
+    parser.add_argument('--config',      type=str,            default='configs/InSPyReNet_SwinB.yaml')
+    parser.add_argument('--source',      type=str,            default='test')
+    parser.add_argument('--dest',        type=str,            default=None)
+    parser.add_argument('--type',        type=str,            default='map')
+    parser.add_argument('--thresh',      type=float,          default=None)
+    parser.add_argument('--gpu',         action='store_true', default=False)
+    parser.add_argument('--jit',         action='store_true', default=False)
+    parser.add_argument('--verbose',     action='store_true', default=False)
+    parser.add_argument('--PM',          action='store_true', default=False)
     return parser.parse_args()
 
 def get_format(source):
@@ -45,27 +48,24 @@ def get_format(source):
         return ''
 
 def inference(opt, args):
-    model = eval(opt.Model.name)(depth=opt.Model.depth, pretrained=False)
+    model = eval(opt.Model.name)(**opt.Model)
     model.load_state_dict(torch.load(os.path.join(
         opt.Test.Checkpoint.checkpoint_dir, 'latest.pth'), map_location=torch.device('cpu')), strict=True)
     
     if args.PM is True:
         if 'InSPyRe' in opt.Model.name:
-            model = PPM(model, opt.Model.PM.patch_size, opt.Model.PM.stride)
+            model = PPM(model)
         else:
-            model = SPM(model, opt.Model.PM.patch_size, opt.Model.PM.stride)
+            model = SPM(model)
     
     if args.gpu is True:
         model = model.cuda()
     model.eval()
         
-    
-    if args.MS is True:
-        model = InSPyReNet_MS(model)    
-    
     if args.jit is True:
         if os.path.isfile(os.path.join(opt.Test.Checkpoint.checkpoint_dir, 'jit.pt')) is False:
-            model = torch.jit.trace(model, torch.rand(1, 3, 384, 384).cuda())
+            model = Simplify(model)
+            model = torch.jit.trace(model, {'image': torch.rand(1, 3, *opt.Model.base_size).cuda()}, strict=False)
             torch.jit.save(model, os.path.join(opt.Test.Checkpoint.checkpoint_dir, 'jit.pt'))
         
         else:
@@ -92,7 +92,7 @@ def inference(opt, args):
     if save_dir is not None:
         os.makedirs(save_dir, exist_ok=True)
     
-    sample_list = eval(_format + 'Loader')(args.source, opt.Test.Dataset.transforms_PM if args.PM else opt.Test.Dataset.transforms)
+    sample_list = eval(_format + 'Loader')(args.source, opt.Test.Dataset.transforms)
 
     if args.verbose is True:
         samples = tqdm.tqdm(sample_list, desc='Inference', total=len(
@@ -117,10 +117,18 @@ def inference(opt, args):
             sample = to_cuda(sample)
 
         with torch.no_grad():
-            out = model(sample)#['image'])
+            if args.jit is True:
+                out = model({'image': sample['image']})
+            else:
+                out = model(sample)
+                
+                    
         pred = to_numpy(out['pred'], sample['shape'])
-
         img = np.array(sample['original'])
+        
+        if args.thresh is not None:
+            pred = pred > args.thresh
+        
         if args.type == 'map':
             img = (np.stack([pred] * 3, axis=-1) * 255).astype(np.uint8)
         elif args.type == 'rgba':
@@ -132,20 +140,33 @@ def inference(opt, args):
             img = img * pred[..., np.newaxis] + bg * (1 - pred[..., np.newaxis])
         elif args.type == 'blur':
             img = img * pred[..., np.newaxis] + cv2.GaussianBlur(img, (0, 0), 15) * (1 - pred[..., np.newaxis])
+        elif args.type == 'overlay':
+            bg = (np.stack([np.ones_like(pred)] * 3, axis=-1) * [120, 255, 155] + img) // 2
+            img = bg * pred[..., np.newaxis] + img * (1 - pred[..., np.newaxis])
+            border = cv2.Canny(((pred > .5) * 255).astype(np.uint8), 50, 100)
+            img[border != 0] = [120, 255, 155]
         elif args.type.lower().endswith(('.jpg', '.jpeg', '.png')):
             if background is None:
                 background = cv2.cvtColor(cv2.imread(args.type), cv2.COLOR_BGR2RGB)
                 background = cv2.resize(background, img.shape[:2][::-1])
             img = img * pred[..., np.newaxis] + background * (1 - pred[..., np.newaxis])
+        elif args.type == 'debug':
+            debs = []
+            for k in opt.Train.Debug.keys:
+                debs.extend(out[k])
+            for i, j in enumerate(debs):
+                log = torch.sigmoid(j).cpu().detach().numpy().squeeze()
+                log = ((log - log.min()) / (log.max() - log.min()) * 255).astype(np.uint8)
+                log = cv2.cvtColor(log, cv2.COLOR_GRAY2RGB)
+                log = cv2.resize(log, img.shape[:2][::-1])
+                Image.fromarray(log).save(os.path.join(save_dir, sample['name'] + '_' + str(i) + '.png'))    
+                # size=img.shape[:2][::-1]
+            
+            
         img = img.astype(np.uint8)
         
         if _format == 'Image':
             Image.fromarray(img).save(os.path.join(save_dir, sample['name'] + '.png'))
-            # out = model(sample)
-            # for i, d in enumerate(out['gaussian']):
-            #     d = to_numpy(torch.sigmoid(d), sample['shape'])
-            #     img = (np.stack([d] * 3, axis=-1) * 255).astype(np.uint8)
-            #     Image.fromarray(img).save(os.path.join(save_dir, str(i) + sample['name'] + '.png'))
         elif _format == 'Video' and writer is not None:
             writer.write(img)
         elif _format == 'Webcam':

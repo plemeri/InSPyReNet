@@ -36,7 +36,7 @@ class RGB_Dataset(Dataset):
             images = [os.path.join(image_root, f) for f in os.listdir(image_root) if f.lower().endswith(('.jpg', '.png'))]
             images = sort(images)
             
-            gts = [os.path.join(gt_root, f) for f in os.listdir(gt_root) if f.lower().endswith('.png')]
+            gts = [os.path.join(gt_root, f) for f in os.listdir(gt_root) if f.lower().endswith(('.jpg', '.png'))]
             gts = sort(gts)
             
             self.images.extend(images)
@@ -73,20 +73,26 @@ class RGB_Dataset(Dataset):
         return self.size
 
 class RGBD_Dataset(Dataset):
-    def __init__(self, root, tfs):
-        image_root = os.path.join(root, 'RGB')
-        gt_root = os.path.join(root, 'GT')
-        depth_root = os.path.join(root, 'depth')
+    def __init__(self, root, sets, tfs):
+        self.images, self.gts, self.depths = [], [], []
+        
+        for set in sets:
+            image_root, gt_root, depth_root = os.path.join(root, set, 'images'), os.path.join(root, set, 'masks'), os.path.join(root, set, 'depths')
 
-        self.images = [os.path.join(image_root, f) for f in os.listdir(image_root) if f.lower().endswith(('.jpg', '.png'))]
-        self.images = sort(self.images)
+            images = [os.path.join(image_root, f) for f in os.listdir(image_root) if f.lower().endswith(('.jpg', '.png'))]
+            images = sort(images)
+            
+            gts = [os.path.join(gt_root, f) for f in os.listdir(gt_root) if f.lower().endswith('.png')]
+            gts = sort(gts)
+            
+            depths = [os.path.join(depth_root, f) for f in os.listdir(depth_root) if f.lower().endswith(('.jpg', '.png', 'bmp'))]
+            depths = sort(depths)
+            
+            self.images.extend(images)
+            self.gts.extend(gts)
+            self.depths.extend(depths)
         
-        self.depths = [os.path.join(depth_root, f) for f in os.listdir(depth_root) if f.lower().endswith(('.jpg', '.png'))]
-        self.depths = sort(self.depths)
-        
-        self.gts = [os.path.join(gt_root, f) for f in os.listdir(gt_root) if f.lower().endswith('.png')]
-        self.gts = sort(self.gts)
-        
+            
         self.filter_files()
         
         self.size = len(self.images)
@@ -153,6 +159,8 @@ class ImageLoader:
         sample = {'image': image, 'name': name, 'shape': shape, 'original': image}
         sample = self.transform(sample)
         sample['image'] = sample['image'].unsqueeze(0)
+        if 'image_resized' in sample.keys():
+            sample['image_resized'] = sample['image_resized'].unsqueeze(0)
         
         self.index += 1
         return sample
@@ -197,6 +205,8 @@ class VideoLoader:
             sample = {'image': image, 'shape': shape, 'name': name, 'original': image}
             sample = self.transform(sample)
             sample['image'] = sample['image'].unsqueeze(0)
+            if 'image_resized' in sample.keys():
+                sample['image_resized'] = sample['image_resized'].unsqueeze(0)
             
         return sample
     
@@ -242,6 +252,8 @@ class WebcamLoader:
             sample = {'image': image, 'shape': shape, 'name': 'webcam', 'original': image}
             sample = self.transform(sample)
             sample['image'] = sample['image'].unsqueeze(0)
+            if 'image_resized' in sample.keys():
+                sample['image_resized'] = sample['image_resized'].unsqueeze(0)
         
         del self.imgs[:-1]
         return sample
@@ -249,3 +261,42 @@ class WebcamLoader:
 
     def __len__(self):
         return 0
+    
+class RefinementLoader:
+    def __init__(self, image_dir, seg_dir, tfs):
+        self.images = [os.path.join(image_dir, f) for f in os.listdir(image_dir) if f.lower().endswith(('.jpg', '.png', '.jpeg'))]
+        self.images = sort(self.images)
+        
+        self.segs = [os.path.join(seg_dir, f) for f in os.listdir(seg_dir) if f.lower().endswith(('.jpg', '.png', '.jpeg'))]
+        self.segs = sort(self.segs)
+            
+        self.size = len(self.images)
+        self.transform = get_transform(tfs)
+
+    def __iter__(self):
+        self.index = 0
+        return self
+
+    def __next__(self):
+        if self.index == self.size:
+            raise StopIteration
+        image = Image.open(self.images[self.index]).convert('RGB')
+        seg = Image.open(self.segs[self.index]).convert('L')
+        shape = image.size[::-1]
+        name = self.images[self.index].split(os.sep)[-1]
+        name = os.path.splitext(name)[0]
+            
+        sample = {'image': image, 'gt': seg, 'name': name, 'shape': shape, 'original': image}
+        sample = self.transform(sample)
+        sample['image'] = sample['image'].unsqueeze(0)
+        sample['mask'] = sample['gt'].unsqueeze(0)
+        if 'image_resized' in sample.keys():
+            sample['image_resized'] = sample['image_resized'].unsqueeze(0)
+        del sample['gt']
+        
+        self.index += 1
+        return sample
+
+    def __len__(self):
+        return self.size
+    

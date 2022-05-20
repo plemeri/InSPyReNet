@@ -274,7 +274,7 @@ class aggregation(nn.Module):
 
 class CPD_ResNet(nn.Module):
     # resnet based encoder decoder
-    def __init__(self, depth=32, pretrained=False):
+    def __init__(self, depth=32, pretrained=False, **kwargs):
         super(CPD_ResNet, self).__init__()
         
         self.pretrained = pretrained
@@ -295,7 +295,7 @@ class CPD_ResNet(nn.Module):
             self.initialize_weights()
 
     def forward(self, x):
-        x = self.resnet.conv1(x)
+        x = self.resnet.conv1(x['image'])
         x = self.resnet.bn1(x)
         x = self.resnet.relu(x)
         x = self.resnet.maxpool(x)
@@ -319,7 +319,7 @@ class CPD_ResNet(nn.Module):
         detection_map = self.agg2(x4_2, x3_2, x2_2)
 
         # return self.upsample(attention_map), self.upsample(detection_map)
-        return self.upsample(detection_map)
+        return {'pred': self.upsample(detection_map)}
         
     def initialize_weights(self):
         res50 = models.resnet50(pretrained=self.pretrained)

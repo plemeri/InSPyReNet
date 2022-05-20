@@ -5,7 +5,14 @@ from torch import nn
 import torch.nn.functional as F
 import numpy as np
 
+from lib.backbones.SwinTransformer import SwinB
+from lib.backbones.Res2Net_v1b import res2net50_v1b_26w_4s
+
 config_resnet = {'convert': [[64, 256, 512, 1024, 2048], [128, 256, 256, 512, 512]],
+                 'deep_pool': [[512, 512, 256, 256, 128], [512, 256, 256, 128, 128], [False, True, True, True, False],
+                               [True, True, True, True, False]], 'score': 128}
+
+config_swin = {'convert': [[128, 128, 256, 512, 1024], [128, 256, 256, 512, 512]],
                  'deep_pool': [[512, 512, 256, 256, 128], [512, 256, 256, 128, 128], [False, True, True, True, False],
                                [True, True, True, True, False]], 'score': 128}
 
@@ -361,6 +368,98 @@ def resnet50_locate():
     model = ResNet_locate(Bottleneck, [3, 4, 6, 3])
     return model
 
+class Res2Net_locate(nn.Module):
+    def __init__(self):
+        super(Res2Net_locate,self).__init__()
+        self.resnet = res2net50_v1b_26w_4s(True)
+        self.in_planes = 512
+        self.out_planes = [512, 256, 256, 128]
+
+        self.ppms_pre = nn.Conv2d(2048, self.in_planes, 1, 1, bias=False)
+        ppms, infos = [], []
+        for ii in [1, 3, 5]:
+            ppms.append(nn.Sequential(nn.AdaptiveAvgPool2d(ii), nn.Conv2d(self.in_planes, self.in_planes, 1, 1, bias=False), nn.ReLU(inplace=True)))
+        self.ppms = nn.ModuleList(ppms)
+
+        self.ppm_cat = nn.Sequential(nn.Conv2d(self.in_planes * 4, self.in_planes, 3, 1, 1, bias=False), nn.ReLU(inplace=True))
+        for ii in self.out_planes:
+            infos.append(nn.Sequential(nn.Conv2d(self.in_planes, ii, 3, 1, 1, bias=False), nn.ReLU(inplace=True)))
+        self.infos = nn.ModuleList(infos)
+
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                n = m.kernel_size[0] * m.kernel_size[1] * m.out_channels
+                m.weight.data.normal_(0, 0.01)
+            elif isinstance(m, nn.BatchNorm2d):
+                m.weight.data.fill_(1)
+                m.bias.data.zero_()
+
+    def load_pretrained_model(self, model):
+        self.resnet.load_state_dict(model, strict=False)
+
+    def forward(self, x):
+        x_size = x.size()[2:]
+        xs = self.resnet(x)
+
+        xs_1 = self.ppms_pre(xs[-1])
+        xls = [xs_1]
+        for k in range(len(self.ppms)):
+            xls.append(F.interpolate(self.ppms[k](xs_1), xs_1.size()[2:], mode='bilinear', align_corners=True))
+        xls = self.ppm_cat(torch.cat(xls, dim=1))
+
+        infos = []
+        for k in range(len(self.infos)):
+            infos.append(self.infos[k](F.interpolate(xls, xs[len(self.infos) - 1 - k].size()[2:], mode='bilinear', align_corners=True)))
+
+        return xs, infos
+
+class SwinB_locate(nn.Module):
+    def __init__(self):
+        super(SwinB_locate,self).__init__()
+        self.swin = SwinB(pretrained=True)
+        self.in_planes = 512
+        self.out_planes = [512, 256, 256, 128]
+
+        self.ppms_pre = nn.Conv2d(1024, self.in_planes, 1, 1, bias=False)
+        ppms, infos = [], []
+        for ii in [1, 3, 5]:
+            ppms.append(nn.Sequential(nn.AdaptiveAvgPool2d(ii), nn.Conv2d(self.in_planes, self.in_planes, 1, 1, bias=False), nn.ReLU(inplace=True)))
+        self.ppms = nn.ModuleList(ppms)
+
+        self.ppm_cat = nn.Sequential(nn.Conv2d(self.in_planes * 4, self.in_planes, 3, 1, 1, bias=False), nn.ReLU(inplace=True))
+        for ii in self.out_planes:
+            infos.append(nn.Sequential(nn.Conv2d(self.in_planes, ii, 3, 1, 1, bias=False), nn.ReLU(inplace=True)))
+        self.infos = nn.ModuleList(infos)
+
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                n = m.kernel_size[0] * m.kernel_size[1] * m.out_channels
+                m.weight.data.normal_(0, 0.01)
+            elif isinstance(m, nn.BatchNorm2d):
+                m.weight.data.fill_(1)
+                m.bias.data.zero_()
+
+    def load_pretrained_model(self, model):
+        self.swin.load_state_dict(model, strict=False)
+
+    def forward(self, x):
+        x_size = x.size()[2:]
+        xs = self.swin(x)
+        xs[0] = F.interpolate(xs[0], size=(x_size[0] // 2 + 1, x_size[1] // 2 + 1), mode='bilinear', align_corners=True)
+        xs[-1] = F.interpolate(xs[-1], size=xs[-2].shape[-2:], mode='bilinear', align_corners=True)
+
+        xs_1 = self.ppms_pre(xs[-1])
+        xls = [xs_1]
+        for k in range(len(self.ppms)):
+            xls.append(F.interpolate(self.ppms[k](xs_1), xs_1.size()[2:], mode='bilinear', align_corners=True))
+        xls = self.ppm_cat(torch.cat(xls, dim=1))
+
+        infos = []
+        for k in range(len(self.infos)):
+            infos.append(self.infos[k](F.interpolate(xls, xs[len(self.infos) - 1 - k].size()[2:], mode='bilinear', align_corners=True)))
+
+        return xs, infos
+
 class ConvertLayer(nn.Module):
     def __init__(self, list_k):
         super(ConvertLayer, self).__init__()
@@ -398,7 +497,8 @@ class DeepPoolLayer_first(nn.Module):
         resl = x
         y = x
         for i in range(len(self.pools_sizes)):
-            y = self.convs[i](self.pools[i](y))
+            if (y.shape[2] > 2) and (y.shape[3] > 2):
+                y = self.convs[i](self.pools[i](y))
             resl = torch.add(resl, F.interpolate(y, x_size[2:], mode='bilinear', align_corners=True))
         resl = self.relu(resl)
         if self.need_x2:
@@ -422,10 +522,12 @@ class ScoreLayer(nn.Module):
 
 
 def extra_layer(base_model_cfg, vgg):
-    if base_model_cfg == 'vgg':
-        config = config_vgg_krn
-    elif base_model_cfg == 'resnet':
+    if base_model_cfg == 'resnet':
         config = config_resnet
+    elif base_model_cfg == 'res2net':
+        config = config_resnet
+    elif base_model_cfg == 'swin':
+        config = config_swin
     convert_layers, score_layers = [], []
     convert_layers = ConvertLayer(config['convert'])
     score_layers = ScoreLayer(config['score'])
@@ -441,8 +543,7 @@ class KRN(nn.Module):
 
         #self.deep_pool = nn.ModuleList(deep_pool_layers)
         self.score = score_layers
-        if self.base_model_cfg == 'resnet':
-            self.convert = convert_layers
+        self.convert = convert_layers
 
         # 'deep_pool': [[512, 512, 256, 256, 128], [512, 256, 256, 128, 128], [False, True, True, True, False], [True, True, True, True, False]]
         self.DeepPool_solid1 = DeepPoolLayer_first(512, 512, False, True)
@@ -495,8 +596,7 @@ class KRN(nn.Module):
     def forward(self, x):
         x_size = x.size()
         conv2merge, infos = self.base(x)  #
-        if self.base_model_cfg == 'resnet':
-            conv2merge = self.convert(conv2merge)
+        conv2merge = self.convert(conv2merge)
         conv2merge = conv2merge[::-1]
 
         merge_solid1 = self.DeepPool_solid1(conv2merge[0], conv2merge[1])
@@ -558,8 +658,7 @@ class KRN_edge(nn.Module):
 
         #self.deep_pool = nn.ModuleList(deep_pool_layers)
         self.score = score_layers
-        if self.base_model_cfg == 'resnet':
-            self.convert = convert_layers
+        self.convert = convert_layers
 
         # 'deep_pool': [[512, 512, 256, 256, 128], [512, 256, 256, 128, 128], [False, True, True, True, False], [True, True, True, True, False]]
         self.DeepPool_solid1 = DeepPoolLayer_first(512, 512, False, True)
@@ -612,8 +711,7 @@ class KRN_edge(nn.Module):
     def forward(self, x):
         x_size = x.size()
         conv2merge, infos = self.base(x)  #
-        if self.base_model_cfg == 'resnet':
-            conv2merge = self.convert(conv2merge)
+        conv2merge = self.convert(conv2merge)
         conv2merge = conv2merge[::-1]
 
         merge_contour1 = self.conv_1(conv2merge[1])
@@ -685,6 +783,18 @@ class KRN_edge(nn.Module):
 def build_model(base_model_cfg='vgg'):
     if base_model_cfg == 'resnet':
         return KRN(base_model_cfg, *extra_layer(base_model_cfg, resnet50_locate()))
+    elif base_model_cfg == 'res2net':
+        return KRN(base_model_cfg, *extra_layer(base_model_cfg, Res2Net_locate()))
+    elif base_model_cfg == 'swin':
+        return KRN(base_model_cfg, *extra_layer(base_model_cfg, SwinB_locate()))
+
+def build_model_edge(base_model_cfg='vgg'):
+    if base_model_cfg == 'resnet':
+        return KRN_edge(base_model_cfg, *extra_layer(base_model_cfg, resnet50_locate()))
+    elif base_model_cfg == 'res2net':
+        return KRN_edge(base_model_cfg, *extra_layer(base_model_cfg, Res2Net_locate()))
+    elif base_model_cfg == 'swin':
+        return KRN_edge(base_model_cfg, *extra_layer(base_model_cfg, SwinB_locate()))
 
 
 def weights_init(m):
@@ -694,19 +804,19 @@ def weights_init(m):
             m.bias.data.zero_()
             
 class PA_KRN(nn.Module):
-    def __init__(self, depth, pretrained=False):
+    def __init__(self, depth, pretrained=False, arch='resnet', **kwargs):
         super().__init__()
-        self.net = KRN('resnet', *extra_layer('resnet', resnet50_locate()))
-        self.net = self.net #.cuda()
+        
+        self.net = build_model(arch)
         self.net.eval()
         # self.net.load_state_dict(torch.load(self.config.clm_model))
 
-        self.net_hou = KRN_edge('resnet', *extra_layer('resnet', resnet50_locate()))
-        self.net_hou = self.net_hou #.cuda()
+        self.net_hou = build_model_edge(arch)
         self.net_hou.eval()
         # self.net_hou.load_state_dict(torch.load(self.config.fsm_model))
         
     def forward(self, images):
+        images = images['image']
         feasum_out, merge_solid, out_merge_solid1, out_merge_solid2, out_merge_solid3, out_merge_solid4 = self.net(images)
 
 
@@ -790,4 +900,4 @@ class PA_KRN(nn.Module):
             print('yr', yr)
         preds = torch.unsqueeze(new_data_final, dim=1)
         print(preds.min())
-        return preds
+        return {'pred': preds}

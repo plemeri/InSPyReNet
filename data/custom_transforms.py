@@ -1,3 +1,4 @@
+from email.mime import base
 import numpy as np
 from PIL import Image
 import os
@@ -14,17 +15,39 @@ sys.path.append(repopath)
 from utils.misc import *
 
 class resize:
-    def __init__(self, size):
-        self.size = size[::-1]
-
+    def __init__(self, size=384, pad=False):
+        if hasattr(size, '__iter__'):
+            self.size = size[::-1]
+        else:
+            self.size = size
+            
+        self.pad = pad
+            
     def __call__(self, sample):
+        if hasattr(self.size, '__iter__'):
+            size = self.size
+        else:
+            size = list(sample['image'].size)
+            if (size[0] >= size[1]) and size[1] > self.size: 
+                size[0] = size[0] / (size[1] / self.size)
+                size[1] = self.size
+            elif (size[1] > size[0]) and size[0] > self.size:
+                size[1] = size[1] / (size[0] / self.size)
+                size[0] = self.size
+            size = (int(round(size[0] / 32)) * 32, int(round(size[1] / 32)) * 32)
+        
         if 'image' in sample.keys():
-            sample['image'] = sample['image'].resize(self.size, Image.BILINEAR)
+            sample['image'] = sample['image'].resize(size, Image.BILINEAR)
         if 'gt' in sample.keys():
-            sample['gt'] = sample['gt'].resize(self.size, Image.NEAREST)
+            sample['gt'] = sample['gt'].resize(size, Image.NEAREST)
         if 'depth' in sample.keys():
-            sample['depth'] = sample['depth'].resize(self.size, Image.NEAREST)
-
+            sample['depth'] = sample['depth'].resize(size, Image.NEAREST)
+            
+        # if self.pad is True:
+        #     for key in ['image', 'gt', 'depth']:
+        #         if key in sample.keys():
+        #             sample[key] = Image.new(sample[key].mode, (size[0] + 32, size[1] + 32)).paste(sample[key], (16, 16))
+            
         return sample
     
 class cvtcolor:
@@ -54,6 +77,23 @@ class dynamic_resize:
             size = (int(self.patch_size * hx), int(self.patch_size * wx))
             
             sample['image'] = sample['image'].resize(size, Image.BILINEAR)
+            sample['patch_size'] = self.patch_size
+            sample['stride'] = self.patch_size // self.stride
+
+        return sample
+
+class random_dilation_erosion:
+    def __init__(self, kernel_range):
+        self.kernel_range = kernel_range
+
+    def __call__(self, sample):
+        gt = sample['gt']
+        gt = np.array(gt)
+        iou_max = 1.0
+        iou_min = 0.8
+        iou_target = np.random.rand()*(iou_max-iou_min) + iou_min
+        gt = modify_boundary(gt, iou_target=iou_target)
+        sample['depth'] = Image.fromarray(gt)
 
         return sample
 
@@ -77,7 +117,7 @@ class random_scale_crop:
                     lw = (sample[key].size[1] + base_size[1]) // 2
 
                     border = -min(0, min(lf, up))
-                    sample[key] = ImageOps.expand(sample[key], border=border) #, fill=np.array(sample[key]).min() if key == 'depth' else None)
+                    sample[key] = ImageOps.expand(sample[key], border=border, fill=255 if key == 'depth' else None)
                     sample[key] = sample[key].crop((lf + border, up + border, rg + border, lw + border))
 
         return sample
@@ -115,8 +155,7 @@ class random_rotate:
             for key in sample.keys():
                 if key in ['image', 'gt', 'depth']:
                     base_size = sample[key].size
-
-                    sample[key] = sample[key].rotate(rot, expand=True) #, fillcolor=np.array(sample[key]).min() if key == 'depth' else None)
+                    sample[key] = sample[key].rotate(rot, expand=True, fillcolor=255 if key == 'depth' else None)
 
                     sample[key] = sample[key].crop(((sample[key].size[0] - base_size[0]) // 2,
                                                     (sample[key].size[1] - base_size[1]) // 2,
@@ -157,6 +196,52 @@ class random_gaussian_blur:
 
         return sample
 
+class random_lens_generation:
+    def __init__(self, radius):
+        self.radius = radius
+
+    def __call__(self, sample):
+        sample['lens'] = np.ones_like(np.array(sample['image'])).astype(np.uint8) * 255
+        if np.random.random() < 0.5:
+            sample['lens']
+
+        return sample
+
+
+class histogram_equalization:
+    def __init__(self):
+        pass
+        
+    def __call__(self, sample):
+        if 'depth' in sample.keys():
+            sample['depth'] = Image.fromarray(cv2.equalizeHist(np.array(sample['depth'])))
+
+        return sample
+    
+class clahe:
+    def __init__(self, clip=4.0, grid=(8, 8)):
+        self.eq = cv2.createCLAHE(clipLimit=clip, tileGridSize=grid)
+        
+    def __call__(self, sample):
+        if 'depth' in sample.keys():
+            sample['depth'] = Image.fromarray(self.eq.apply(np.array(sample['depth'])))
+
+        return sample
+    
+class random_gamma_corruption:
+    def __init__(self):
+        pass
+        
+    def __call__(self, sample):
+        if 'depth' in sample.keys():
+            if np.random.random() > .5:
+                depth = np.array(sample['depth'])
+                depth = (depth / 255) ** (np.random.random() * .4 + .8)
+                depth = (depth * 255).astype(np.uint8)
+                sample['depth'] = depth
+
+        return sample
+
 class tonumpy:
     def __init__(self):
         pass
@@ -187,8 +272,6 @@ class normalize:
             sample['depth'] /= self.div
 
         return sample
-
-
 class totensor:
     def __init__(self):
         pass
@@ -197,12 +280,14 @@ class totensor:
         if 'image' in sample.keys():
             sample['image'] = sample['image'].transpose((2, 0, 1))
             sample['image'] = torch.from_numpy(sample['image']).float()
-        
+            
         if 'gt' in sample.keys():
             sample['gt'] = torch.from_numpy(sample['gt'])
             sample['gt'] = sample['gt'].unsqueeze(dim=0)
 
         if 'depth' in sample.keys():
+            # sample['depth'] = sample['depth'].transpose((2, 0, 1))
+            # sample['depth'] = torch.from_numpy(sample['depth']).float()
             sample['depth'] = torch.from_numpy(sample['depth'])
             sample['depth'] = sample['depth'].unsqueeze(dim=0)
 

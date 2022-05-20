@@ -51,7 +51,7 @@ def evaluate(opt, args):
 
         preds = os.listdir(pred_root)
         gts = os.listdir(gt_root)
-
+        
         preds = sort(preds)
         gts = sort(gts)
         
@@ -63,6 +63,8 @@ def evaluate(opt, args):
         SM = Smeasure()
         EM = Emeasure()
         MAE = Mae()
+        MSE = Mse()
+        MBA = BoundaryAccuracy()
 
         if args.verbose is True:
             samples = tqdm.tqdm(enumerate(zip(preds, gts)), desc=dataset + ' - Evaluation', total=len(
@@ -73,8 +75,8 @@ def evaluate(opt, args):
         for i, sample in samples:
             pred, gt = sample
 
-            pred_mask = np.array(Image.open(os.path.join(pred_root, pred)))
-            gt_mask = np.array(Image.open(os.path.join(gt_root, gt)))
+            pred_mask = np.array(Image.open(os.path.join(pred_root, pred)).convert('L'))
+            gt_mask = np.array(Image.open(os.path.join(gt_root, gt)).convert('L'))
 
             if len(pred_mask.shape) != 2:
                 pred_mask = pred_mask[:, :, 0]
@@ -82,18 +84,24 @@ def evaluate(opt, args):
                 gt_mask = gt_mask[:, :, 0]
 
             assert pred_mask.shape == gt_mask.shape, print(pred, 'does not match the size of', gt)
+            # print(gt_mask.max())
 
             FM.step( pred=pred_mask, gt=gt_mask)
             WFM.step(pred=pred_mask, gt=gt_mask)
             SM.step( pred=pred_mask, gt=gt_mask)
             EM.step( pred=pred_mask, gt=gt_mask)
             MAE.step(pred=pred_mask, gt=gt_mask)
+            MSE.step(pred=pred_mask, gt=gt_mask)
+            MBA.step(pred=pred_mask, gt=gt_mask)
+            
             
         result = []
 
         Sm =  SM.get_results()["sm"]
         wFm = WFM.get_results()["wfm"]
         mae = MAE.get_results()["mae"]
+        mse = MSE.get_results()["mse"]
+        mBA = MBA.get_results()["mba"]
         
         Fm =  FM.get_results()["fm"]
         Em =  EM.get_results()["em"]

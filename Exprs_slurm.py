@@ -9,13 +9,11 @@ from utils.misc import *
 def _args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--config', type=str, default='configs/InSPyReNet_SwinB.yaml')
-    parser.add_argument('--devices', type=str, default='0')
     parser.add_argument('--exprs', type=int, default=4)
     parser.add_argument('--hyp-tune', action='store_true', default=False)
     parser.add_argument('--resume', type=str, default=None)
-    parser.add_argument('--verbose', action='store_true', default=False)
-    parser.add_argument('--debug', action='store_true', default=False)
-    parser.add_argument('--stat', action='store_true', default=False)
+    parser.add_argument('--partition', type=str, default='A5000')
+    parser.add_argument('--nodelist', type=str, default='n15')
     return parser.parse_args()
 
 def rep_dict(x, klist, val):
@@ -35,10 +33,6 @@ if __name__ == "__main__":
     
     print('Expr key:', exp_key)
     
-    if args.devices == 'all':
-        devices = [str(i) for i in range(torch.cuda.device_count())]
-    else:
-        devices = args.devices.split(',')
     opt = load_config(args.config, easy=False)
 
     os.makedirs('temp', exist_ok=True)
@@ -59,20 +53,14 @@ if __name__ == "__main__":
                         np.linspace(*opt_c['Train']['HyperTune']['Range'])[i % opt_c['Train']['HyperTune']['Range'][-1]].item())
 
             yaml.dump(opt_c, open(os.path.join('temp', cfg_name + '.yaml'), 'w'), sort_keys=False)
-        exp_tab.append((cfg_name, devices[i % len(devices)]))
+        exp_tab.append((cfg_name, None))
 
-    for device in devices:
-        command = 'tmux new-window \"source ~/.zshrc && conda activate inspyrenet ' 
-        for exp in exp_tab:
-            if exp[1] == device:
-                command += '&& CUDA_VISIBLE_DEVICES={} python Expr.py --config {} '.format(device, os.path.join('temp', exp[0] + '.yaml'))
-                if args.verbose is True:
-                    command += '--verbose '
-                if args.debug is True:
-                    command += '--debug '
-                if args.resume is not None:
-                    command += '--resume '
-                if args.stat is not None:
-                    command += '--stat '
-        command += '\"'
+    
+    for exp in exp_tab:
+        command = 'sbatch ' 
+        command += '--partition ' + args.partition + ' '
+        command += '--nodelist ' + args.nodelist + ' '
+            
+        command += ' slurm-submit.sh {}'.format(os.path.join('temp', exp[0] + '.yaml'))
         os.system(command)
+        # print(command)

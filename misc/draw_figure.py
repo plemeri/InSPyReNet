@@ -23,7 +23,7 @@ def draw_figure(opts, datasets):
     for opt in opts:
         method = os.path.split(opt.Eval.pred_root)[-1]
         stats[method] = dict()
-        for dataset in opt.Eval.datasets:
+        for dataset in cfg.keys():
             stat = pickle.load(open(os.path.join(opt.Eval.pred_root, 'stat', dataset + '.pkl'), 'rb'))
             stats[method][dataset] = stat
 
@@ -59,19 +59,19 @@ def draw_figure(opts, datasets):
             method = os.path.split(opt.Eval.pred_root)[-1]
             axes[0][i].plot(stats[method][dataset]['Recall'], stats[method][dataset]['Pre'], '--' if 'InSPyRe' not in method else '-', label=method if 'InSPyRe' not in method else 'Ours (' + method.split('_')[-1] + ')', linewidth=2 if 'InSPyRe' not in method else 4)
             # axes[1][i].plot(np.linspace(0, 255, 256), stats[method][dataset]['Fmeasure_Curve'], '--' if 'InSPyRe' not in method else '-', label=method, )
-        axes[0][i].legend(loc = 'lower left', fontsize=18)
+        axes[0][i].legend(loc = 'lower left', fontsize=22)
     
     # lines, labels = axes[0][-1].get_legend_handles_labels()
     # fig.legend(lines, labels, loc = 'upper center')
     plt.tight_layout()
-    plt.savefig('Figure3.pdf', transparent=True)
+    plt.savefig('Figure3.png', transparent=True)
     # plt.savefig('Figure3.png')
             
 if __name__ == "__main__":
     theirs = ['PoolNet', 'BASNet', 'EGNet', 'CPD', 'MINet', 'F3Net', 'GateNet', 'LDF', 'PA_KRN', 'VST', 'TTSOD']
     theirs = [os.path.join('configs', 'SotA', i + '.yaml') for i in theirs]
     
-    ours = ['InSPyReNet_Res2Net50', 'InSPyReNet_Res2Net101', 'InSPyReNet_SwinT', 'InSPyReNet_SwinS', 'InSPyReNet_SwinB']#, 'InSPyReNet_SwinL']
+    ours = ['InSPyReNet_Res2Net50', 'InSPyReNet_SwinB']#, 'InSPyReNet_SwinL']
     ours = [os.path.join('configs', i + '.yaml') for i in ours]
 
     configs = theirs + ours

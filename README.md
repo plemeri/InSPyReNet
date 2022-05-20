@@ -1,6 +1,11 @@
 # InSPyReNet: Inverse Saliency Pyramid Reconstruction Network for Salient Object Detection
 <p align="center">
 
+  <img src="./figures/Title.png" alt="Logo" width="200" height="auto">
+
+</p>
+<p align="center">
+
   <img src="./figures/figure1.png" alt="Logo" width="300" height="auto">
 
 </p>
@@ -96,7 +101,7 @@ Salient object detection (SOD) requires multi-scale features from intermediate b
     pred_root: "[DIR_FOR_YOUR_PRE_COMPUTED_SALIENCY_MAP]"
     result_path: "results"
     datasets: ['DUTS-TE', 'DUT-OMRON', 'ECSSD', 'HKU-IS', 'PASCAL-S']
-    metrics: ['Sm', 'mae', 'adpEm', 'maxEm', 'avgEm', 'adpFm', 'maxFm', 'avgFm', 'wFm']
+    metrics: ['Sm', 'mae', 'adpEm', 'maxEm', 'avgEm', 'adpFm', 'maxFm', 'avgFm', 'wFm', 'mBA']
   ``` 
 
 ## 4. Inference on your own data

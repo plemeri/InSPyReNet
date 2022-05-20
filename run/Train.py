@@ -24,13 +24,16 @@ from lib.optim import *
 from data.dataloader import *
 from utils.misc import *
 
+torch.backends.cuda.matmul.allow_tf32 = False
+torch.backends.cudnn.allow_tf32 = False
+
 def _args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--config',     type=str, default='configs/InSPyReNet_SwinB.yaml')
     parser.add_argument('--local_rank', type=int, default=-1)
-    parser.add_argument('--resume',  action='store_true', default=False)
-    parser.add_argument('--verbose', action='store_true', default=False)
-    parser.add_argument('--debug',   action='store_true', default=False)
+    parser.add_argument('--resume',     action='store_true', default=False)
+    parser.add_argument('--verbose',    action='store_true', default=False)
+    parser.add_argument('--debug',      action='store_true', default=False)
     return parser.parse_args()
 
 
@@ -40,16 +43,17 @@ def train(opt, args):
     else:
         device_ids = os.environ["CUDA_VISIBLE_DEVICES"].split(',')
     device_num = len(device_ids)
+    model_ckpt = None
+    state_ckpt = None
     
     if args.resume is True:
-        print('Resume from checkpoint')
-        model_ckpt = torch.load(os.path.join(opt.Train.Checkpoint.checkpoint_dir, 'latest.pth'), map_location='cpu')
-        state_ckpt = torch.load(os.path.join(opt.Train.Checkpoint.checkpoint_dir,  'state.pth'), map_location='cpu')
+        if os.path.isfile(os.path.join(opt.Train.Checkpoint.checkpoint_dir, 'latest.pth')):
+            print('Resume from checkpoint')
+            model_ckpt = torch.load(os.path.join(opt.Train.Checkpoint.checkpoint_dir, 'latest.pth'), map_location='cpu')
+        if os.path.isfile(os.path.join(opt.Train.Checkpoint.checkpoint_dir, 'state.pth')):
+            print('Resume from state')
+            state_ckpt = torch.load(os.path.join(opt.Train.Checkpoint.checkpoint_dir,  'state.pth'), map_location='cpu')
         
-    else:
-        model_ckpt = None
-        state_ckpt = None
-
     train_dataset = eval(opt.Train.Dataset.type)(
         root=opt.Train.Dataset.root, 
         sets=opt.Train.Dataset.sets,
@@ -70,7 +74,7 @@ def train(opt, args):
                             pin_memory=opt.Train.Dataloader.pin_memory,
                             drop_last=True)
 
-    model = eval(opt.Model.name)(depth=opt.Model.depth, pretrained=opt.Model.pretrained)
+    model = eval(opt.Model.name)(**opt.Model)
     if model_ckpt is not None:
         model.load_state_dict(model_ckpt)
 
@@ -170,7 +174,7 @@ def train(opt, args):
                 torch.save(state_ckpt, os.path.join(opt.Train.Checkpoint.checkpoint_dir,  'state.pth'))
                 
             if args.debug is True:
-                debout = debug_tile(sum([out[k] for k in opt.Train.Debug.keys], []))
+                debout = debug_tile(sum([out[k] for k in opt.Train.Debug.keys], []), activation=torch.sigmoid)
                 cv2.imwrite(os.path.join(opt.Train.Checkpoint.checkpoint_dir, 'debug', str(epoch) + '.png'), debout)
 
     if args.local_rank <= 0:

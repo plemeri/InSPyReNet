@@ -45,7 +45,10 @@ class Pyr:
         return down, lap
 
     def rec(self, down, lap):
-        return self.up(down) + lap
+        down = self.up(down)
+        if lap.shape != down:
+            lap = F.interpolate(lap, down.shape[-2:], mode='bilinear', align_corners=True)
+        return down + lap
 
 class conv(nn.Module):
     def __init__(self, in_channels, out_channels, kernel_size, stride=1, dilation=1, groups=1, padding='same', bias=False, bn=True, relu=False):
@@ -100,7 +103,7 @@ class conv(nn.Module):
 
 
 class self_attn(nn.Module):
-    def __init__(self, in_channels, mode='hw'):
+    def __init__(self, in_channels, mode='hw', stage_size=None):
         super(self_attn, self).__init__()
 
         self.mode = mode
@@ -111,6 +114,8 @@ class self_attn(nn.Module):
 
         self.gamma = Parameter(torch.zeros(1))
         self.softmax = nn.Softmax(dim=-1)
+        
+        self.stage_size = stage_size
 
     def forward(self, x):
         batch_size, channel, height, width = x.size()
@@ -129,6 +134,51 @@ class self_attn(nn.Module):
         attention_map = torch.bmm(projected_query, projected_key)
         attention = self.softmax(attention_map)
         projected_value = self.value_conv(x).view(*view)
+
+        out = torch.bmm(projected_value, attention.permute(0, 2, 1))
+        out = out.view(batch_size, channel, height, width)
+
+        out = self.gamma * out + x
+        return out
+
+
+class self_attn2(nn.Module):
+    def __init__(self, in_channels, mode='hw', stage_size=None):
+        super(self_attn2, self).__init__()
+
+        self.mode = mode
+
+        self.query_conv = conv(in_channels, in_channels // 8, kernel_size=(1, 1))
+        self.key_conv = conv(in_channels, in_channels // 8, kernel_size=(1, 1))
+        self.value_conv = conv(in_channels, in_channels, kernel_size=(1, 1))
+
+        self.gamma = Parameter(torch.zeros(1))
+        self.softmax = nn.Softmax(dim=-1)
+        
+        self.stage_size = stage_size
+
+    def forward(self, x):
+        batch_size, channel, height, width = x.size()
+
+        axis = 1
+        permute = (0, 1, 2, 3)
+        if 'h' == self.mode:
+            axis = height
+            permute = (0, 1, 3, 2)
+        elif 'w' == self.mode:
+            axis = width
+        elif 'hw' == self.mode:
+            axis = height * width
+
+        view = (batch_size, -1, axis)
+        print(self.mode, axis, permute, view, x.shape)
+
+        projected_query = self.query_conv(x).permute(*permute).view(*view).permute(0, 2, 1)
+        projected_key = self.key_conv(x).permute(*permute).view(*view)
+
+        attention_map = torch.bmm(projected_query, projected_key)
+        attention = self.softmax(attention_map)
+        projected_value = self.value_conv(x).permute(*permute).view(*view)
 
         out = torch.bmm(projected_value, attention.permute(0, 2, 1))
         out = out.view(batch_size, channel, height, width)

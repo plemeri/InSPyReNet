@@ -221,11 +221,35 @@ class Res2Net(nn.Module):
         return out
 
 
+    def forward_alt(self, x):
+        x = self.conv1(x)
+        x = self.bn1(x)
+        x = self.relu(x)
+        out = [x]
+        x = self.maxpool(x)
+        
+
+        x = self.layer1(x)
+        out.append(x)
+        x = self.layer2(x)
+        out.append(x)
+        x = self.layer3(x)
+        out.append(x)
+        x = self.layer4(x)
+        out.append(x)
+
+        # x = self.avgpool(x)
+        # x = x.view(x.size(0), -1)
+        # x = self.fc(x)
+
+        return out
+
 def res2net50_v1b(pretrained=False, **kwargs):
     model = Res2Net(Bottle2neck, [3, 4, 6, 3], baseWidth=26, scale=4, **kwargs)
     if pretrained:
         model.load_state_dict(model_zoo.load_url(
             model_urls['res2net50_v1b_26w_4s']))
+    
     return model
 
 
@@ -235,6 +259,7 @@ def res2net101_v1b(pretrained=False, **kwargs):
     if pretrained:
         model.load_state_dict(model_zoo.load_url(
             model_urls['res2net101_v1b_26w_4s']))
+    
     return model
 
 
@@ -242,6 +267,7 @@ def res2net50_v1b_26w_4s(pretrained=True, **kwargs):
     model = Res2Net(Bottle2neck, [3, 4, 6, 3], baseWidth=26, scale=4, **kwargs)
     if pretrained is True:
         model.load_state_dict(torch.load('data/backbone_ckpt/res2net50_v1b_26w_4s-3cf99910.pth'))
+    
     return model
 
 
@@ -250,6 +276,7 @@ def res2net101_v1b_26w_4s(pretrained=True, **kwargs):
                     baseWidth=26, scale=4, **kwargs)
     if pretrained is True:
         model.load_state_dict(torch.load('data/backbone_ckpt/res2net101_v1b_26w_4s-0812c246.pth'))
+    
     return model
 
 
@@ -259,6 +286,7 @@ def res2net152_v1b_26w_4s(pretrained=False, **kwargs):
     if pretrained:
         model.load_state_dict(model_zoo.load_url(
             model_urls['res2net152_v1b_26w_4s']))
+    
     return model
 
 

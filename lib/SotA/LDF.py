@@ -6,6 +6,9 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+from lib.backbones.Res2Net_v1b import res2net50_v1b_26w_4s
+from lib.backbones.SwinTransformer import SwinB
+
 def weight_init(module):
     for n, m in module.named_children():
         # print('initialize: '+n)
@@ -162,7 +165,7 @@ class Encoder(nn.Module):
 
 
 class LDF(nn.Module):
-    def __init__(self, depth, pretrained=False):
+    def __init__(self, depth, pretrained=False, **kwargs):
         super(LDF, self).__init__()
         self.bkbone   = ResNet()
         self.conv5b   = nn.Sequential(nn.Conv2d(2048, 64, kernel_size=1), nn.Conv2d(64, 64, kernel_size=3, padding=1), nn.BatchNorm2d(64), nn.ReLU(inplace=True))
@@ -181,10 +184,19 @@ class LDF(nn.Module):
         self.linearb  = nn.Conv2d(64, 1, kernel_size=3, padding=1)
         self.lineard  = nn.Conv2d(64, 1, kernel_size=3, padding=1)
         self.linear   = nn.Sequential(nn.Conv2d(128, 64, kernel_size=3, padding=1), nn.BatchNorm2d(64), nn.ReLU(inplace=True), nn.Conv2d(64, 1, kernel_size=3, padding=1))
-        self.initialize()
+        # self.initialize()
+
+    # def resize(self, x):
+    #     b, _, h, w = x.shape
+    #     h = h if h % 32 == 0 else (h // 32) * 32
+    #     w = w if w % 32 == 0 else (w // 32) * 32
+    #     return F.interpolate(x, (h, w), mode='bilinear', align_corners=True)
+    
+
 
     def forward(self, x, shape=None):
-        out1, out2, out3, out4, out5 = self.bkbone(x)
+        # x = self.resize(x)
+        out1, out2, out3, out4, out5 = self.bkbone(x['image'])
         out2b, out3b, out4b, out5b   = self.conv2b(out2), self.conv3b(out3), self.conv4b(out4), self.conv5b(out5)
         out2d, out3d, out4d, out5d   = self.conv2d(out2), self.conv3d(out3), self.conv4d(out4), self.conv5d(out5)
 
@@ -197,7 +209,7 @@ class LDF(nn.Module):
         out2  = torch.cat([outb2, outd2], dim=1)
 
         if shape is None:
-            shape = x.size()[2:]
+            shape = x['image'].size()[2:]
         out1  = F.interpolate(self.linear(out1),   size=shape, mode='bilinear')
         outb1 = F.interpolate(self.linearb(outb1), size=shape, mode='bilinear')
         outd1 = F.interpolate(self.lineard(outd1), size=shape, mode='bilinear')
@@ -206,7 +218,126 @@ class LDF(nn.Module):
         outb2 = F.interpolate(self.linearb(outb2), size=shape, mode='bilinear')
         outd2 = F.interpolate(self.lineard(outd2), size=shape, mode='bilinear')
         # return outb1, outd1, out1, outb2, outd2, out2
-        return out2
+        return {'pred': torch.sigmoid(out2)}
+
+    def initialize(self):
+        weight_init(self)
+        
+
+class LDF_Res2Net50(nn.Module):
+    def __init__(self, depth, pretrained=False, **kwargs):
+        super(LDF_Res2Net50, self).__init__()
+        self.bkbone   = res2net50_v1b_26w_4s(pretrained)
+        self.conv5b   = nn.Sequential(nn.Conv2d(2048, 64, kernel_size=1), nn.Conv2d(64, 64, kernel_size=3, padding=1), nn.BatchNorm2d(64), nn.ReLU(inplace=True))
+        self.conv4b   = nn.Sequential(nn.Conv2d(1024, 64, kernel_size=1), nn.Conv2d(64, 64, kernel_size=3, padding=1), nn.BatchNorm2d(64), nn.ReLU(inplace=True))
+        self.conv3b   = nn.Sequential(nn.Conv2d( 512, 64, kernel_size=1), nn.Conv2d(64, 64, kernel_size=3, padding=1), nn.BatchNorm2d(64), nn.ReLU(inplace=True))
+        self.conv2b   = nn.Sequential(nn.Conv2d( 256, 64, kernel_size=1), nn.Conv2d(64, 64, kernel_size=3, padding=1), nn.BatchNorm2d(64), nn.ReLU(inplace=True))
+        
+        self.conv5d   = nn.Sequential(nn.Conv2d(2048, 64, kernel_size=1), nn.Conv2d(64, 64, kernel_size=3, padding=1), nn.BatchNorm2d(64), nn.ReLU(inplace=True))
+        self.conv4d   = nn.Sequential(nn.Conv2d(1024, 64, kernel_size=1), nn.Conv2d(64, 64, kernel_size=3, padding=1), nn.BatchNorm2d(64), nn.ReLU(inplace=True))
+        self.conv3d   = nn.Sequential(nn.Conv2d( 512, 64, kernel_size=1), nn.Conv2d(64, 64, kernel_size=3, padding=1), nn.BatchNorm2d(64), nn.ReLU(inplace=True))
+        self.conv2d   = nn.Sequential(nn.Conv2d( 256, 64, kernel_size=1), nn.Conv2d(64, 64, kernel_size=3, padding=1), nn.BatchNorm2d(64), nn.ReLU(inplace=True))
+
+        self.encoder  = Encoder()
+        self.decoderb = Decoder()
+        self.decoderd = Decoder()
+        self.linearb  = nn.Conv2d(64, 1, kernel_size=3, padding=1)
+        self.lineard  = nn.Conv2d(64, 1, kernel_size=3, padding=1)
+        self.linear   = nn.Sequential(nn.Conv2d(128, 64, kernel_size=3, padding=1), nn.BatchNorm2d(64), nn.ReLU(inplace=True), nn.Conv2d(64, 1, kernel_size=3, padding=1))
+        # self.initialize()
+
+    # def resize(self, x):
+    #     b, _, h, w = x.shape
+    #     h = h if h % 32 == 0 else (h // 32) * 32
+    #     w = w if w % 32 == 0 else (w // 32) * 32
+    #     return F.interpolate(x, (h, w), mode='bilinear', align_corners=True)
+    
+
+
+    def forward(self, x, shape=None):
+        # x = self.resize(x)
+        out1, out2, out3, out4, out5 = self.bkbone(x['image'])
+        out2b, out3b, out4b, out5b   = self.conv2b(out2), self.conv3b(out3), self.conv4b(out4), self.conv5b(out5)
+        out2d, out3d, out4d, out5d   = self.conv2d(out2), self.conv3d(out3), self.conv4d(out4), self.conv5d(out5)
+
+        outb1 = self.decoderb([out5b, out4b, out3b, out2b])
+        outd1 = self.decoderd([out5d, out4d, out3d, out2d])
+        out1  = torch.cat([outb1, outd1], dim=1)
+        outb2, outd2 = self.encoder(out1)
+        outb2 = self.decoderb([out5b, out4b, out3b, out2b], outb2)
+        outd2 = self.decoderd([out5d, out4d, out3d, out2d], outd2)
+        out2  = torch.cat([outb2, outd2], dim=1)
+
+        if shape is None:
+            shape = x['image'].size()[2:]
+        out1  = F.interpolate(self.linear(out1),   size=shape, mode='bilinear')
+        outb1 = F.interpolate(self.linearb(outb1), size=shape, mode='bilinear')
+        outd1 = F.interpolate(self.lineard(outd1), size=shape, mode='bilinear')
+
+        out2  = F.interpolate(self.linear(out2),   size=shape, mode='bilinear')
+        outb2 = F.interpolate(self.linearb(outb2), size=shape, mode='bilinear')
+        outd2 = F.interpolate(self.lineard(outd2), size=shape, mode='bilinear')
+        # return outb1, outd1, out1, outb2, outd2, out2
+        return {'pred': torch.sigmoid(out2)}
+
+    def initialize(self):
+        weight_init(self)
+        
+class LDF_SwinB(nn.Module):
+    def __init__(self, depth, pretrained=False, **kwargs):
+        super(LDF_SwinB, self).__init__()
+        self.bkbone   = SwinB(pretrained)
+        self.conv5b   = nn.Sequential(nn.Conv2d(1024, 64, kernel_size=1), nn.Conv2d(64, 64, kernel_size=3, padding=1), nn.BatchNorm2d(64), nn.ReLU(inplace=True))
+        self.conv4b   = nn.Sequential(nn.Conv2d( 512, 64, kernel_size=1), nn.Conv2d(64, 64, kernel_size=3, padding=1), nn.BatchNorm2d(64), nn.ReLU(inplace=True))
+        self.conv3b   = nn.Sequential(nn.Conv2d( 256, 64, kernel_size=1), nn.Conv2d(64, 64, kernel_size=3, padding=1), nn.BatchNorm2d(64), nn.ReLU(inplace=True))
+        self.conv2b   = nn.Sequential(nn.Conv2d( 128, 64, kernel_size=1), nn.Conv2d(64, 64, kernel_size=3, padding=1), nn.BatchNorm2d(64), nn.ReLU(inplace=True))
+        
+        self.conv5d   = nn.Sequential(nn.Conv2d(1024, 64, kernel_size=1), nn.Conv2d(64, 64, kernel_size=3, padding=1), nn.BatchNorm2d(64), nn.ReLU(inplace=True))
+        self.conv4d   = nn.Sequential(nn.Conv2d( 512, 64, kernel_size=1), nn.Conv2d(64, 64, kernel_size=3, padding=1), nn.BatchNorm2d(64), nn.ReLU(inplace=True))
+        self.conv3d   = nn.Sequential(nn.Conv2d( 256, 64, kernel_size=1), nn.Conv2d(64, 64, kernel_size=3, padding=1), nn.BatchNorm2d(64), nn.ReLU(inplace=True))
+        self.conv2d   = nn.Sequential(nn.Conv2d( 128, 64, kernel_size=1), nn.Conv2d(64, 64, kernel_size=3, padding=1), nn.BatchNorm2d(64), nn.ReLU(inplace=True))
+
+        self.encoder  = Encoder()
+        self.decoderb = Decoder()
+        self.decoderd = Decoder()
+        self.linearb  = nn.Conv2d(64, 1, kernel_size=3, padding=1)
+        self.lineard  = nn.Conv2d(64, 1, kernel_size=3, padding=1)
+        self.linear   = nn.Sequential(nn.Conv2d(128, 64, kernel_size=3, padding=1), nn.BatchNorm2d(64), nn.ReLU(inplace=True), nn.Conv2d(64, 1, kernel_size=3, padding=1))
+        # self.initialize()
+
+    # def resize(self, x):
+    #     b, _, h, w = x.shape
+    #     h = h if h % 32 == 0 else (h // 32) * 32
+    #     w = w if w % 32 == 0 else (w // 32) * 32
+    #     return F.interpolate(x, (h, w), mode='bilinear', align_corners=True)
+    
+
+
+    def forward(self, x, shape=None):
+        # x = self.resize(x)
+        out1, out2, out3, out4, out5 = self.bkbone(x['image'])
+        out2b, out3b, out4b, out5b   = self.conv2b(out2), self.conv3b(out3), self.conv4b(out4), self.conv5b(out5)
+        out2d, out3d, out4d, out5d   = self.conv2d(out2), self.conv3d(out3), self.conv4d(out4), self.conv5d(out5)
+
+        outb1 = self.decoderb([out5b, out4b, out3b, out2b])
+        outd1 = self.decoderd([out5d, out4d, out3d, out2d])
+        out1  = torch.cat([outb1, outd1], dim=1)
+        outb2, outd2 = self.encoder(out1)
+        outb2 = self.decoderb([out5b, out4b, out3b, out2b], outb2)
+        outd2 = self.decoderd([out5d, out4d, out3d, out2d], outd2)
+        out2  = torch.cat([outb2, outd2], dim=1)
+
+        if shape is None:
+            shape = x['image'].size()[2:]
+        out1  = F.interpolate(self.linear(out1),   size=shape, mode='bilinear')
+        outb1 = F.interpolate(self.linearb(outb1), size=shape, mode='bilinear')
+        outd1 = F.interpolate(self.lineard(outd1), size=shape, mode='bilinear')
+
+        out2  = F.interpolate(self.linear(out2),   size=shape, mode='bilinear')
+        outb2 = F.interpolate(self.linearb(outb2), size=shape, mode='bilinear')
+        outd2 = F.interpolate(self.lineard(outd2), size=shape, mode='bilinear')
+        # return outb1, outd1, out1, outb2, outd2, out2
+        return {'pred': torch.sigmoid(out2)}
 
     def initialize(self):
         weight_init(self)

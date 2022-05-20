@@ -1,10 +1,8 @@
 Model:
-    name: "InSPyReNet_Res2Net101"
+    name: "GLoSS_SwinB"
     depth: 64
     pretrained: True
-    PM:
-        patch_size: 384
-        stride: 192
+    base_size: [384, 384]
 
 Train:
     Dataset:
@@ -32,7 +30,7 @@ Train:
         batch_size: 6
         shuffle: True
         num_workers: 8
-        pin_memory: True
+        pin_memory: False
     Optimizer:
         type: "Adam"
         lr: 1.0e-05
@@ -46,30 +44,22 @@ Train:
         warmup_iteration: 12000
     Checkpoint:
         checkpoint_epoch: 1
-        checkpoint_dir: "snapshots/InSPyReNet_Res2Net101"
+        checkpoint_dir: "snapshots/GLoSS_SwinB"
     Debug:
         keys: ['gaussian', 'laplacian']
     HyperTune:
         HyperParameter: ['Train', 'Optimizer', 'lr']
         Range: [1.0e-6, 2.4e-5, 24]
-
+    
 Test:
     Dataset:
         type: "RGB_Dataset"
         root: "data/RGB_Dataset/Test_Dataset"
-        sets: ['DUTS-TE', 'DUT-OMRON', 'ECSSD', 'HKU-IS', 'PASCAL-S']
+        sets: ['DUTS-TE', 'DUT-OMRON', 'ECSSD', 'HKU-IS', 'PASCAL-S',  'DAVIS-S', 'HRSOD', 'UHRSD-TE']
         transforms:
-            resize: 
-                size: [384, 384]
-            tonumpy: NULL
-            normalize: 
-                mean: [0.485, 0.456, 0.406]
-                std: [0.229, 0.224, 0.225]
-            totensor: NULL
-        transforms_PM:
-            dynamic_resize:
-                patch_size: 384
-                stride: 192
+            resize:
+                size: 1280
+                # pad: True
             tonumpy: NULL
             normalize: 
                 mean: [0.485, 0.456, 0.406]
@@ -79,11 +69,11 @@ Test:
         num_workers: 8
         pin_memory: True
     Checkpoint:
-        checkpoint_dir: "snapshots/InSPyReNet_Res2Net101"
+        checkpoint_dir: "snapshots/GLoSS_SwinB"
 
 Eval:
     gt_root: "data/RGB_Dataset/Test_Dataset"
-    pred_root: "snapshots/InSPyReNet_Res2Net101"
+    pred_root: "snapshots/GLoSS_SwinB"
     result_path: "results"
-    datasets: ['DUTS-TE', 'DUT-OMRON', 'ECSSD', 'HKU-IS', 'PASCAL-S']
-    metrics: ['Sm', 'mae', 'adpEm', 'maxEm', 'avgEm', 'adpFm', 'maxFm', 'avgFm', 'wFm']
+    datasets: ['DUTS-TE', 'DUT-OMRON', 'ECSSD', 'HKU-IS', 'PASCAL-S',  'DAVIS-S', 'HRSOD', 'UHRSD-TE']
+    metrics: ['Sm', 'mae', 'adpEm', 'maxEm', 'avgEm', 'adpFm', 'maxFm', 'avgFm', 'wFm', 'mBA']
