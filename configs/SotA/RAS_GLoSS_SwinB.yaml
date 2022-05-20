@@ -1,5 +1,5 @@
 Model:
-    name: "RAS_Res2Net50"
+    name: "RAS_GLoSS_SwinB"
     depth: 64
     pretrained: True
     
@@ -26,7 +26,7 @@ Train:
                 std: [0.222, 0.219, 0.225]
             totensor: NULL
     Dataloader:
-        batch_size: 32
+        batch_size: 16
         shuffle: True
         num_workers: 8
         pin_memory: False
@@ -43,7 +43,7 @@ Train:
         warmup_iteration: 12000
     Checkpoint:
         checkpoint_epoch: 1
-        checkpoint_dir: "snapshots/SotA/RAS_Res2Net50"
+        checkpoint_dir: "snapshots/SotA/RAS_GLoSS_SwinB"
     Debug:
         keys: ['aux']
     HyperTune:
@@ -54,10 +54,10 @@ Test:
     Dataset:
         type: "RGB_Dataset"
         root: "data/RGB_Dataset/Test_Dataset"
-        sets: ['DUTS-TE', 'DUT-OMRON', 'ECSSD', 'HKU-IS', 'PASCAL-S',  'DAVIS-S', 'HRSOD', 'UHRSD-TE']
+        sets: ['DAVIS-S', 'HRSOD', 'UHRSD-TE']
         transforms:
             resize:
-                size: [384, 384]
+                size: 1280
             tonumpy: NULL
             normalize: 
                 mean: [0.488, 0.466, 0.404]
@@ -67,11 +67,11 @@ Test:
         num_workers: 8
         pin_memory: True
     Checkpoint:
-        checkpoint_dir: "snapshots/SotA/RAS_Res2Net50"
+        checkpoint_dir: "snapshots/SotA/RAS_GLoSS_SwinB"
 
 Eval:
     gt_root: "data/RGB_Dataset/Test_Dataset"
-    pred_root: "snapshots/SotA/RAS_Res2Net50"
+    pred_root: "snapshots/SotA/RAS_GLoSS_SwinB"
     result_path: "results"
-    datasets: ['DUTS-TE', 'DUT-OMRON', 'ECSSD', 'HKU-IS', 'PASCAL-S',  'DAVIS-S', 'HRSOD', 'UHRSD-TE']
+    datasets: ['DAVIS-S', 'HRSOD', 'UHRSD-TE']
     metrics: ['Sm', 'mae', 'adpEm', 'maxEm', 'avgEm', 'adpFm', 'maxFm', 'avgFm', 'wFm', 'mBA']

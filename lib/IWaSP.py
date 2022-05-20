@@ -49,8 +49,9 @@ class IWaSP(nn.Module):
         self.hh_attention1 = SICA(self.depth * 2, 1, depth, base_size=base_size, stage=1, lmap_in=True)
         self.hh_attention2 = SICA(self.depth * 2, 1, depth, base_size=base_size, stage=2              )
 
-        self.loss_fn = lambda x, y: weighted_tversky_bce_loss_with_logits(x, y, alpha=0.2, beta=0.8, gamma=2)
-        self.pyramidal_consistency_loss_fn = nn.L1Loss()
+        self.sod_loss_fn = lambda x, y: weighted_bce_loss_with_logits(x, y, reduction='mean') + \
+            focal_tversky_loss_with_logits(x, y, alpha=0.2, beta=0.8, gamma=2, reduction='mean')
+        self.pc_loss_fn = nn.L1Loss()
 
         self.ret = lambda x, target: F.interpolate(x, size=target.shape[-2:], mode='bilinear', align_corners=False)
         self.res = lambda x, size: F.interpolate(x, size=size, mode='bilinear', align_corners=False)
@@ -116,14 +117,14 @@ class IWaSP(nn.Module):
             y3, _ = self.fwt(y2)
             y3 /= 2
 
-            # ploss =  self.pyramidal_consistency_loss_fn(self.des(d3, (H, W)), self.des(self.fwt(d2)[0], (H, W)).detach()) * 0.0001
-            # ploss += self.pyramidal_consistency_loss_fn(self.des(d2, (H, W)), self.des(self.fwt(d1)[0], (H, W)).detach()) * 0.0001
-            # ploss += self.pyramidal_consistency_loss_fn(self.des(d1, (H, W)), self.des(self.fwt(d0)[0], (H, W)).detach()) * 0.0001
+            # ploss =  self.pc_loss_fn(self.des(d3, (H, W)), self.des(self.fwt(d2)[0], (H, W)).detach()) * 0.0001
+            # ploss += self.pc_loss_fn(self.des(d2, (H, W)), self.des(self.fwt(d1)[0], (H, W)).detach()) * 0.0001
+            # ploss += self.pc_loss_fn(self.des(d1, (H, W)), self.des(self.fwt(d0)[0], (H, W)).detach()) * 0.0001
             
-            closs =  self.loss_fn(self.des(d3, (H, W)), self.des(torch.sigmoid(y3), (H, W)))
-            closs += self.loss_fn(self.des(d2, (H, W)), self.des(torch.sigmoid(y2), (H, W)))
-            closs += self.loss_fn(self.des(d1, (H, W)), self.des(torch.sigmoid(y1), (H, W)))
-            closs += self.loss_fn(self.des(d0, (H, W)), self.des(torch.sigmoid(y ), (H, W)))
+            closs =  self.sod_loss_fn(self.des(d3, (H, W)), self.des(torch.sigmoid(y3), (H, W)))
+            closs += self.sod_loss_fn(self.des(d2, (H, W)), self.des(torch.sigmoid(y2), (H, W)))
+            closs += self.sod_loss_fn(self.des(d1, (H, W)), self.des(torch.sigmoid(y1), (H, W)))
+            closs += self.sod_loss_fn(self.des(d0, (H, W)), self.des(torch.sigmoid(y ), (H, W)))
             
             loss = closs #ploss + closs
 

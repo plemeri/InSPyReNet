@@ -98,8 +98,7 @@ def train(opt, args):
     params_list = [{'params': backbone_params}, {
         'params': decoder_params, 'lr': opt.Train.Optimizer.lr * 10}]
     
-    optimizer = eval(opt.Train.Optimizer.type)(
-        params_list, opt.Train.Optimizer.lr, weight_decay=opt.Train.Optimizer.weight_decay)
+    optimizer = eval(opt.Train.Optimizer.type)(params_list, opt.Train.Optimizer.lr, weight_decay=opt.Train.Optimizer.weight_decay) #, momentum=0.9, nesterov=True)
     
     if state_ckpt is not None:
         optimizer.load_state_dict(state_ckpt['optimizer'])

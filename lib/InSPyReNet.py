@@ -11,6 +11,7 @@ from lib.modules.decoder_module import *
 
 from lib.backbones.Res2Net_v1b import res2net50_v1b_26w_4s, res2net101_v1b_26w_4s
 from lib.backbones.SwinTransformer import SwinT, SwinS, SwinB, SwinL
+from lib.backbones.FFCResNet import ffc_resnet50
 
 class InSPyReNet(nn.Module):
     def __init__(self, backbone, in_channels, depth=64, base_size=[384, 384], **kwargs):
@@ -26,14 +27,15 @@ class InSPyReNet(nn.Module):
         self.context4 = PAA_e(self.in_channels[3], self.depth, base_size=self.base_size, stage=3)
         self.context5 = PAA_e(self.in_channels[4], self.depth, base_size=self.base_size, stage=4)
 
-        self.decoder = PAA_d(self.depth * 3, depth=self.depth, base_size=base_size, stage=2)
+        self.decoder = PAA_d(self.depth * 3, 1, depth=self.depth, base_size=base_size, stage=2)
 
-        self.attention0 = SICA(self.depth    , depth=self.depth, base_size=self.base_size, stage=0, lmap_in=True)
-        self.attention1 = SICA(self.depth * 2, depth=self.depth, base_size=self.base_size, stage=1, lmap_in=True)
-        self.attention2 = SICA(self.depth * 2, depth=self.depth, base_size=self.base_size, stage=2              )
-
-        self.loss_fn = lambda x, y: weighted_tversky_bce_loss_with_logits(x, y, alpha=0.2, beta=0.8, gamma=2)
-        self.pyramidal_consistency_loss_fn = nn.L1Loss()
+        self.attention0 = SICA(self.depth    , 1, depth=self.depth, base_size=self.base_size, stage=0, lmap_in=True)
+        self.attention1 = SICA(self.depth * 2, 1, depth=self.depth, base_size=self.base_size, stage=1, lmap_in=True)
+        self.attention2 = SICA(self.depth * 2, 1, depth=self.depth, base_size=self.base_size, stage=2              )
+        
+        self.sod_loss_fn = lambda x, y: weighted_bce_loss_with_logits(x, y, reduction='mean') + \
+            focal_tversky_loss_with_logits(x, y, alpha=0.2, beta=0.8, gamma=2, reduction='mean')
+        self.pc_loss_fn = nn.L1Loss()
 
         self.ret = lambda x, target: F.interpolate(x, size=target.shape[-2:], mode='bilinear', align_corners=False)
         self.res = lambda x, size: F.interpolate(x, size=size, mode='bilinear', align_corners=False)
@@ -80,14 +82,14 @@ class InSPyReNet(nn.Module):
             y2 = self.pyr.down(y1)
             y3 = self.pyr.down(y2)
 
-            ploss =  self.pyramidal_consistency_loss_fn(self.des(d3, (H, W)), self.des(self.pyr.down(d2), (H, W)).detach()) * 0.0001
-            ploss += self.pyramidal_consistency_loss_fn(self.des(d2, (H, W)), self.des(self.pyr.down(d1), (H, W)).detach()) * 0.0001
-            ploss += self.pyramidal_consistency_loss_fn(self.des(d1, (H, W)), self.des(self.pyr.down(d0), (H, W)).detach()) * 0.0001
+            ploss =  self.pc_loss_fn(self.des(d3, (H, W)), self.des(self.pyr.down(d2), (H, W)).detach()) * 0.0001
+            ploss += self.pc_loss_fn(self.des(d2, (H, W)), self.des(self.pyr.down(d1), (H, W)).detach()) * 0.0001
+            ploss += self.pc_loss_fn(self.des(d1, (H, W)), self.des(self.pyr.down(d0), (H, W)).detach()) * 0.0001
             
-            closs =  self.loss_fn(self.des(d3, (H, W)), self.des(y3, (H, W)))
-            closs += self.loss_fn(self.des(d2, (H, W)), self.des(y2, (H, W)))
-            closs += self.loss_fn(self.des(d1, (H, W)), self.des(y1, (H, W)))
-            closs += self.loss_fn(self.des(d0, (H, W)), self.des(y, (H, W)))
+            closs =  self.sod_loss_fn(self.des(d3, (H, W)), self.des(y3, (H, W)))
+            closs += self.sod_loss_fn(self.des(d2, (H, W)), self.des(y2, (H, W)))
+            closs += self.sod_loss_fn(self.des(d1, (H, W)), self.des(y1, (H, W)))
+            closs += self.sod_loss_fn(self.des(d0, (H, W)), self.des(y, (H, W)))
             
             loss = ploss + closs
 
@@ -103,7 +105,8 @@ class InSPyReNet(nn.Module):
         sample['laplacian'] = [p2, p1, p0]
         return sample
     
-
+def InSPyReNet_FFCResNet50(depth, pretrained, base_size, **kwargs):
+    return InSPyReNet(ffc_resnet50(pretrained=pretrained, ratio=0.25), [64, 256, 512, 1024, 2048], depth, base_size, **kwargs)
     
 def InSPyReNet_Res2Net50(depth, pretrained, base_size, **kwargs):
     return InSPyReNet(res2net50_v1b_26w_4s(pretrained=pretrained), [64, 256, 512, 1024, 2048], depth, base_size, **kwargs)

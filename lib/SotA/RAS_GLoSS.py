@@ -12,9 +12,8 @@ from lib.modules.decoder_module import *
 
 from lib.backbones.Res2Net_v1b import res2net50_v1b_26w_4s, res2net101_v1b_26w_4s
 from lib.backbones.SwinTransformer import SwinT, SwinS, SwinB, SwinL
-from lib.backbones.FFCResNet import ffc_resnet50
 
-from lib.InSPyReNet import InSPyReNet
+from lib.SotA.RAS import RAS
 
 class Transition:
     def __init__(self, k=3):
@@ -31,15 +30,20 @@ class Transition:
         
         return ((dx - ex) > .5).float()
         
-class GLoSS(InSPyReNet):
-    def __init__(self, backbone, in_channels, depth=64, base_size=[384, 384], **kwargs):
-        super(GLoSS, self).__init__(backbone, in_channels, depth, base_size, **kwargs)
+class RAS_GLoSS(RAS):
+    def __init__(self, backbone, in_channels, depth=64, **kwargs):
+        super(RAS_GLoSS, self).__init__(backbone, in_channels, depth, **kwargs)
         self.transition0 = Transition(17)
         self.transition1 = Transition(9)
         self.transition2 = Transition(5)
         
+        self.res = lambda x, size: F.interpolate(x, size=size, mode='bilinear', align_corners=False)
+        self.ret = lambda x, target: F.interpolate(x, size=target.shape[-2:], mode='bilinear', align_corners=False)
+        
+        self.base_size = [384, 384]
+        
     def cuda(self):
-        super(GLoSS, self).cuda()
+        super(RAS_GLoSS, self).cuda()
         self.transition0.cuda()
         self.transition1.cuda()
         self.transition2.cuda()
@@ -51,13 +55,13 @@ class GLoSS(InSPyReNet):
 
         # Global Saliency Pyramid & Reconstruction)
         sample['image'] = self.res(x, self.base_size)
-        gout = super(GLoSS, self).forward(sample)
+        gout = super(RAS_GLoSS, self).forward(sample)
         gd3, gd2, gd1, gd0 = gout['gaussian']
         gp2, gp1, gp0 = gout['laplacian']
             
         # Local Saliency Pyramid
         sample['image'] = x
-        lout = super(GLoSS, self).forward(sample)
+        lout = super(RAS_GLoSS, self).forward(sample)
         ld3, ld2, ld1, ld0 = lout['gaussian']
         lp2, lp1, lp0 = lout['laplacian']
         
@@ -65,16 +69,16 @@ class GLoSS(InSPyReNet):
         d3 = self.ret(gd0, ld3) 
         
         t2 = self.ret(self.transition2(d3), lp2)
-        p2 = t2 * lp2
-        d2 = self.pyr.rec(d3, p2)
+        p2 = lp2
+        d2 = self.ret(d3, lp2)
         
         t1 = self.ret(self.transition1(d2), lp1)
-        p1 = t1 * lp1
-        d1 = self.pyr.rec(d2, p1)
+        p1 =  lp1
+        d1 = self.ret(d2, lp1)
         
         t0 = self.ret(self.transition0(d1), lp0)
-        p0 = t0 * lp0
-        d0 = self.pyr.rec(d1, p0)
+        p0 =  lp0
+        d0 = self.ret(d1, lp0)
 
         pred = torch.sigmoid(d0)
         pred = (pred - pred.min()) / (pred.max() - pred.min() + 1e-8)
@@ -84,24 +88,9 @@ class GLoSS(InSPyReNet):
         sample['laplacian'] = [p2, p1, p0]
         return sample
     
-
-def GLoSS_FFCResNet50(depth, pretrained, base_size, **kwargs):
-    return GLoSS(ffc_resnet50(pretrained=pretrained, ratio=0.25), [64, 256, 512, 1024, 2048], depth, base_size, **kwargs)
     
-def GLoSS_Res2Net50(depth, pretrained, base_size, **kwargs):
-    return GLoSS(res2net50_v1b_26w_4s(pretrained=pretrained), [64, 256, 512, 1024, 2048], depth, base_size, **kwargs)
+def RAS_GLoSS_Res2Net50(depth, pretrained, **kwargs):
+    return RAS_GLoSS(res2net50_v1b_26w_4s(pretrained=pretrained), [64, 256, 512, 1024, 2048], depth, **kwargs)
 
-def GLoSS_Res2Net101(depth, pretrained, base_size, **kwargs):
-    return GLoSS(res2net101_v1b_26w_4s(pretrained=pretrained), [64, 256, 512, 1024, 2048], depth, base_size, **kwargs)
-
-def GLoSS_SwinS(depth, pretrained, base_size, **kwargs):
-    return GLoSS(SwinS(pretrained=pretrained), [96, 96, 192, 384, 768], depth, base_size, **kwargs)
-
-def GLoSS_SwinT(depth, pretrained, base_size, **kwargs):
-    return GLoSS(SwinT(pretrained=pretrained), [96, 96, 192, 384, 768], depth, base_size, **kwargs)
-    
-def GLoSS_SwinB(depth, pretrained, base_size, **kwargs):
-    return GLoSS(SwinB(pretrained=pretrained), [128, 128, 256, 512, 1024], depth, base_size, **kwargs)
-
-def GLoSS_SwinL(depth, pretrained, base_size, **kwargs):
-    return GLoSS(SwinL(pretrained=pretrained), [192, 192, 384, 768, 1536], depth, base_size, **kwargs)
+def RAS_GLoSS_SwinB(depth, pretrained, **kwargs):
+    return RAS_GLoSS(SwinB(pretrained=pretrained), [128, 128, 256, 512, 1024], depth, **kwargs)

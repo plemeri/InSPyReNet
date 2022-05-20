@@ -45,28 +45,31 @@ class PPD(nn.Module):
         return f3_2, out
 
 class simple_decoder(nn.Module):
-    def __init__(self, channel):
+    def __init__(self, channel, depth):
         super(simple_decoder, self).__init__()
-        self.conv1 = conv(channel * 3, channel, 3)
-        self.conv2 = conv(channel, channel, 3)
-        self.conv3 = conv(channel, channel, 3)
-        self.conv4 = conv(channel, channel, 3)
-        self.conv5 = conv(channel, 1, 3, bn=False)
+        self.conv_in =   conv(channel, depth, 3)
+        self.conv1 =     conv(depth, depth, 1)
+        self.conv3x3_3 = conv(depth, depth, 3, dilation=3)
+        self.conv3x3_6 = conv(depth, depth, 3, dilation=6)
+        self.conv3x3_9 = conv(depth, depth, 3, dilation=9)
+        self.avgpool =   nn.AdaptiveAvgPool2d((1, 1))
+        self.conv_out =  conv(depth * 5, 1, 3, bn=False)
 
-        self.upsample = lambda img, size: F.interpolate(img, size=size, mode='bilinear', align_corners=True)
+    def forward(self, x):
+        b, c, h, w = x.shape
+        x = self.conv_in(x)
         
-    def forward(self, f1, f2, f3):
-        f1 = self.upsample(f1, f3.shape[-2:])
-        f2 = self.upsample(f2, f3.shape[-2:])
-        f3 = torch.cat([f1, f2, f3], dim=1)
+        x1 = self.conv1(x)
+        x2 = self.conv3x3_3(x)
+        x3 = self.conv3x3_6(x)
+        x4 = self.conv3x3_9(x)
+        x5 = self.avgpool(x).repeat(1, 1, h, w)
+        
+        x = torch.cat([x1, x2, x3, x4, x5], dim=1)
+        
+        out = self.conv_out(x)
 
-        f3 = self.conv1(f3)
-        f3 = self.conv2(f3)
-        f3 = self.conv3(f3)
-        f3 = self.conv4(f3)
-        out = self.conv5(f3)
-
-        return f3, out
+        return out
 
 class PAA_d(nn.Module):
     def __init__(self, in_channel, out_channel=1, depth=64, base_size=None, stage=None):

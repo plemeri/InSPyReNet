@@ -1,8 +1,10 @@
 Model:
-    name: "RAS_Res2Net50"
+    name: "InSPyReNetV2_SwinB"
     depth: 64
     pretrained: True
-    
+    base_size: [384, 384]
+    fix_scale: False
+
 Train:
     Dataset:
         type: "RGB_Dataset"
@@ -22,18 +24,18 @@ Train:
                 methods: ['contrast', 'sharpness', 'brightness']
             tonumpy: NULL
             normalize: 
-                mean: [0.488, 0.466, 0.404]
-                std: [0.222, 0.219, 0.225]
+                mean: [0.485, 0.456, 0.406]
+                std: [0.229, 0.224, 0.225]
             totensor: NULL
     Dataloader:
-        batch_size: 32
+        batch_size: 6
         shuffle: True
         num_workers: 8
         pin_memory: False
     Optimizer:
-        type: "SGD"
-        lr: 0.005
-        weight_decay: 5.0e-4
+        type: "Adam"
+        lr: 1.0e-05
+        weight_decay: 0.0
         mixed_precision: False
     Scheduler:
         type: "PolyLr"
@@ -43,35 +45,35 @@ Train:
         warmup_iteration: 12000
     Checkpoint:
         checkpoint_epoch: 1
-        checkpoint_dir: "snapshots/SotA/RAS_Res2Net50"
+        checkpoint_dir: "snapshots/InSPyReNetV2_SwinB"
     Debug:
-        keys: ['aux']
+        keys: ['gaussian', 'laplacian']
     HyperTune:
         HyperParameter: ['Train', 'Optimizer', 'lr']
         Range: [1.0e-6, 2.4e-5, 24]
-
+    
 Test:
     Dataset:
         type: "RGB_Dataset"
         root: "data/RGB_Dataset/Test_Dataset"
-        sets: ['DUTS-TE', 'DUT-OMRON', 'ECSSD', 'HKU-IS', 'PASCAL-S',  'DAVIS-S', 'HRSOD', 'UHRSD-TE']
+        sets:  ['DUTS-TE', 'DUT-OMRON', 'ECSSD', 'HKU-IS', 'PASCAL-S',  'DAVIS-S', 'HRSOD', 'UHRSD-TE']
         transforms:
             resize:
                 size: [384, 384]
             tonumpy: NULL
             normalize: 
-                mean: [0.488, 0.466, 0.404]
-                std: [0.222, 0.219, 0.225]
+                mean: [0.485, 0.456, 0.406]
+                std: [0.229, 0.224, 0.225]
             totensor: NULL
     Dataloader:
         num_workers: 8
         pin_memory: True
     Checkpoint:
-        checkpoint_dir: "snapshots/SotA/RAS_Res2Net50"
+        checkpoint_dir: "snapshots/InSPyReNetV2_SwinB"
 
 Eval:
     gt_root: "data/RGB_Dataset/Test_Dataset"
-    pred_root: "snapshots/SotA/RAS_Res2Net50"
+    pred_root: "snapshots/InSPyReNetV2_SwinB"
     result_path: "results"
     datasets: ['DUTS-TE', 'DUT-OMRON', 'ECSSD', 'HKU-IS', 'PASCAL-S',  'DAVIS-S', 'HRSOD', 'UHRSD-TE']
     metrics: ['Sm', 'mae', 'adpEm', 'maxEm', 'avgEm', 'adpFm', 'maxFm', 'avgFm', 'wFm', 'mBA']
