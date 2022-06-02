@@ -18,5 +18,6 @@ from lib.SotA.VST import VST
 from lib.SotA.PA_KRN import PA_KRN
 from lib.SotA.PGNet import PGNet
 from lib.SotA.RAS import RAS_Res2Net50, RAS_SwinB
+from lib.SotA.UACANet import UACANet_Res2Net50, UACANet_SwinB
 
 from lib.SotA.RAS_GLoSS import RAS_GLoSS_Res2Net50, RAS_GLoSS_SwinB

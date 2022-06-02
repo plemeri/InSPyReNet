@@ -59,7 +59,7 @@ Test:
         sets:  ['DAVIS-S', 'HRSOD', 'UHRSD-TE']
         transforms:
             resize:
-                size: [1024, 1024]
+                size: 1280 # [1024, 1024]
             tonumpy: NULL
             normalize: 
                 mean: [0.485, 0.456, 0.406]
@@ -74,6 +74,6 @@ Test:
 Eval:
     gt_root: "data/RGB_Dataset/Test_Dataset"
     pred_root: "snapshots/InSPyReNet_SwinB_HU"
-    result_path: "results"
+    result_path: "results_test"
     datasets: ['DAVIS-S', 'HRSOD', 'UHRSD-TE']
     metrics: ['Sm', 'mae', 'adpEm', 'maxEm', 'avgEm', 'adpFm', 'maxFm', 'avgFm', 'wFm', 'mBA']

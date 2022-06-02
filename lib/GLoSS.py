@@ -32,11 +32,13 @@ class Transition:
         return ((dx - ex) > .5).float()
         
 class GLoSS(InSPyReNet):
-    def __init__(self, backbone, in_channels, depth=64, base_size=[384, 384], **kwargs):
+    def __init__(self, backbone, in_channels, depth=64, base_size=[384, 384], thresh=576, **kwargs):
         super(GLoSS, self).__init__(backbone, in_channels, depth, base_size, **kwargs)
         self.transition0 = Transition(17)
         self.transition1 = Transition(9)
         self.transition2 = Transition(5)
+        
+        self.thresh = thresh
         
     def cuda(self):
         super(GLoSS, self).cuda()
@@ -49,32 +51,35 @@ class GLoSS(InSPyReNet):
         x = sample['image']
         B, _, H, W = x.shape
 
-        # Global Saliency Pyramid & Reconstruction)
+        # Global Saliency Pyramid & Reconstruction
         sample['image'] = self.res(x, self.base_size)
         gout = super(GLoSS, self).forward(sample)
-        gd3, gd2, gd1, gd0 = gout['gaussian']
-        gp2, gp1, gp0 = gout['laplacian']
             
-        # Local Saliency Pyramid
-        sample['image'] = x
-        lout = super(GLoSS, self).forward(sample)
-        ld3, ld2, ld1, ld0 = lout['gaussian']
-        lp2, lp1, lp0 = lout['laplacian']
-        
-        # Local Saliency Pyramid Reconstruction
-        d3 = self.ret(gd0, ld3) 
-        
-        t2 = self.ret(self.transition2(d3), lp2)
-        p2 = t2 * lp2
-        d2 = self.pyr.rec(d3, p2)
-        
-        t1 = self.ret(self.transition1(d2), lp1)
-        p1 = t1 * lp1
-        d1 = self.pyr.rec(d2, p1)
-        
-        t0 = self.ret(self.transition0(d1), lp0)
-        p0 = t0 * lp0
-        d0 = self.pyr.rec(d1, p0)
+        if H < self.thresh or W < self.thresh:
+            d3, d2, d1, d0 = gout['gaussian']
+            p2, p1, p0 = gout['laplacian']
+        else:
+            _, _, _, gd0 = gout['gaussian']
+            # Local Saliency Pyramid
+            sample['image'] = x
+            lout = super(GLoSS, self).forward(sample)
+            ld3, _, _, _ = lout['gaussian']
+            lp2, lp1, lp0 = lout['laplacian']
+            
+            # Local Saliency Pyramid Reconstruction
+            d3 = self.ret(gd0, ld3) 
+            
+            t2 = self.ret(self.transition2(d3), lp2)
+            p2 = t2 * lp2
+            d2 = self.image_pyramid.reconstruct(d3, p2)
+            
+            t1 = self.ret(self.transition1(d2), lp1)
+            p1 = t1 * lp1
+            d1 = self.image_pyramid.reconstruct(d2, p1)
+            
+            t0 = self.ret(self.transition0(d1), lp0)
+            p0 = t0 * lp0
+            d0 = self.image_pyramid.reconstruct(d1, p0)
 
         pred = torch.sigmoid(d0)
         pred = (pred - pred.min()) / (pred.max() - pred.min() + 1e-8)

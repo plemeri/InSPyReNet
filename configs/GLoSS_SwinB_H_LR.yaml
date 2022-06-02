@@ -1,13 +1,15 @@
 Model:
-    name: "RAS_Res2Net50"
+    name: "GLoSS_SwinB"
     depth: 64
     pretrained: True
-    
+    base_size: [384, 384]
+    fix_scale: False
+
 Train:
     Dataset:
         type: "RGB_Dataset"
         root: "data/RGB_Dataset/Train_Dataset"
-        sets: ['DUTS-TR']
+        sets: ['DUTS-TR', 'HRSOD-TR']
         transforms:
             resize: 
                 size: [384, 384]
@@ -22,56 +24,56 @@ Train:
                 methods: ['contrast', 'sharpness', 'brightness']
             tonumpy: NULL
             normalize: 
-                mean: [0.488, 0.466, 0.404]
-                std: [0.222, 0.219, 0.225]
+                mean: [0.485, 0.456, 0.406]
+                std: [0.229, 0.224, 0.225]
             totensor: NULL
     Dataloader:
-        batch_size: 32
+        batch_size: 6
         shuffle: True
         num_workers: 8
         pin_memory: False
     Optimizer:
-        type: "SGD"
-        lr: 0.005
-        weight_decay: 5.0e-4
+        type: "Adam"
+        lr: 1.0e-05
+        weight_decay: 0.0
         mixed_precision: False
     Scheduler:
         type: "PolyLr"
-        epoch: 60
+        epoch: 100
         gamma: 0.9
         minimum_lr: 1.0e-07
         warmup_iteration: 12000
     Checkpoint:
         checkpoint_epoch: 1
-        checkpoint_dir: "snapshots/SotA/RAS_Res2Net50"
+        checkpoint_dir: "snapshots/GLoSS_SwinB_H_LR"
     Debug:
         keys: ['gaussian', 'laplacian']
     HyperTune:
         HyperParameter: ['Train', 'Optimizer', 'lr']
         Range: [1.0e-6, 2.4e-5, 24]
-
+    
 Test:
     Dataset:
         type: "RGB_Dataset"
         root: "data/RGB_Dataset/Test_Dataset"
-        sets: ['DUTS-TE', 'DUT-OMRON', 'ECSSD', 'HKU-IS', 'PASCAL-S',  'DAVIS-S', 'HRSOD', 'UHRSD-TE']
+        sets:  ['DAVIS-S', 'HRSOD', 'UHRSD-TE']
         transforms:
             resize:
-                size: [384, 384]
+                size: 1280 # [384, 384]
             tonumpy: NULL
             normalize: 
-                mean: [0.488, 0.466, 0.404]
-                std: [0.222, 0.219, 0.225]
+                mean: [0.485, 0.456, 0.406]
+                std: [0.229, 0.224, 0.225]
             totensor: NULL
     Dataloader:
         num_workers: 8
         pin_memory: True
     Checkpoint:
-        checkpoint_dir: "snapshots/SotA/RAS_Res2Net50"
+        checkpoint_dir: "snapshots/GLoSS_SwinB_H_LR"
 
 Eval:
     gt_root: "data/RGB_Dataset/Test_Dataset"
-    pred_root: "snapshots/SotA/RAS_Res2Net50"
-    result_path: "results"
-    datasets: ['DUTS-TE', 'DUT-OMRON', 'ECSSD', 'HKU-IS', 'PASCAL-S',  'DAVIS-S', 'HRSOD', 'UHRSD-TE']
+    pred_root: "snapshots/GLoSS_SwinB_H_LR"
+    result_path: "results/results/_mba"
+    datasets: ['DAVIS-S', 'HRSOD', 'UHRSD-TE']
     metrics: ['Sm', 'mae', 'adpEm', 'maxEm', 'avgEm', 'adpFm', 'maxFm', 'avgFm', 'wFm', 'mBA']

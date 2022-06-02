@@ -72,6 +72,6 @@ Test:
 Eval:
     gt_root: "data/RGB_Dataset/Test_Dataset"
     pred_root: "snapshots/SotA/RAS_GLoSS_SwinB"
-    result_path: "results"
+    result_path: "results/results_mba"
     datasets: ['DAVIS-S', 'HRSOD', 'UHRSD-TE']
     metrics: ['Sm', 'mae', 'adpEm', 'maxEm', 'avgEm', 'adpFm', 'maxFm', 'avgFm', 'wFm', 'mBA']

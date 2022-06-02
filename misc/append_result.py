@@ -21,12 +21,12 @@ if __name__ == "__main__":
     root = 'results'
     datasets = ['DUTS-TE', 'DUT-OMRON', 'ECSSD', 'HKU-IS', 'PASCAL-S']
     
-    # method = 'UCNet'
-    # append  =  {'DUTS-TE':   {'Sm': 0.888  , 'mae': 0.034 , 'adpEm': -np.inf , 'maxEm': -np.inf , 'avgEm': 0.927  , 'adpFm': -np.inf , 'maxFm': -np.inf , 'avgFm':  0.860  , 'wFm': -np.inf },
-    #             'DUT-OMRON': {'Sm': 0.839  , 'mae': 0.051 , 'adpEm': -np.inf , 'maxEm': -np.inf , 'avgEm': 0.869  , 'adpFm': -np.inf , 'maxFm': -np.inf , 'avgFm':  0.773  , 'wFm': -np.inf },
-    #             'ECSSD':     {'Sm': 0.921  , 'mae': 0.035 , 'adpEm': -np.inf , 'maxEm': -np.inf , 'avgEm': 0.947  , 'adpFm': -np.inf , 'maxFm': -np.inf , 'avgFm':  0.926  , 'wFm': -np.inf },
-    #             'HKU-IS':    {'Sm': 0.921  , 'mae': 0.026 , 'adpEm': -np.inf , 'maxEm': -np.inf , 'avgEm': 0.957  , 'adpFm': -np.inf , 'maxFm': -np.inf , 'avgFm':  0.919  , 'wFm': -np.inf },
-    #             'PASCAL-S':  {'Sm': -np.inf, 'mae': np.inf, 'adpEm': -np.inf , 'maxEm': -np.inf , 'avgEm': -np.inf, 'adpFm': -np.inf , 'maxFm': -np.inf , 'avgFm':  -np.inf, 'wFm': -np.inf }}
+    method = 'UCNet'
+    append  =  {'DUTS-TE':   {'Sm': 0.888  , 'mae': 0.034 , 'adpEm': -np.inf , 'maxEm': -np.inf , 'avgEm': 0.927  , 'adpFm': -np.inf , 'maxFm': -np.inf , 'avgFm':  0.860  , 'wFm': -np.inf },
+                'DUT-OMRON': {'Sm': 0.839  , 'mae': 0.051 , 'adpEm': -np.inf , 'maxEm': -np.inf , 'avgEm': 0.869  , 'adpFm': -np.inf , 'maxFm': -np.inf , 'avgFm':  0.773  , 'wFm': -np.inf },
+                'ECSSD':     {'Sm': 0.921  , 'mae': 0.035 , 'adpEm': -np.inf , 'maxEm': -np.inf , 'avgEm': 0.947  , 'adpFm': -np.inf , 'maxFm': -np.inf , 'avgFm':  0.926  , 'wFm': -np.inf },
+                'HKU-IS':    {'Sm': 0.921  , 'mae': 0.026 , 'adpEm': -np.inf , 'maxEm': -np.inf , 'avgEm': 0.957  , 'adpFm': -np.inf , 'maxFm': -np.inf , 'avgFm':  0.919  , 'wFm': -np.inf },
+                'PASCAL-S':  {'Sm': -np.inf, 'mae': np.inf, 'adpEm': -np.inf , 'maxEm': -np.inf , 'avgEm': -np.inf, 'adpFm': -np.inf , 'maxFm': -np.inf , 'avgFm':  -np.inf, 'wFm': -np.inf }}
 
     # method = 'ABiUNet'
     # append  =  {'DUTS-TE':   {'Sm': 0.904  , 'mae': 0.029 , 'adpEm': -np.inf , 'maxEm': -np.inf , 'avgEm': -np.inf, 'adpFm': -np.inf , 'maxFm': 0.906, 'avgFm':  0.860, 'wFm': -np.inf },

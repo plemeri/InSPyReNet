@@ -8,7 +8,7 @@ import numpy as np
 
 from torch.nn.parameter import Parameter
 from typing import Optional
-class Pyr:
+class ImagePyramid:
     def __init__(self, ksize=5, sigma=1, channels=1):
         self.ksize = ksize
         self.sigma = sigma
@@ -23,32 +23,34 @@ class Pyr:
         self.kernel = self.kernel.cuda()
         return self
 
-    def up(self, x):
+    def expand(self, x):
         z = torch.zeros_like(x)
         x = torch.cat([x, z, z, z], dim=1)
         x = F.pixel_shuffle(x, 2)
-        x = F.conv2d(x, self.kernel * 4, groups=self.channels, padding=self.ksize // 2)
+        x = F.pad(x, (self.ksize // 2, ) * 4, mode='reflect')
+        x = F.conv2d(x, self.kernel * 4, groups=self.channels)
         return x
 
-    def down(self, x):
-        x = F.conv2d(x, self.kernel, groups=self.channels, padding=self.ksize // 2)
+    def reduce(self, x):
+        x = F.pad(x, (self.ksize // 2, ) * 4, mode='reflect')
+        x = F.conv2d(x, self.kernel, groups=self.channels)
         return x[:, :, ::2, ::2]
 
-    def dec(self, x):
-        down = self.down(x)
-        up = self.up(down)
+    def deconstruct(self, x):
+        reduced_x = self.reduce(x)
+        expanded_reduced_x = self.expand(reduced_x)
 
-        if x.shape != up.shape:
-            up = F.interpolate(up, x.shape[-2:])
+        if x.shape != expanded_reduced_x.shape:
+            expanded_reduced_x = F.interpolate(expanded_reduced_x, x.shape[-2:])
 
-        lap = x - up
-        return down, lap
+        laplacian_x = x - expanded_reduced_x
+        return reduced_x, laplacian_x
 
-    def rec(self, down, lap):
-        down = self.up(down)
-        if lap.shape != down:
-            lap = F.interpolate(lap, down.shape[-2:], mode='bilinear', align_corners=True)
-        return down + lap
+    def reconstruct(self, x, laplacian_x):
+        expanded_x = self.expand(x)
+        if laplacian_x.shape != expanded_x:
+            laplacian_x = F.interpolate(laplacian_x, expanded_x.shape[-2:], mode='bilinear', align_corners=True)
+        return expanded_x + laplacian_x
 
 class conv(nn.Module):
     def __init__(self, in_channels, out_channels, kernel_size, stride=1, dilation=1, groups=1, padding='same', bias=False, bn=True, relu=False):

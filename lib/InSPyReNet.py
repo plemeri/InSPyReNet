@@ -41,10 +41,10 @@ class InSPyReNet(nn.Module):
         self.res = lambda x, size: F.interpolate(x, size=size, mode='bilinear', align_corners=False)
         self.des = lambda x, size: F.interpolate(x, size=size, mode='nearest')
         
-        self.pyr = Pyr(7, 1)
+        self.image_pyramid = ImagePyramid(7, 1)
         
     def cuda(self):
-        self.pyr = self.pyr.cuda()
+        self.image_pyramid = self.image_pyramid.cuda()
         self = super(InSPyReNet, self).cuda()
         return self
     
@@ -64,27 +64,27 @@ class InSPyReNet(nn.Module):
 
         f3 = self.res(f3, (H // 4,  W // 4 ))
         f2, p2 = self.attention2(torch.cat([x2, f3], dim=1), d3.detach())
-        d2 = self.pyr.rec(d3.detach(), p2) #4
+        d2 = self.image_pyramid.reconstruct(d3.detach(), p2) #4
 
         x1 = self.res(x1, (H // 2, W // 2))
         f2 = self.res(f2, (H // 2, W // 2))
         f1, p1 = self.attention1(torch.cat([x1, f2], dim=1), d2.detach(), p2.detach()) #2
-        d1 = self.pyr.rec(d2.detach(), p1) #2
+        d1 = self.image_pyramid.reconstruct(d2.detach(), p1) #2
         
         f1 = self.res(f1, (H, W))
         _, p0 = self.attention0(f1, d1.detach(), p1.detach()) #2
-        d0 = self.pyr.rec(d1.detach(), p0) #2
+        d0 = self.image_pyramid.reconstruct(d1.detach(), p0) #2
         
         if type(sample) == dict and 'gt' in sample.keys() and sample['gt'] is not None:
             y = sample['gt']
             
-            y1 = self.pyr.down(y)
-            y2 = self.pyr.down(y1)
-            y3 = self.pyr.down(y2)
+            y1 = self.image_pyramid.down(y)
+            y2 = self.image_pyramid.down(y1)
+            y3 = self.image_pyramid.down(y2)
 
-            ploss =  self.pc_loss_fn(self.des(d3, (H, W)), self.des(self.pyr.down(d2), (H, W)).detach()) * 0.0001
-            ploss += self.pc_loss_fn(self.des(d2, (H, W)), self.des(self.pyr.down(d1), (H, W)).detach()) * 0.0001
-            ploss += self.pc_loss_fn(self.des(d1, (H, W)), self.des(self.pyr.down(d0), (H, W)).detach()) * 0.0001
+            ploss =  self.pc_loss_fn(self.des(d3, (H, W)), self.des(self.image_pyramid.down(d2), (H, W)).detach()) * 0.0001
+            ploss += self.pc_loss_fn(self.des(d2, (H, W)), self.des(self.image_pyramid.down(d1), (H, W)).detach()) * 0.0001
+            ploss += self.pc_loss_fn(self.des(d1, (H, W)), self.des(self.image_pyramid.down(d0), (H, W)).detach()) * 0.0001
             
             closs =  self.sod_loss_fn(self.des(d3, (H, W)), self.des(y3, (H, W)))
             closs += self.sod_loss_fn(self.des(d2, (H, W)), self.des(y2, (H, W)))

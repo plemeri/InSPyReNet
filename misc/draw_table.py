@@ -4,34 +4,47 @@ import numpy as np
 
 root = 'results'
 # root = 'temp'
-# datasets = ['DUTS-TE', 'DUT-OMRON', 'ECSSD', 'HKU-IS', 'PASCAL-S']
-datasets = ['DAVIS-S', 'HRSOD', 'UHRSD-TE'] 
-metrics = {'Sm': 'max', 'maxEm': 'max', 'maxFm': 'max', 'mae': 'min', 'mBA': }
+
+datasets = ['DUTS-TE', 'DUT-OMRON', 'ECSSD', 'HKU-IS', 'PASCAL-S']
+# metrics = {'Sm': 'max', 'maxEm': 'max', 'maxFm': 'max', 'mae': 'min'}
+
+# datasets = ['DAVIS-S', 'HRSOD', 'UHRSD-TE'] 
+# metrics = {'Sm': 'max', 'maxEm': 'max', 'maxFm': 'max', 'mae': 'min', 'mBA': 'max'}
+
 # metrics = {'Sm': 'max', 'maxEm': 'max', 'avgEm': 'max', 'maxFm': 'max', 'avgFm': 'max', 'wFm': 'max', 'mae': 'min'}
 
-# metrics = {'Sm': 'max', 'maxFm': 'max', 'mae': 'min'}
+# datasets = ['DUTS-TE', 'DUT-OMRON']
+metrics = {'Sm': 'max', 'maxFm': 'max', 'mae': 'min'}
 
 fields={
- 'PoolNet':              {'name': 'PoolNet \cite{liu2019simple}                ', 'backbone': 'ResNet50'},   
- 'BASNet':               {'name': 'BASNet \cite{qin2019basnet}                 ', 'backbone': 'ResNet34'},   
- 'EGNet':                {'name': 'EGNet \cite{zhao2019egnet}                  ', 'backbone': 'ResNet50'},   
- 'CPD':                  {'name': 'CPD \cite{wu2019cascaded}                   ', 'backbone': 'ResNet50'},   
- 'GateNet':              {'name': 'GateNet \cite{zhao2020suppress}             ', 'backbone': 'ResNeXt101'}, 
-#  'UCNet':                {'name': 'UCNet$^\dagger$ \cite{zhang2021uncertainty} ', 'backbone': 'ResNet50'},   
+#  'PoolNet':              {'name': 'PoolNet \cite{liu2019simple}                ', 'backbone': 'ResNet50'},   
+#  'BASNet':               {'name': 'BASNet \cite{qin2019basnet}                 ', 'backbone': 'ResNet34'},   
+#  'EGNet':                {'name': 'EGNet \cite{zhao2019egnet}                  ', 'backbone': 'ResNet50'},   
+#  'CPD':                  {'name': 'CPD \cite{wu2019cascaded}                   ', 'backbone': 'ResNet50'},   
+#  'GateNet':              {'name': 'GateNet \cite{zhao2020suppress}             ', 'backbone': 'ResNeXt101'}, 
 
- 'PA_KRN_Res2Net50':     {'name': 'PA-KRN \cite{xu2021locate}                  ', 'backbone': 'Res2Net50'},   
- 'LDF_Res2Net50':        {'name': 'LDF \cite{wei2020label}                     ', 'backbone': 'Res2Net50'},  
- 'F3Net_Res2Net50':      {'name': 'F$^3$Net \cite{wei2020f3net}                ', 'backbone': 'Res2Net50'}, 
- 'MINet_Res2Net50':      {'name': 'MINet \cite{pang2020multi}                  ', 'backbone': 'Res2Net50'},
- 'InSPyReNet_Res2Net50': {'name': 'Ours                                        ', 'backbone': 'Res2Net50'},  
+#  'RAS_Res2Net50':        {'name': '$^\dagger$RAS \cite{chen2018reverse}        ', 'backbone': 'Res2Net50'},   
+#  'F3Net_Res2Net50':      {'name': '$^\dagger$F$^3$Net \cite{wei2020f3net}      ', 'backbone': 'Res2Net50'}, 
+#  'LDF_Res2Net50':        {'name': '$^\dagger$LDF \cite{wei2020label}           ', 'backbone': 'Res2Net50'},  
+#  'MINet_Res2Net50':      {'name': '$^\dagger$MINet \cite{pang2020multi}        ', 'backbone': 'Res2Net50'},
+#  'PA_KRN_Res2Net50':     {'name': '$^\dagger$PA-KRN \cite{xu2021locate}        ', 'backbone': 'Res2Net50'},   
+#  'InSPyReNet_Res2Net50': {'name': '\textit{Ours}                               ', 'backbone': 'Res2Net50'},  
  
-#  'VST':                  {'name': 'VST \cite{liu2021visual}                    ', 'backbone': 'T2T-ViT-14'}, 
-#  'TTSOD':                {'name': 'TTSOD \cite{mao2021transformer}             ', 'backbone': 'SwinB$^*$'},
-#  'PA_KRN_SwinB':         {'name': 'PA-KRN \cite{xu2021locate}                  ', 'backbone': 'SwinB$^*$'},   
-#  'LDF_SwinB':            {'name': 'LDF \cite{wei2020label}                     ', 'backbone': 'SwinB$^*$'},  
-#  'F3Net_SwinB':          {'name': 'F$^3$Net \cite{wei2020f3net}                ', 'backbone': 'SwinB$^*$'}, 
-#  'MINet_SwinB':          {'name': 'MINet \cite{pang2020multi}                  ', 'backbone': 'SwinB$^*$'},
-#  'InSPyReNet_SwinB':     {'name': 'Ours                                        ', 'backbone': 'SwinB$^*$'}
+ 'VST':                  {'name': 'VST \cite{liu2021visual}                    ', 'backbone': 'T2T-ViT-14'}, 
+ 'TTSOD':                {'name': 'TTSOD \cite{mao2021transformer}             ', 'backbone': 'SwinB$^*$'},
+ 'RAS_SwinB':            {'name': '$^\dagger$RAS \cite{chen2018reverse}        ', 'backbone': 'SwinB$^*$'},  
+ 'F3Net_SwinB':          {'name': '$^\dagger$F$^3$Net \cite{wei2020f3net}      ', 'backbone': 'SwinB$^*$'}, 
+ 'LDF_SwinB':            {'name': '$^\dagger$LDF \cite{wei2020label}           ', 'backbone': 'SwinB$^*$'},  
+ 'MINet_SwinB':          {'name': '$^\dagger$MINet \cite{pang2020multi}        ', 'backbone': 'SwinB$^*$'},
+ 'PA_KRN_SwinB':         {'name': '$^\dagger$PA-KRN \cite{xu2021locate}        ', 'backbone': 'SwinB$^*$'},   
+ 'InSPyReNet_SwinB':     {'name': '\textit{Ours}                               ', 'backbone': 'SwinB$^*$'}
+#  'HRSOD':     {'name': 'Ours                                        ', 'backbone': 'SwinB$^*$'},
+#  'DHQSOD':     {'name': 'Ours                                        ', 'backbone': 'SwinB$^*$'},
+#  'PGNet':     {'name': 'Ours                                        ', 'backbone': 'SwinB$^*$'},
+#  'PGNet_H':     {'name': 'Ours                                        ', 'backbone': 'SwinB$^*$'},
+#  'PGNet_HU':     {'name': 'Ours                                        ', 'backbone': 'SwinB$^*$'},
+#  'RAS_SwinB':     {'name': 'Ours                                        ', 'backbone': 'SwinB$^*$'},
+#  'InSPyReNet_SwinB_HU_LR':     {'name': 'Ours                                        ', 'backbone': 'SwinB$^*$'},
  }
 
 
@@ -71,14 +84,13 @@ for i, ent in enumerate(tab.iterrows()):
             order = tab.to_numpy()[:, j].round(rv)
             rank = np.sort(np.unique(order))[::-1]
             
+        color = None
         if order[i] == rank[0]:
             color = 'red'
         elif order[i] == rank[1]:
             color = 'blue'
         # elif order[i] == rank[2]:
         #     color = 'green'
-        else:
-            color = None
             
         if value == np.inf or value == -np.inf:
             value = '-'

@@ -36,16 +36,16 @@ class InSPyReNetv2(nn.Module):
         # self.attention2 = simple_attention(self.depth * 2, self.depth)
 
         self.loss_fn = lambda x, y: weighted_tversky_bce_loss(x, y, alpha=0.2, beta=0.8, gamma=2)
-        self.pyramid_loss_fn = nn.MSELoss() #lambda x, y: weighted_tversky_bce_lossv2(x, y, alpha=0.2, beta=0.8, gamma=2)
+        self.image_pyramidamid_loss_fn = nn.MSELoss() #lambda x, y: weighted_tversky_bce_lossv2(x, y, alpha=0.2, beta=0.8, gamma=2)
 
         self.ret = lambda x, target: F.interpolate(x, size=target.shape[-2:], mode='bilinear', align_corners=False)
         self.res = lambda x, size: F.interpolate(x, size=size, mode='bilinear', align_corners=False)
         self.des = lambda x, size: F.interpolate(x, size=size, mode='nearest')
         
-        self.pyr = Pyr(7, 1)
+        self.image_pyramid = ImagePyramid(7, 1)
         
     def cuda(self):
-        self.pyr = self.pyr.cuda()
+        self.image_pyramid = self.image_pyramid.cuda()
         self = super(InSPyReNetv2, self).cuda()
         return self
     
@@ -70,32 +70,32 @@ class InSPyReNetv2(nn.Module):
         f3 = self.res(f3, (H // 4,  W // 4 ))
         f2, p2 = self.attention2(torch.cat([x2, f3], dim=1), d3.detach())
         p2 = torch.tanh(p2)
-        d2 = self.pyr.rec(d3.detach(), p2) #4
+        d2 = self.image_pyramid.reconstruct(d3.detach(), p2) #4
 
         x1 = self.res(x1, (H // 2, W // 2))
         f2 = self.res(f2, (H // 2, W // 2))
         f1, p1 = self.attention1(torch.cat([x1, f2], dim=1), d2.detach())#, p2.detach()) #2
         p1 = torch.tanh(p1)
         
-        d1 = self.pyr.rec(d2.detach(), p1) #2
+        d1 = self.image_pyramid.reconstruct(d2.detach(), p1) #2
         
         f1 = self.res(f1, (H, W))
         _, p0 = self.attention0(f1, d1.detach())#, p1.detach()) #2
         p0 = torch.tanh(p0)
-        d0 = self.pyr.rec(d1.detach(), p0) #2
+        d0 = self.image_pyramid.reconstruct(d1.detach(), p0) #2
         
         print(p2.min(), p1.min(), p0.min())
         
         if type(sample) == dict and 'gt' in sample.keys() and sample['gt'] is not None:
             y = sample['gt']
             
-            y1, yp0 = self.pyr.dec(y)
-            y2, yp1 = self.pyr.dec(y1)
-            y3, yp2 = self.pyr.dec(y2)
+            y1, yp0 = self.image_pyramid.deconstruct(y)
+            y2, yp1 = self.image_pyramid.deconstruct(y1)
+            y3, yp2 = self.image_pyramid.deconstruct(y2)
             
-            ploss =  self.pyramid_loss_fn(self.des(p2, (H, W)), self.des(yp2, (H, W)))
-            ploss += self.pyramid_loss_fn(self.des(p1, (H, W)), self.des(yp1, (H, W)))
-            ploss += self.pyramid_loss_fn(self.des(p0, (H, W)), self.des(yp0, (H, W)))
+            ploss =  self.image_pyramidamid_loss_fn(self.des(p2, (H, W)), self.des(yp2, (H, W)))
+            ploss += self.image_pyramidamid_loss_fn(self.des(p1, (H, W)), self.des(yp1, (H, W)))
+            ploss += self.image_pyramidamid_loss_fn(self.des(p0, (H, W)), self.des(yp0, (H, W)))
             
             closs = self.loss_fn(self.des(d3, (H, W)), self.des(y3, (H, W)))
             

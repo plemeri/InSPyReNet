@@ -25,7 +25,7 @@ class InSPyReNet_MS(nn.Module):
         self.res = lambda x, size: F.interpolate(x, size=size, mode='bilinear', align_corners=False)
         self.des = lambda x, size: F.interpolate(x, size=size, mode='nearest')
         
-        self.pyr = self.model.pyr
+        self.image_pyramid = self.model.pyr
         
     def forward(self, sample):
         if type(sample) == dict:
@@ -53,14 +53,14 @@ class InSPyReNet_MS(nn.Module):
         
         # p2 = torch.gather(torch.cat([self.res(i, (H // 4, W // 4)) for i in out_l[0]], dim=0), 0, F.pixel_shuffle(torch.cat([i3] * 4, dim=1), 2))
         # d2, i2 = torch.max(torch.cat([self.res(i, (H // 4, W // 4)) for i in out_g[1]], dim=0), dim=0, keepdim=True)
-        # d2 = self.pyr.rec(d3.detach(), p2)
+        # d2 = self.image_pyramid.reconstruct(d3.detach(), p2)
         
         # p1 = torch.gather(torch.cat([self.res(i, (H // 2, W // 2)) for i in out_l[1]], dim=0), 0, F.pixel_shuffle(torch.cat([i2] * 4, dim=1), 2))
         # d1, i1 = torch.max(torch.cat([self.res(i, (H // 2, W // 2)) for i in out_g[2]], dim=0), dim=0, keepdim=True)
-        # d1 = self.pyr.rec(d2.detach(), p1)
+        # d1 = self.image_pyramid.reconstruct(d2.detach(), p1)
         
         # p0 = torch.gather(torch.cat([self.res(i,  (H, W)) for i in out_l[2]], dim=0), 0, F.pixel_shuffle(torch.cat([i1] * 4, dim=1), 2))
-        # d0 = self.pyr.rec(d1.detach(), p0)
+        # d0 = self.image_pyramid.reconstruct(d1.detach(), p0)
         
         # print(d3.shape, d2.shape, d1.shape, d0.shape)
         

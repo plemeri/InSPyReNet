@@ -173,7 +173,7 @@ def train(opt, args):
                 torch.save(state_ckpt, os.path.join(opt.Train.Checkpoint.checkpoint_dir,  'state.pth'))
                 
             if args.debug is True:
-                debout = debug_tile(sum([out[k] for k in opt.Train.Debug.keys], []), activation=torch.sigmoid)
+                debout = debug_tile(sum([list(out[k]) for k in opt.Train.Debug.keys], []), activation=torch.sigmoid)
                 cv2.imwrite(os.path.join(opt.Train.Checkpoint.checkpoint_dir, 'debug', str(epoch) + '.png'), debout)
 
     if args.local_rank <= 0:

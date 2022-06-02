@@ -208,9 +208,10 @@ class RAS(nn.Module):
             loss = 0
 
         sample['pred'] = pred
+        sample['loss'] = loss
         # sample['aux'] = [score3, score4, score5]
-        sample['gaussian'] = z5, z4, z3, z2
-        sample['laplacian'] = y4, y3, y2
+        sample['gaussian'] = [z5, z4, z3, z2]
+        sample['laplacian'] = [y4, y3, y2]
         return sample
 
     # def initialize(self):

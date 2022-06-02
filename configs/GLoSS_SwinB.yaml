@@ -3,6 +3,7 @@ Model:
     depth: 64
     pretrained: True
     base_size: [384, 384]
+    thresh: 512
 
 Train:
     Dataset:

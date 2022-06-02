@@ -55,52 +55,41 @@ class simple_attention(nn.Module):
 
         return x, out
     
-class Attn(nn.Module):
-    def __init__(self, in_channel, channel, head=True, base_size=None, stage=None):
-        super(Attn, self).__init__()
-        self.in_channel = in_channel
+class UACA(nn.Module):
+    def __init__(self, in_channel, channel):
+        super(UACA, self).__init__()
         self.channel = channel
-        self.head = head
-        if base_size is not None and stage is not None:
-            self.stage_size = (base_size[0] // (2 ** stage), base_size[1] // (2 ** stage))
-        else:
-            self.stage_size = None
-        
+
         self.conv_query = nn.Sequential(conv(in_channel, channel, 3, relu=True),
                                         conv(channel, channel, 3, relu=True))
-        self.conv_key   = nn.Sequential(conv(in_channel, channel, 1, relu=True),
-                                        conv(channel, channel, 1, relu=True))
+        self.conv_key = nn.Sequential(conv(in_channel, channel, 1, relu=True),
+                                      conv(channel, channel, 1, relu=True))
         self.conv_value = nn.Sequential(conv(in_channel, channel, 1, relu=True),
                                         conv(channel, channel, 1, relu=True))
 
         self.conv_out1 = conv(channel, channel, 3, relu=True)
         self.conv_out2 = conv(in_channel + channel, channel, 3, relu=True)
-        
-        if self.head is True:
-            self.conv_out3 = conv(channel, channel, 3, relu=True)
-            self.conv_out4 = conv(channel, 1, 1)
+        self.conv_out3 = conv(channel, channel, 3, relu=True)
+        self.conv_out4 = conv(channel, 1, 1)
 
-    def forward(self, x, smap):
+    def forward(self, x, map):
         b, c, h, w = x.shape
         
         # compute class probability
-        smap = F.interpolate(smap, size=x.shape[-2:], mode='bilinear', align_corners=False)
-        if smap.min() < 0:
-            prob = [torch.clip(smap, 0, 1), -torch.clip(smap, 0, 1)]
-        else:
-            prob = [smap, 1 - smap]
-        prob = torch.cat(prob, dim=1)
+        map = F.interpolate(map, size=x.shape[-2:], mode='bilinear', align_corners=False)
+        fg = torch.sigmoid(map)
+        
+        p = fg - .5
+
+        fg = torch.clip(p, 0, 1) # foreground
+        bg = torch.clip(-p, 0, 1) # background
+        cg = .5 - torch.abs(p) # confusion area
+
+        prob = torch.cat([fg, bg, cg], dim=1)
 
         # reshape feature & prob
-        if self.stage_size is not None:
-            shape = self.stage_size
-            shape_mul = self.stage_size[0] * self.stage_size[1]
-        else:
-            shape = (h, w)
-            shape_mul = h * w           
-        
-        f = F.interpolate(x, size=shape, mode='bilinear', align_corners=False).view(b, shape_mul, -1)
-        prob = F.interpolate(prob, size=shape, mode='bilinear', align_corners=False).view(b, 2, shape_mul)
+        f = x.view(b, h * w, -1)
+        prob = prob.view(b, 3, h * w)
         
         # compute context vector
         context = torch.bmm(prob, f).permute(0, 2, 1).unsqueeze(3) # b, 3, c
@@ -118,17 +107,13 @@ class Attn(nn.Module):
         # compute refined feature
         context = torch.bmm(sim, value).permute(0, 2, 1).contiguous().view(b, -1, h, w)
         context = self.conv_out1(context)
-        
+
         x = torch.cat([x, context], dim=1)
         x = self.conv_out2(x)
-        if self.head is True:
-            x = self.conv_out3(x)
-            out = self.conv_out4(x)
-        else:
-            out = None
-
+        x = self.conv_out3(x)
+        out = self.conv_out4(x)
+        
         return x, out
-
 class SICA(nn.Module):
     def __init__(self, in_channel, out_channel=1, depth=64, base_size=None, stage=None, lmap_in=False):
         super(SICA, self).__init__()

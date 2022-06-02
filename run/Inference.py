@@ -131,6 +131,9 @@ def inference(opt, args):
         
         if args.type == 'map':
             img = (np.stack([pred] * 3, axis=-1) * 255).astype(np.uint8)
+        if args.type == 'jet':
+            img = cv2.applyColorMap((pred * 255).astype(np.uint8), cv2.COLORMAP_JET)
+            # img = (np.stack([pred] * 3, axis=-1) * 255).astype(np.uint8)    
         elif args.type == 'rgba':
             r, g, b = cv2.split(img)
             pred = (pred * 255).astype(np.uint8)

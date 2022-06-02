@@ -16,10 +16,10 @@ class PPM(nn.Module):
         self.res = lambda x, size: F.interpolate(x, size=size, mode='bilinear', align_corners=False)
         self.des = lambda x, size: F.interpolate(x, size=size, mode='nearest')
         
-        self.pyr = Pyr(7, 1)
+        self.image_pyramid = ImagePyramid(7, 1)
         
     def cuda(self):
-        self.pyr = self.pyr.cuda()
+        self.image_pyramid = self.image_pyramid.cuda()
         self.model = self.model.cuda()
         self = super(PPM, self).cuda()
         return self
@@ -40,14 +40,14 @@ class PPM(nn.Module):
         
         _, i2  = unpatch(pd2, (b, 1, h // 4, w // 4), patch_size // 4, stride // 4)
         p2, _  = unpatch(pp2, (b, 1, h // 4, w // 4), patch_size // 4, stride // 4, indice_map = F.pixel_shuffle(torch.cat([i3] * 4, dim=1), 2))
-        d2 = self.pyr.rec(d3.detach(), p2)
+        d2 = self.image_pyramid.reconstruct(d3.detach(), p2)
         
         _, i1  = unpatch(pd1, (b, 1, h // 2, w // 2), patch_size // 2, stride // 2)
         p1, _  = unpatch(pp1, (b, 1, h // 2, w // 2), patch_size // 2, stride // 2, indice_map = F.pixel_shuffle(torch.cat([i2] * 4, dim=1), 2))
-        d1 = self.pyr.rec(d2.detach(), p1)
+        d1 = self.image_pyramid.reconstruct(d2.detach(), p1)
         
         p0, _  = unpatch(pp0, (b, 1, h     , w     ), patch_size, stride, indice_map = F.pixel_shuffle(torch.cat([i1] * 4, dim=1), 2))
-        d0 =  self.pyr.rec(d1.detach(), p0)
+        d0 =  self.image_pyramid.reconstruct(d1.detach(), p0)
         
         pred = torch.sigmoid(d0)
         pred = (pred - pred.min()) / (pred.max() - pred.min() + 1e-8)

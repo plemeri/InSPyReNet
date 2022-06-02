@@ -46,13 +46,13 @@ class InSPyReNetV2(nn.Module):
         self.attention4 = SIOC(self.in_channels[3], 1, depth=self.depth, base_size=self.base_size, stage=3)
 
         self.loss_fn = lambda x, y: weighted_bce_loss_with_logits(x, y, reduction='mean') + focal_tversky_loss_with_logits(x, y, alpha=0.2, beta=0.8, gamma=2, reduction='mean')
-        self.pyramidal_consistency_loss_fn = nn.L1Loss()
+        self.image_pyramidamidal_consistency_loss_fn = nn.L1Loss()
 
         self.ret = lambda x, target: F.interpolate(x, size=target.shape[-2:], mode='bilinear', align_corners=False)
         self.res = lambda x, size: F.interpolate(x, size=size, mode='bilinear', align_corners=False)
         self.des = lambda x, size: F.interpolate(x, size=size, mode='nearest')
         
-        self.pyr = Pyr(7, 1)
+        self.image_pyramid = ImagePyramid(7, 1)
         
         self.transition1 = Transition(31)
         self.transition2 = Transition(17)
@@ -60,7 +60,7 @@ class InSPyReNetV2(nn.Module):
         self.transition4 = Transition(5)
         
     def cuda(self):
-        self.pyr.cuda()
+        self.image_pyramid.cuda()
         self.transition1.cuda()
         self.transition2.cuda()
         self.transition3.cuda()
@@ -77,33 +77,33 @@ class InSPyReNetV2(nn.Module):
         d5 = self.decoder(x5) #32
 
         p4 = self.attention4(x4, d5.detach())
-        d4 = self.pyr.rec(d5.detach(), p4) #16
+        d4 = self.image_pyramid.reconstruct(d5.detach(), p4) #16
 
         p3 = self.attention3(x3, d4.detach())
-        d3 = self.pyr.rec(d4.detach(), p3) #8
+        d3 = self.image_pyramid.reconstruct(d4.detach(), p3) #8
 
         p2 = self.attention2(x2, d3.detach())
-        d2 = self.pyr.rec(d3.detach(), p2) #4
+        d2 = self.image_pyramid.reconstruct(d3.detach(), p2) #4
 
         x1 = self.res(x1, (H // 2, W // 2))
         p1 = self.attention1(x1, d2.detach())
-        d1 = self.pyr.rec(d2.detach(), p1) #4
+        d1 = self.image_pyramid.reconstruct(d2.detach(), p1) #4
         
         d0 = self.res(d1, (H, W))
         
         if type(sample) == dict and 'gt' in sample.keys() and sample['gt'] is not None:
             y = sample['gt']
             
-            y1 = self.pyr.down(y)
-            y2 = self.pyr.down(y1)
-            y3 = self.pyr.down(y2)
-            y4 = self.pyr.down(y3)
-            y5 = self.pyr.down(y4)
+            y1 = self.image_pyramid.down(y)
+            y2 = self.image_pyramid.down(y1)
+            y3 = self.image_pyramid.down(y2)
+            y4 = self.image_pyramid.down(y3)
+            y5 = self.image_pyramid.down(y4)
 
-            ploss =  self.pyramidal_consistency_loss_fn(self.des(d5, (H, W)), self.des(self.pyr.down(d4), (H, W)).detach()) * 0.0001
-            ploss += self.pyramidal_consistency_loss_fn(self.des(d4, (H, W)), self.des(self.pyr.down(d3), (H, W)).detach()) * 0.0001
-            ploss += self.pyramidal_consistency_loss_fn(self.des(d3, (H, W)), self.des(self.pyr.down(d2), (H, W)).detach()) * 0.0001
-            ploss += self.pyramidal_consistency_loss_fn(self.des(d2, (H, W)), self.des(self.pyr.down(d1), (H, W)).detach()) * 0.0001
+            ploss =  self.image_pyramidamidal_consistency_loss_fn(self.des(d5, (H, W)), self.des(self.image_pyramid.down(d4), (H, W)).detach()) * 0.0001
+            ploss += self.image_pyramidamidal_consistency_loss_fn(self.des(d4, (H, W)), self.des(self.image_pyramid.down(d3), (H, W)).detach()) * 0.0001
+            ploss += self.image_pyramidamidal_consistency_loss_fn(self.des(d3, (H, W)), self.des(self.image_pyramid.down(d2), (H, W)).detach()) * 0.0001
+            ploss += self.image_pyramidamidal_consistency_loss_fn(self.des(d2, (H, W)), self.des(self.image_pyramid.down(d1), (H, W)).detach()) * 0.0001
             
             closs =   self.loss_fn(self.des(d5, (H, W)), self.des(y5, (H, W)))
             closs +=  self.loss_fn(self.des(d4, (H, W)), self.des(y4, (H, W)))
