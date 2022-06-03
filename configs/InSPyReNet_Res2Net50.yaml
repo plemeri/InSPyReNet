@@ -3,9 +3,7 @@ Model:
     depth: 64
     pretrained: True
     base_size: [384, 384]
-PM:
-    patch_size: 384
-    stride: 192
+    threshold: NULL
 
 Train:
     Dataset:
@@ -49,7 +47,7 @@ Train:
         checkpoint_epoch: 1
         checkpoint_dir: "snapshots/InSPyReNet_Res2Net50"
     Debug:
-        keys: ['gaussian', 'laplacian']
+        keys: ['saliency', 'laplacian']
     HyperTune:
         HyperParameter: ['Train', 'Optimizer', 'lr']
         Range: [1.0e-6, 2.4e-5, 24]

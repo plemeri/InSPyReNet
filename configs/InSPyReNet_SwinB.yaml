@@ -3,7 +3,7 @@ Model:
     depth: 64
     pretrained: True
     base_size: [384, 384]
-    fix_scale: False
+    threshold: 512
 
 Train:
     Dataset:
@@ -11,7 +11,7 @@ Train:
         root: "data/RGB_Dataset/Train_Dataset"
         sets: ['DUTS-TR']
         transforms:
-            resize: 
+            fixed_resize: 
                 size: [384, 384]
             random_scale_crop:
                 range: [0.75, 1.25]
@@ -47,7 +47,7 @@ Train:
         checkpoint_epoch: 1
         checkpoint_dir: "snapshots/InSPyReNet_SwinB"
     Debug:
-        keys: ['gaussian', 'laplacian']
+        keys: ['saliency', 'laplacian']
     HyperTune:
         HyperParameter: ['Train', 'Optimizer', 'lr']
         Range: [1.0e-6, 2.4e-5, 24]
@@ -56,10 +56,10 @@ Test:
     Dataset:
         type: "RGB_Dataset"
         root: "data/RGB_Dataset/Test_Dataset"
-        sets:  ['DUTS-TE', 'DUT-OMRON', 'ECSSD', 'HKU-IS', 'PASCAL-S',  'DAVIS-S', 'HRSOD', 'UHRSD-TE']
+        sets:  ['DUTS-TE', 'DUT-OMRON', 'ECSSD', 'HKU-IS', 'PASCAL-S', 'DAVIS-S', 'HRSOD-TE', 'UHRSD-TE']
         transforms:
-            resize:
-                size: [384, 384]
+            dynamic_resize:
+                L: 1280
             tonumpy: NULL
             normalize: 
                 mean: [0.485, 0.456, 0.406]
@@ -75,5 +75,5 @@ Eval:
     gt_root: "data/RGB_Dataset/Test_Dataset"
     pred_root: "snapshots/InSPyReNet_SwinB"
     result_path: "results"
-    datasets: ['DUTS-TE', 'DUT-OMRON', 'ECSSD', 'HKU-IS', 'PASCAL-S',  'DAVIS-S', 'HRSOD', 'UHRSD-TE']
+    datasets: ['DUTS-TE', 'DUT-OMRON', 'ECSSD', 'HKU-IS', 'PASCAL-S', 'DAVIS-S', 'HRSOD-TE', 'UHRSD-TE']
     metrics: ['Sm', 'mae', 'adpEm', 'maxEm', 'avgEm', 'adpFm', 'maxFm', 'avgFm', 'wFm', 'mBA']

@@ -1,25 +1,20 @@
-# InSPyReNet: Inverse Saliency Pyramid Reconstruction Network for Salient Object Detection
-<p align="center">
+# Revisiting Image Pyramid Structure for High Resolution Salient Object Detection (InSPyReNet)
 
-  <img src="./figures/Title.png" alt="Logo" width="200" height="auto">
-
-</p>
-<p align="center">
-
-  <img src="./figures/figure1.png" alt="Logo" width="300" height="auto">
-
-</p>
-PyTorch implementation of InSPyReNet: Inverse Saliency Pyramid Reconstruction Network for Salient Object Detection
-
-
+PyTorch implementation of Revisiting Image Pyramid Structure for High Resolution Salient Object Detection (InSPyReNet)
 
 ## Abstract
 
-Salient object detection (SOD) requires multi-scale features from intermediate backbone feature maps and carefully designed feature aggregation modules to obtain detailed saliency prediction. High-level feature maps from the backbone have high-level semantic information while lack of high frequency details like sharp edges or contours of salient objects. On the other hand, low-level feature maps from the backbone have high frequency details while lack of semantic information for accurate saliency score prediction. Rather than combining feature maps of multiple scales, we separately use them to predict the saliency map at their maximum capabilities of spatial dimension and high frequency details. Inspired by image pyramid, we propose Inverse Saliency Pyramid Reconstruction Network (InSPyReNet), a coarse to fine SOD network with Laplacian pyramid on each scale of saliency map to reconstruct a saliency map to the input image size. While image pyramids can only be constructed from the largest image to smaller scales, our method explicitly estimates Laplacian saliency map from the smallest scale and reconstructs to the larger scales. Our extensive evaluation on five public SOD benchmarks demonstrates our method surpasses the state-of-the-art performance on various SOD metrics.
+  Salient object detection (SOD) has been in the spotlight recently, yet has been studied less for high-resolution (HR) images. 
+  Unfortunately, HR images and their pixel-level annotations are certainly more labor-intensive and time-consuming compared to low-resolution (LR) images.
+  Therefore, we propose an image pyramid-based SOD framework, Inverse Saliency Pyramid Reconstruction Network (InSPyReNet), for HR prediction without any of HR datasets.
+  We design InSPyReNet to produce a strict image pyramid structure of saliency map, which enables to ensemble multiple results with pyramid-based image blending.
+  For HR prediction, we design a pyramid blending method which synthesizes two different image pyramids from a pair of LR and HR scale from the same image to overcome effective receptive field (ERF) discrepancy. Our extensive evaluation on public LR and HR SOD benchmarks demonstrates that InSPyReNet surpasses the State-of-the-Art (SotA) methods on various SOD metrics and boundary accuracy.
 
 ## Architecture
 
-![Teaser](./figures/figure2.png)
+InSPyReNet                 |  pyramid blending
+:-------------------------:|:-------------------------:
+![](./figures/fig_architecture.png)  |  ![](./figures/fig_pyramid_blending.png)
 
 ## 1. Create environment
   + Create conda environment with following command `conda create -y -n inspyrenet python=3.8`
@@ -27,113 +22,40 @@ Salient object detection (SOD) requires multi-scale features from intermediate b
   + Install requirements with following command `pip install -r requirements.txt`
   
 ## 2. Preparation
-  + Use following command to automatically download datasets and checkpoints with following command `sh install.sh`. There'll be prompts for downloading datasets, backbone checkpoints, pre-trained models, SotA results, and auto-install conda environments. 
-  + Instead, you can download them manually.
-    + Download datasets from following [URL](https://drive.google.com/file/d/1kVR8uvjFFqR4Tx3v8XFH6Qp7ugdnBLiG/view?usp=sharing)
-    + Download ImageNet pre-trained backbone checkpoints from following [URL](https://drive.google.com/file/d/1ZtBmUskX5Jmcr1ltlmfJCnwJ7JxjXG4i/view?usp=sharing)
-    + Move folder `data` to the repository.
-    + Folder should be ordered as follows,
+  * Download training datasets: `data/RGB_Dataset/Train_Dataset/...`
+  * Download ImageNet pre-trained checkpoints: `data/backbone_ckpt/...`
+  * Train with extra training datasets (HRSOD, UHRSD):
   ```
-  .
-  ├── configs
-  │   ├── ...
-  │   ├── InSPyReNet_SwinT.yaml
-  │   └── SotA
-  ├── data
-  │   ├── backbone_ckpt
-  │   │   ├── ...
-  │   │   └── swin_tiny_patch4_window7_224.pth
-  │   ├── custom_transforms.py
-  │   ├── dataloader.py
-  │   └── RGB_Dataset
-  │       ├── Test_Dataset                       
-  │       └── Train_Dataset
-  ├── Expr.py
-  ├── Exprs.py
-  ├── figures
-  │   ├── ...
-  │   └── table.png
-  ├── install.sh
-  ├── lib
-  │   ├── backbones
-  │   ├── __init__.py
-  │   ├── PPM.py
-  │   ├── SPM.py
-  │   ├── InSPyReNet.py
-  │   ├── modules
-  │   ├── optim
-  │   └── SotA
-  ├── LICENSE
-  ├── README.md
-  ├── requirements.txt
-  ├── results
-  │   ├── ...
-  │   └── result_PASCAL-S.pkl
-  ├── run
-  │   ├── Eval.py
-  │   ├── Inference.py
-  │   ├── __init__.py
-  │   ├── Test.py
-  │   └── Train.py
-  ├── snapshots
-  │   ├── I...
-  │   ├── InSPyReNet_SwinT
-  │   └── SotA
-  └── utils
-      ├── benchmark.py
-      ├── eval_functions.py
-      ├── __init__.py
-      ├── install_script.py
-      └── misc.py
+  Train:
+    Dataset:
+        type: "RGB_Dataset"
+        root: "data/RGB_Dataset/Train_Dataset"
+        sets: ['DUTS-TR'] --> ['DUTS-TR', 'HRSOD-TR-LR', 'UHRSD-TR-LR']
   ```
 
 ## 3. Train & Evaluate
-  + You can train with `python run/Train.py --config configs/InSPyReNet_SwinB.yaml --verbose`
-  + You can generate prediction for test dataset with `python run/Test.py --config configs/InSPyReNet_SwinB.yaml --verbose`
-  + You can evaluate generated prediction with `python run/Eval.py --config configs/InSPyReNet_SwinB.yaml --verbose`. The results will be saved in `results/results_[DATASET].csv`.
-  + You can also use `python Expr.py --config configs/InSPyReNet_SwinB.yaml --verbose` to train, generate prediction and evaluation in single command
-  
-  + (optional) Download our best result checkpoints and pre-computed saliency maps from following [URL](https://drive.google.com/file/d/1iD4ekldcivjMJ3gcenW3_kit7TCTMg_S/view?usp=sharing). Locate pth files following above file location. If you use `install.sh`, then you don't need to download them manually.
-  + (optional) You can download pre-computed saliency maps from other methods and evaluate with our evaluation code. We have created some of SotA models' yaml file in `configs/SotA` folder. We also provide pre-computed saliency maps for SotA methods from following [URL](https://drive.google.com/file/d/1X0o7O-dyoLhXvncYpa4pvL6TCe171NXK/view?usp=sharing) which were brought from the official authors repositories. To create an yaml file as manually, follow the format below.
+  * Train InSPyReNet (SwinB)
   ```
-  Eval:
-    gt_root: "data/RGB_Dataset/Test_Dataset"
-    pred_root: "[DIR_FOR_YOUR_PRE_COMPUTED_SALIENCY_MAP]"
-    result_path: "results"
-    datasets: ['DUTS-TE', 'DUT-OMRON', 'ECSSD', 'HKU-IS', 'PASCAL-S']
-    metrics: ['Sm', 'mae', 'adpEm', 'maxEm', 'avgEm', 'adpFm', 'maxFm', 'avgFm', 'wFm', 'mBA']
-  ``` 
+  python run/Train.py --config configs/InSPyReNet_SwinB.yaml --verbose
+  ```
+  * Inference for test benchmarks
+  ```
+  python run/Test.py --config configs/InSPyReNet_SwinB.yaml --verbose
+  ```
+  * Evaluate metrics
+  ```
+  python run/Eval.py --config configs/InSPyReNet_SwinB.yaml --verbose
+  ```
 
-## 4. Inference on your own data
-  + You can inference your own single image or images (.jpg, .jpeg, and .png are supported), single video or videos (.mp4, .mov, and .avi are supported), and webcam input (ubuntu and macos are tested so far).
-  + `python run/Inference.py --config configs/InSPyReNet_SwinB.yaml --source [SOURCE] --dest [DEST] --type [TYPE] --gpu --jit --verbose`
-    + SOURCE: Specify your data in this argument.
-      + Single image - `image.png`
-      + Folder containing images - `path/to/img/folder`
-      + Single video - `video.mp4`
-      + Folder containing videos - `path/to/vid/folder`
-      + Webcam input: `0` (may vary depends on your device.)
-    + DEST (optional): Specify your destination folder. If not specified, it will be saved in `results` folder.
-    + TYPE: Choose between `map, green, rgba, blur`
-      + `map` will output saliency map only. 
-      + `green` will change the background with green screen. 
-      + `rgba` will generate RGBA output regarding saliency score as an alpha map. Note that this will not work for video and webcam input. 
-      + `blur` will blur the background.
-    + --gpu: Use this argument if you want to use GPU. 
-    + --jit: Slightly improves inference speed when used. 
-    + --verbose: Use when you want to visualize progress.
+## 4. Checkpoints
 
-## 4. Experimental Results
-  + Benchmark on DUTS-TE, DUT-OMRON, ECSSD, HKU-IS, PASCAL-S
-![Teaser](./figures/table.png)
-  + Qualitative Results 
-![results](./figures/results.png)
-
-## 5. Pyramid-based Patch Merging
-  + With our method, it is easy to merge results from patch-wise prediction. The overall process work as following figure,
-  ![results](./figures/figure3.png)
-  + Use `--PM` for `run/Inference.py` to deploy patch merging (e.g., `python run/Inference.py --config configs/InSPyReNet_SwinB.yaml --source AIM-500 --type green --gpu --verbose --PM`)
-  + We conduct experiments on AIM-500 dataset. The results are provided in this [URL](https://drive.google.com/file/d/19v5k8OJrycPs-ffkIcdRv-lhaTIjatbo/view?usp=sharing). Please refer to the paper for the results.
+Model                      |  Train DB                          
+:-------------------------:|:----------------------------------:
+InSPyReNet (Res2Net50)     | DUTS-TR                             
+InSPyReNet (SwinB)         | DUTS-TR                             
+InSPyReNet (SwinB)         | DUTS-TR, HRSOD-TR-LR                
+InSPyReNet (SwinB)         | HRSOD-TR-LR, UHRSD-TR-LR            
+InSPyReNet (SwinB)         | DUTS-TR, HRSOD-TR-LR, UHRSD-TR-LR   
   
 ## 5. Citation
 
@@ -146,15 +68,5 @@ Salient object detection (SOD) requires multi-scale features from intermediate b
   + [ECSSD](https://i.cs.hku.hk/~gbli/deep_saliency.html)
   + [HKU-IS](http://www.cse.cuhk.edu.hk/leojia/projects/hsaliency/dataset.html)
   + [PASCAL-S](http://cbi.gatech.edu/salobj/)
+
 + Evaluation Toolkit: [PySOD Metrics](https://github.com/lartpang/PySODMetrics)
-+ SotA methods
-  + BASNet: [Boundary-Aware Segmentation Network for Mobile and Web Applications](https://github.com/xuebinqin/BASNet)
-  + CPD: [Cascaded Partial Decoder for Fast and Accurate Salient Object Detection](https://github.com/wuzhe71/CPD)
-  + EGNet: [Edge Guidance Network for Salient Object Detection](https://github.com/JXingZhao/EGNet)
-  + F3Net: [F3Net: Fusion, Feedback and Focus for Salient Object Detection](https://github.com/weijun88/F3Net)
-  + GateNet: [Suppress and Balance: A Simple Gated Network for Salient Object Detection](https://github.com/Xiaoqi-Zhao-DLUT/GateNet-RGB-Saliency)
-  + LDF: [Label Decoupling Framework for Salient Object Detection](https://github.com/weijun88/LDF)
-  + MINet: [Multi-scale Interactive Network for Salient Object Detection](https://github.com/lartpang/MINet)
-  + PA-KRN: [Locate-Globally-Segment-locally-A-Progressive-Architecture-With-Knowledge-Review-Network-for-SOD](https://github.com/bradleybin/Locate-Globally-Segment-locally-A-Progressive-Architecture-With-Knowledge-Review-Network-for-SOD)
-  + PoolNet: [A Simple Pooling-Based Design for Real-Time Salient Object Detection](https://github.com/backseason/PoolNet)
-  + VST [Visual Saliency Transformer](https://github.com/nnizhang/VST)

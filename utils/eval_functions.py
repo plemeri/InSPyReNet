@@ -611,7 +611,7 @@ class WeightedFmeasure(object):
     def matlab_style_gauss2D(self, shape: tuple = (7, 7), sigma: int = 5) -> np.ndarray:
         """
         2D gaussian mask - should give the same result as MATLAB's
-        fspecial('gaussian',[shape],[sigma])
+        fspecial('saliency',[shape],[sigma])
         """
         m, n = [(ss - 1) / 2 for ss in shape]
         y, x = np.ogrid[-m : m + 1, -n : n + 1]

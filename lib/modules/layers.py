@@ -6,10 +6,11 @@ import torch.nn.functional as F
 import cv2
 import numpy as np
 
+from kornia.morphology import dilation, erosion
 from torch.nn.parameter import Parameter
 from typing import Optional
-class Pyr:
-    def __init__(self, ksize=5, sigma=1, channels=1):
+class ImagePyramid:
+    def __init__(self, ksize=7, sigma=1, channels=1):
         self.ksize = ksize
         self.sigma = sigma
         self.channels = channels
@@ -23,36 +24,54 @@ class Pyr:
         self.kernel = self.kernel.cuda()
         return self
 
-    def up(self, x):
+    def expand(self, x):
         z = torch.zeros_like(x)
         x = torch.cat([x, z, z, z], dim=1)
         x = F.pixel_shuffle(x, 2)
-        x = F.conv2d(x, self.kernel * 4, groups=self.channels, padding=self.ksize // 2)
+        x = F.pad(x, (self.ksize // 2, ) * 4, mode='reflect')
+        x = F.conv2d(x, self.kernel * 4, groups=self.channels)
         return x
 
-    def down(self, x):
-        x = F.conv2d(x, self.kernel, groups=self.channels, padding=self.ksize // 2)
-        return x[:, :, ::2, ::2]
+    def reduce(self, x):
+        x = F.pad(x, (self.ksize // 2, ) * 4, mode='reflect')
+        x = F.conv2d(x, self.kernel, groups=self.channels)
+        x = x[:, :, ::2, ::2]
+        return x
 
-    def dec(self, x):
-        down = self.down(x)
-        up = self.up(down)
+    def deconstruct(self, x):
+        reduced_x = self.reduce(x)
+        expanded_reduced_x = self.expand(reduced_x)
 
-        if x.shape != up.shape:
-            up = F.interpolate(up, x.shape[-2:])
+        if x.shape != expanded_reduced_x.shape:
+            expanded_reduced_x = F.interpolate(expanded_reduced_x, x.shape[-2:])
 
-        lap = x - up
-        return down, lap
+        laplacian_x = x - expanded_reduced_x
+        return reduced_x, laplacian_x
 
-    def rec(self, down, lap):
-        down = self.up(down)
-        if lap.shape != down:
-            lap = F.interpolate(lap, down.shape[-2:], mode='bilinear', align_corners=True)
-        return down + lap
+    def reconstruct(self, x, laplacian_x):
+        expanded_x = self.expand(x)
+        if laplacian_x.shape != expanded_x:
+            laplacian_x = F.interpolate(laplacian_x, expanded_x.shape[-2:], mode='bilinear', align_corners=True)
+        return expanded_x + laplacian_x
 
-class conv(nn.Module):
+class Transition:
+    def __init__(self, k=3):
+        self.kernel = torch.tensor(cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (k, k))).float()
+        
+    def cuda(self):
+        self.kernel = self.kernel.cuda()
+        return self
+        
+    def __call__(self, x):
+        x = torch.sigmoid(x)
+        dx = dilation(x, self.kernel)
+        ex = erosion(x, self.kernel)
+        
+        return ((dx - ex) > .5).float()
+
+class Conv2d(nn.Module):
     def __init__(self, in_channels, out_channels, kernel_size, stride=1, dilation=1, groups=1, padding='same', bias=False, bn=True, relu=False):
-        super(conv, self).__init__()
+        super(Conv2d, self).__init__()
         if '__iter__' not in dir(kernel_size):
             kernel_size = (kernel_size, kernel_size)
         if '__iter__' not in dir(stride):
@@ -102,15 +121,15 @@ class conv(nn.Module):
         nn.init.kaiming_normal_(self.conv.weight)
 
 
-class self_attn(nn.Module):
+class SelfAttention(nn.Module):
     def __init__(self, in_channels, mode='hw', stage_size=None):
-        super(self_attn, self).__init__()
+        super(SelfAttention, self).__init__()
 
         self.mode = mode
 
-        self.query_conv = conv(in_channels, in_channels // 8, kernel_size=(1, 1))
-        self.key_conv = conv(in_channels, in_channels // 8, kernel_size=(1, 1))
-        self.value_conv = conv(in_channels, in_channels, kernel_size=(1, 1))
+        self.query_conv = Conv2d(in_channels, in_channels // 8, kernel_size=(1, 1))
+        self.key_conv = Conv2d(in_channels, in_channels // 8, kernel_size=(1, 1))
+        self.value_conv = Conv2d(in_channels, in_channels, kernel_size=(1, 1))
 
         self.gamma = Parameter(torch.zeros(1))
         self.softmax = nn.Softmax(dim=-1)
@@ -140,121 +159,3 @@ class self_attn(nn.Module):
 
         out = self.gamma * out + x
         return out
-
-
-class self_attn2(nn.Module):
-    def __init__(self, in_channels, mode='hw', stage_size=None):
-        super(self_attn2, self).__init__()
-
-        self.mode = mode
-
-        self.query_conv = conv(in_channels, in_channels // 8, kernel_size=(1, 1))
-        self.key_conv = conv(in_channels, in_channels // 8, kernel_size=(1, 1))
-        self.value_conv = conv(in_channels, in_channels, kernel_size=(1, 1))
-
-        self.gamma = Parameter(torch.zeros(1))
-        self.softmax = nn.Softmax(dim=-1)
-        
-        self.stage_size = stage_size
-
-    def forward(self, x):
-        batch_size, channel, height, width = x.size()
-
-        axis = 1
-        permute = (0, 1, 2, 3)
-        if 'h' == self.mode:
-            axis = height
-            permute = (0, 1, 3, 2)
-        elif 'w' == self.mode:
-            axis = width
-        elif 'hw' == self.mode:
-            axis = height * width
-
-        view = (batch_size, -1, axis)
-        print(self.mode, axis, permute, view, x.shape)
-
-        projected_query = self.query_conv(x).permute(*permute).view(*view).permute(0, 2, 1)
-        projected_key = self.key_conv(x).permute(*permute).view(*view)
-
-        attention_map = torch.bmm(projected_query, projected_key)
-        attention = self.softmax(attention_map)
-        projected_value = self.value_conv(x).permute(*permute).view(*view)
-
-        out = torch.bmm(projected_value, attention.permute(0, 2, 1))
-        out = out.view(batch_size, channel, height, width)
-
-        out = self.gamma * out + x
-        return out
-
-def patch(x, patch_size=256, stride: Optional[int]=None):
-    b, c, h, w = x.shape
-    
-    if stride is None:
-        stride = patch_size // 2
-    assert stride != 0
-    assert h // stride != 0
-    assert w // stride != 0
-    
-    ph, pw = (h - (patch_size - 1) - 1) // stride + 1, (w - (patch_size - 1) - 1) // stride + 1
-    patches = torch.zeros(b * ph * pw, c, patch_size, patch_size).to(x.device)
-    
-    for i in range(ph):
-        for j in range(pw):
-            start = pw * i + j
-            end = start + 1
-            patches[start:end] = x[:, :, i * stride: i * stride + patch_size, j * stride: j * stride + patch_size]
-    return patches, (b, c, h, w)
-
-class Patch(nn.Module):
-    def __init__(self, patch_size, stride: Optional[int]=None):
-        super(Patch, self).__init__()
-
-        self.patch_size = patch_size
-        if stride is None:
-            self.stride = patch_size // 2
-        else:
-            self.stride = stride
-
-    def forward(self, x):
-        return patch(x, self.patch_size, self.stride)
-
-
-def unpatch(patches, target_shape, patch_size=256, stride: Optional[int]=None, indice_map: Optional[torch.Tensor]=None):
-    b, c, h, w = target_shape
-    
-    if stride is None:
-        stride = patch_size // 2
-    assert stride != 0
-    assert h // stride != 0
-    assert w // stride != 0
-    
-    ph, pw = (h - (patch_size - 1) - 1) // stride + 1, (w - (patch_size - 1) - 1) // stride + 1
-    out = - torch.ones(ph * pw, b, c, h, w).to(patches.device) * float('inf')
-    
-    for i in range(ph):
-        for j in range(pw):
-            start = pw * i + j
-            end = start + 1
-            out[start:end, :, :, i * stride:i * stride + patch_size, j * stride: j * stride + patch_size] = patches[start:end]
-    
-    if indice_map is None:
-        out, ind = torch.max(out, dim=0)
-    else:
-        ind = indice_map
-        out = torch.gather(out, 0, ind.unsqueeze(0)).squeeze(0)
-    return out, ind
-
-class UnPatch(nn.Module):
-    def __init__(self, patch_size, target_shape, stride: Optional[int]=None):
-        super(UnPatch, self).__init__()
-
-        self.patch_size = patch_size
-        self.target_shape = target_shape
-        
-        if stride is None:
-            self.stride = patch_size // 2
-        else:
-            self.stride = stride
-
-    def forward(self, x, indice_map=None):
-        return unpatch(x, self.target_shape, self.patch_size, self.stride, indice_map)
