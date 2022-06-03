@@ -22,8 +22,8 @@ InSPyReNet                 |  pyramid blending
   + Install requirements with following command `pip install -r requirements.txt`
   
 ## 2. Preparation
-  * Download training datasets: `data/RGB_Dataset/Train_Dataset/...`
-  * Download ImageNet pre-trained checkpoints: `data/backbone_ckpt/...`
+  * [Dataset](https://drive.google.com/file/d/1Aft2Wm0-NmvZ-ezZH-DfHM30OBc-ZOIi/view?usp=sharing) --> `data/RGB_Dataset/Train_Dataset/...`
+  * [Res2Net50 checkpoint](https://drive.google.com/file/d/1MMhioAsZ-oYa5FpnTi22XBGh5HkjLX3y/view?usp=sharing), [SwinB checkpoint](https://drive.google.com/file/d/1fBJFMupe5pV-Vtou-k8LTvHclWs0y1bI/view?usp=sharing) --> `data/backbone_ckpt/...`
   * Train with extra training datasets (HRSOD, UHRSD):
   ```
   Train:
@@ -50,12 +50,14 @@ InSPyReNet                 |  pyramid blending
 ## 4. Checkpoints
 
 Model                      |  Train DB                          
-:-------------------------:|:----------------------------------:
-InSPyReNet (Res2Net50)     | DUTS-TR                             
-InSPyReNet (SwinB)         | DUTS-TR                             
-InSPyReNet (SwinB)         | DUTS-TR, HRSOD-TR-LR                
-InSPyReNet (SwinB)         | HRSOD-TR-LR, UHRSD-TR-LR            
-InSPyReNet (SwinB)         | DUTS-TR, HRSOD-TR-LR, UHRSD-TR-LR   
+:-|:-
+[InSPyReNet (Res2Net50)](https://drive.google.com/file/d/12moRuU8F0-xRvE16bVg6mkGWDuqYHJor/view?usp=sharing) | DUTS-TR                             
+[InSPyReNet (SwinB)](https://drive.google.com/file/d/1k5hNJImgEgSmz-ZeJEEb_dVkrOnswVMq/view?usp=sharing)         | DUTS-TR                             
+[InSPyReNet (SwinB)](https://drive.google.com/file/d/1nbs6Xa7NMtcikeHFtkQRVrsHbBRHtIqC/view?usp=sharing)         | DUTS-TR, HRSOD-TR-LR                
+[InSPyReNet (SwinB)](https://drive.google.com/file/d/1uLSIYXlRsZv4Ho0C-c87xKPhmF_b-Ll4/view?usp=sharing)         | HRSOD-TR-LR, UHRSD-TR-LR            
+[InSPyReNet (SwinB)](https://drive.google.com/file/d/14gRNwR7XwJ5oEcR4RWIVbYH3HEV6uBUq/view?usp=sharing)         | DUTS-TR, HRSOD-TR-LR, UHRSD-TR-LR
+
+
   
 ## 5. Citation
 
