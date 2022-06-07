@@ -57,7 +57,7 @@ Model                      |  Train DB
 [InSPyReNet (SwinB)](https://drive.google.com/file/d/1uLSIYXlRsZv4Ho0C-c87xKPhmF_b-Ll4/view?usp=sharing)         | HRSOD-TR-LR, UHRSD-TR-LR            
 [InSPyReNet (SwinB)](https://drive.google.com/file/d/14gRNwR7XwJ5oEcR4RWIVbYH3HEV6uBUq/view?usp=sharing)         | DUTS-TR, HRSOD-TR-LR, UHRSD-TR-LR
 
-
+* LR denotes resized into low-resolution scale (i.e. 384 x 384) since we do not need HR datasets.
   
 ## 5. Citation
 
