@@ -11,7 +11,7 @@ Train:
         root: "data/RGB_Dataset/Train_Dataset"
         sets: ['DUTS-TR']
         transforms:
-            fixed_resize: 
+            static_resize: 
                 size: [384, 384]
             random_scale_crop:
                 range: [0.75, 1.25]

@@ -14,7 +14,7 @@ sys.path.append(repopath)
 
 from utils.misc import *
         
-class fixed_resize:
+class static_resize:
     # Resize for training
     def __init__(self, size=[384, 384]):
         self.size = size

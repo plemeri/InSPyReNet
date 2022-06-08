@@ -11,7 +11,7 @@ Train:
         root: "data/RGB_Dataset/Train_Dataset"
         sets: ['DUTS-TR']
         transforms:
-            resize: 
+            static_resize: 
                 size: [384, 384]
             random_scale_crop:
                 range: [0.75, 1.25]
@@ -58,7 +58,7 @@ Test:
         root: "data/RGB_Dataset/Test_Dataset"
         sets: ['DUTS-TE', 'DUT-OMRON', 'ECSSD', 'HKU-IS', 'PASCAL-S',  'DAVIS-S', 'HRSOD', 'UHRSD-TE']
         transforms:
-            resize: 
+            static_resize: 
                 size: [384, 384]
             tonumpy: NULL
             normalize: 

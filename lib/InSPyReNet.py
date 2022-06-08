@@ -138,7 +138,10 @@ class InSPyReNet(nn.Module):
         B, _, H, W = sample['image'].shape
         
         if self.threshold is None or (H <= self.threshold or W <= self.threshold):
-            out = self.forward_inspyre(sample['image_resized'])
+            if 'image_resized' in sample.keys():
+                out = self.forward_inspyre(sample['image_resized'])
+            else:
+                out = self.forward_inspyre(sample['image'])
             d3, d2, d1, d0 = out['saliency']
             p2, p1, p0     = out['laplacian']
         
