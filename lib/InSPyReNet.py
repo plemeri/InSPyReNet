@@ -11,6 +11,7 @@ from lib.modules.decoder_module import *
 
 from lib.backbones.Res2Net_v1b import res2net50_v1b_26w_4s
 from lib.backbones.SwinTransformer import SwinB
+from lib.backbones.ResNet import resnet50
 
 class InSPyReNet(nn.Module):
     def __init__(self, backbone, in_channels, depth=64, base_size=[384, 384], threshold=512, **kwargs):
@@ -185,6 +186,9 @@ class InSPyReNet(nn.Module):
         sample['laplacian'] = [p2, p1, p0]
         return sample
     
+def InSPyReNet_ResNet50(depth, pretrained, base_size, **kwargs):
+    return InSPyReNet(resnet50(pretrained=pretrained), [64, 256, 512, 1024, 2048], depth, base_size, **kwargs)    
+
 def InSPyReNet_Res2Net50(depth, pretrained, base_size, **kwargs):
     return InSPyReNet(res2net50_v1b_26w_4s(pretrained=pretrained), [64, 256, 512, 1024, 2048], depth, base_size, **kwargs)
 
