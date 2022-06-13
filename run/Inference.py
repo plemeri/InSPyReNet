@@ -24,10 +24,9 @@ torch.backends.cudnn.allow_tf32 = False
 def _args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--config',      type=str,            default='configs/InSPyReNet_SwinB.yaml')
-    parser.add_argument('--source',      type=str,            default='test')
+    parser.add_argument('--source',      type=str)
     parser.add_argument('--dest',        type=str,            default=None)
     parser.add_argument('--type',        type=str,            default='map')
-    parser.add_argument('--thresh',      type=float,          default=None)
     parser.add_argument('--gpu',         action='store_true', default=False)
     parser.add_argument('--jit',         action='store_true', default=False)
     parser.add_argument('--verbose',     action='store_true', default=False)
@@ -118,9 +117,6 @@ def inference(opt, args):
                     
         pred = to_numpy(out['pred'], sample['shape'])
         img = np.array(sample['original'])
-        
-        if args.thresh is not None:
-            pred = pred > args.thresh
         
         if args.type == 'map':
             img = (np.stack([pred] * 3, axis=-1) * 255).astype(np.uint8)

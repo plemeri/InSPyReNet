@@ -22,8 +22,13 @@ InSPyReNet                 |  pyramid blending
   + Install requirements with following command `pip install -r requirements.txt`
   
 ## 2. Preparation
-  * [Dataset](https://drive.google.com/file/d/1Aft2Wm0-NmvZ-ezZH-DfHM30OBc-ZOIi/view?usp=sharing) --> `data/RGB_Dataset/Train_Dataset/...`
-  * [Res2Net50 checkpoint](https://drive.google.com/file/d/1MMhioAsZ-oYa5FpnTi22XBGh5HkjLX3y/view?usp=sharing), [SwinB checkpoint](https://drive.google.com/file/d/1fBJFMupe5pV-Vtou-k8LTvHclWs0y1bI/view?usp=sharing) --> `data/backbone_ckpt/...`
+URL                      |  Destination Folder
+:-|:-
+[Train Datasets](https://drive.google.com/file/d/1Dxt9pe3uvI3Ow5hEXEzH1q3UwEDYzWjt/view?usp=sharing) | `data/Train_Dataset/...`
+[Test Datasets](https://drive.google.com/file/d/1UKJXVnaBgT8ihp3QTOV9NQ1n-UklGbdl/view?usp=sharing) | `data/Test_Dataset/...`
+[Res2Net50 checkpoint](https://drive.google.com/file/d/1MMhioAsZ-oYa5FpnTi22XBGh5HkjLX3y/view?usp=sharing) | `data/backbone_ckpt/*.pth`
+[SwinB checkpoint](https://drive.google.com/file/d/1fBJFMupe5pV-Vtou-k8LTvHclWs0y1bI/view?usp=sharing) | `data/backbone_ckpt/*.pth`
+  
   * Train with extra training datasets (HRSOD, UHRSD):
   ```
   Train:

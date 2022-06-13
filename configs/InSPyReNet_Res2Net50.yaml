@@ -8,7 +8,7 @@ Model:
 Train:
     Dataset:
         type: "RGB_Dataset"
-        root: "data/RGB_Dataset/Train_Dataset"
+        root: "data/Train_Dataset"
         sets: ['DUTS-TR']
         transforms:
             static_resize: 
@@ -55,7 +55,7 @@ Train:
 Test:
     Dataset:
         type: "RGB_Dataset"
-        root: "data/RGB_Dataset/Test_Dataset"
+        root: "data/Test_Dataset"
         sets: ['DUTS-TE', 'DUT-OMRON', 'ECSSD', 'HKU-IS', 'PASCAL-S',  'DAVIS-S', 'HRSOD', 'UHRSD-TE']
         transforms:
             static_resize: 
@@ -72,7 +72,7 @@ Test:
         checkpoint_dir: "snapshots/InSPyReNet_Res2Net50"
 
 Eval:
-    gt_root: "data/RGB_Dataset/Test_Dataset"
+    gt_root: "data/Test_Dataset"
     pred_root: "snapshots/InSPyReNet_Res2Net50"
     result_path: "results"
     datasets: ['DUTS-TE', 'DUT-OMRON', 'ECSSD', 'HKU-IS', 'PASCAL-S',  'DAVIS-S', 'HRSOD', 'UHRSD-TE']
