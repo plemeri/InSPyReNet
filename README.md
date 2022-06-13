@@ -98,5 +98,7 @@ Model                      |  Train DB
   + [ECSSD](https://i.cs.hku.hk/~gbli/deep_saliency.html)
   + [HKU-IS](http://www.cse.cuhk.edu.hk/leojia/projects/hsaliency/dataset.html)
   + [PASCAL-S](http://cbi.gatech.edu/salobj/)
+  + [DAVIS-S, HRSOD](https://github.com/yi94code/HRSOD)
+  + [UHRSD](https://github.com/iCVTEAM/PGNet)
 
 + Evaluation Toolkit: [PySOD Metrics](https://github.com/lartpang/PySODMetrics)
