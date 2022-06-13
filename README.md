@@ -49,15 +49,29 @@ InSPyReNet                 |  pyramid blending
 
 ## 4. Checkpoints
 
+### Trained with LR dataset only (DUTS-TE, $384 \times 384$)
+
 Model                      |  Train DB                          
 :-|:-
 [InSPyReNet (Res2Net50)](https://drive.google.com/file/d/12moRuU8F0-xRvE16bVg6mkGWDuqYHJor/view?usp=sharing) | DUTS-TR                             
-[InSPyReNet (SwinB)](https://drive.google.com/file/d/1k5hNJImgEgSmz-ZeJEEb_dVkrOnswVMq/view?usp=sharing)         | DUTS-TR                             
+[InSPyReNet (SwinB)](https://drive.google.com/file/d/1k5hNJImgEgSmz-ZeJEEb_dVkrOnswVMq/view?usp=sharing) | DUTS-TR
+
+### Trained with LR+HR dataset (with LR scale $384 \times 384$)
+
+Model                      |  Train DB                          
+:-|:-
 [InSPyReNet (SwinB)](https://drive.google.com/file/d/1nbs6Xa7NMtcikeHFtkQRVrsHbBRHtIqC/view?usp=sharing)         | DUTS-TR, HRSOD-TR-LR                
 [InSPyReNet (SwinB)](https://drive.google.com/file/d/1uLSIYXlRsZv4Ho0C-c87xKPhmF_b-Ll4/view?usp=sharing)         | HRSOD-TR-LR, UHRSD-TR-LR            
 [InSPyReNet (SwinB)](https://drive.google.com/file/d/14gRNwR7XwJ5oEcR4RWIVbYH3HEV6uBUq/view?usp=sharing)         | DUTS-TR, HRSOD-TR-LR, UHRSD-TR-LR
 
-* LR denotes resized into low-resolution scale (i.e. 384 x 384) since we do not need HR datasets.
+* LR denotes resized into low-resolution scale (i.e. $384 \times 384$).
+
+### Trained with LR+HR dataset (with HR scale $1024 \times 1024$)
+
+Model                      |  Train DB                          
+:-|:-
+[InSPyReNet (SwinB)](https://drive.google.com/file/d/1UBGFDUYZ9SysZr96dhsscZg7nDXt6IUD/view?usp=sharing)         | DUTS-TR, HRSOD-TR
+[InSPyReNet (SwinB)](https://drive.google.com/file/d/1HB02tiInEgo-pNzwqyvyV6eSN1Y2xPRJ/view?usp=sharing)         | HRSOD-TR, UHRSD-TR
 
 ## 5. Results
 
