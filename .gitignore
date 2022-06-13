@@ -128,8 +128,8 @@ dmypy.json
 .pyre/
 
 data/backbone_ckpt
-data/RGB_Dataset
-data/RGBD_Dataset
+data/Train_Dataset
+data/Test_Dataset
 results/*
 snapshots
 snapshots/*
