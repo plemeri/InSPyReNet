@@ -42,6 +42,137 @@ def _get_adaptive_threshold(matrix: np.ndarray, max_value: float = 1) -> float:
     return min(2 * matrix.mean(), max_value)
 
 
+class IoU(object):
+    def __init__(self):
+        self.ious = []
+
+    def step(self, pred: np.ndarray, gt: np.ndarray):
+        pred, gt = _prepare_data(pred, gt)
+
+        ious = self.cal_iou(pred=pred, gt=gt)
+        self.ious.append(ious)
+
+    def cal_iou(self, pred, gt):
+        pred = (pred * 255).astype(np.uint8)
+            
+        bins = np.linspace(0, 256, 257)
+        fg_hist, _ = np.histogram(pred[gt], bins=bins) # ture positive
+        bg_hist, _ = np.histogram(pred[~gt], bins=bins) # false positive
+        fg_w_thrs = np.cumsum(np.flip(fg_hist), axis=0) 
+        bg_w_thrs = np.cumsum(np.flip(bg_hist), axis=0)
+        TPs = fg_w_thrs
+        Ps = fg_w_thrs + bg_w_thrs # positives
+        Ps[Ps == 0] = 1 
+        T = max(np.count_nonzero(gt), 1)
+        
+        ious = TPs / (T + bg_w_thrs)
+        return ious
+
+    def get_results(self) -> dict:
+        iou = np.mean(np.array(self.ious, dtype=_TYPE), axis=0)
+        return dict(iou=dict(curve=iou))
+    
+class BIoU(object):
+    def __init__(self, dilation_ratio=0.02):
+        self.bious = []
+        self.dilation_ratio = dilation_ratio
+            
+    def mask_to_boundary(self, mask):
+        h, w = mask.shape
+        img_diag = np.sqrt(h ** 2 + w ** 2)
+        dilation = int(round(self.dilation_ratio * img_diag))
+        if dilation < 1:
+            dilation = 1
+        # Pad image so mask truncated by the image border is also considered as boundary.
+        new_mask = cv2.copyMakeBorder(mask, 1, 1, 1, 1, cv2.BORDER_CONSTANT, value=0)
+        kernel = np.ones((3, 3), dtype=np.uint8)
+        new_mask_erode = cv2.erode(new_mask, kernel, iterations=dilation)
+        mask_erode = new_mask_erode[1 : h + 1, 1 : w + 1]
+        # G_d intersects G in the paper.
+        return mask - mask_erode
+
+    def step(self, pred: np.ndarray, gt: np.ndarray):
+        pred, gt = _prepare_data(pred, gt)
+
+        bious = self.cal_biou(pred=pred, gt=gt)
+        self.bious.append(bious)
+
+    def cal_biou(self, pred, gt):
+        pred = (pred * 255).astype(np.uint8)
+        pred = self.mask_to_boundary(pred)
+        gt = (gt * 255).astype(np.uint8)
+        gt = self.mask_to_boundary(gt)
+        gt = gt > 128
+            
+        bins = np.linspace(0, 256, 257)
+        fg_hist, _ = np.histogram(pred[gt], bins=bins) # ture positive
+        bg_hist, _ = np.histogram(pred[~gt], bins=bins) # false positive
+        fg_w_thrs = np.cumsum(np.flip(fg_hist), axis=0) 
+        bg_w_thrs = np.cumsum(np.flip(bg_hist), axis=0)
+        TPs = fg_w_thrs
+        Ps = fg_w_thrs + bg_w_thrs # positives
+        Ps[Ps == 0] = 1 
+        T = max(np.count_nonzero(gt), 1)
+        
+        ious = TPs / (T + bg_w_thrs)
+        return ious
+
+    def get_results(self) -> dict:
+        biou = np.mean(np.array(self.bious, dtype=_TYPE), axis=0)
+        return dict(biou=dict(curve=biou))
+    
+class TIoU(object):
+    def __init__(self, dilation_ratio=0.001):
+        self.tious = []
+        self.dilation_ratio = dilation_ratio
+            
+    def mask_to_boundary(self, mask):
+        h, w = mask.shape
+        img_diag = np.sqrt(h ** 2 + w ** 2)
+        dilation = int(round(self.dilation_ratio * img_diag))
+        if dilation < 1:
+            dilation = 1
+        # Pad image so mask truncated by the image border is also considered as boundary.
+        new_mask = cv2.copyMakeBorder(mask, 1, 1, 1, 1, cv2.BORDER_CONSTANT, value=0)
+        kernel = np.ones((3, 3), dtype=np.uint8)
+        new_mask_erode = cv2.erode(new_mask, kernel, iterations=dilation)
+        mask_erode = new_mask_erode[1 : h + 1, 1 : w + 1]
+        # G_d intersects G in the paper.
+        return mask - mask_erode
+
+    def step(self, pred: np.ndarray, gt: np.ndarray):
+        pred, gt = _prepare_data(pred, gt)
+
+        tious = self.cal_tiou(pred=pred, gt=gt)
+        self.tious.append(tious)
+
+    def cal_tiou(self, pred, gt):
+        pred = (pred * 255).astype(np.uint8)
+        
+        gt = (gt * 255).astype(np.uint8)
+        gt = self.mask_to_boundary(gt)
+        gt = gt > 128
+        
+        pred = pred * gt
+        
+        bins = np.linspace(0, 256, 257)
+        fg_hist, _ = np.histogram(pred[gt], bins=bins) # ture positive
+        bg_hist, _ = np.histogram(pred[~gt], bins=bins) # false positive
+        fg_w_thrs = np.cumsum(np.flip(fg_hist), axis=0) 
+        bg_w_thrs = np.cumsum(np.flip(bg_hist), axis=0)
+        TPs = fg_w_thrs
+        Ps = fg_w_thrs + bg_w_thrs # positives
+        Ps[Ps == 0] = 1 
+        T = max(np.count_nonzero(gt), 1)
+        
+        ious = TPs / (T + bg_w_thrs)
+        return ious
+
+    def get_results(self) -> dict:
+        tiou = np.mean(np.array(self.tious, dtype=_TYPE), axis=0)
+        return dict(tiou=dict(curve=tiou))
+
+
 class Fmeasure(object):
     def __init__(self, beta: float = 0.3):
         """

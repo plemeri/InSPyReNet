@@ -65,6 +65,9 @@ def evaluate(opt, args):
         MAE = Mae()
         MSE = Mse()
         MBA = BoundaryAccuracy()
+        IOU = IoU()
+        BIOU = BIoU()
+        TIOU = TIoU()
 
         if args.verbose is True:
             samples = tqdm.tqdm(enumerate(zip(preds, gts)), desc=dataset + ' - Evaluation', total=len(
@@ -93,7 +96,9 @@ def evaluate(opt, args):
             MAE.step(pred=pred_mask, gt=gt_mask)
             MSE.step(pred=pred_mask, gt=gt_mask)
             MBA.step(pred=pred_mask, gt=gt_mask)
-            
+            IOU.step(pred=pred_mask, gt=gt_mask)
+            BIOU.step(pred=pred_mask, gt=gt_mask)
+            TIOU.step(pred=pred_mask, gt=gt_mask)
             
         result = []
 
@@ -105,6 +110,9 @@ def evaluate(opt, args):
         
         Fm =  FM.get_results()["fm"]
         Em =  EM.get_results()["em"]
+        Iou = IOU.get_results()["iou"]
+        BIou = BIOU.get_results()["biou"]
+        TIou = TIOU.get_results()["tiou"]
         
         adpEm = Em["adp"]
         avgEm = Em["curve"].mean()
@@ -112,6 +120,13 @@ def evaluate(opt, args):
         adpFm = Fm["adp"]
         avgFm = Fm["curve"].mean()
         maxFm = Fm["curve"].max()
+        avgIou = Iou["curve"].mean()
+        maxIou = Iou["curve"].max()
+        avgBIou = BIou["curve"].mean()
+        maxBIou = BIou["curve"].max()
+        avgTIou = TIou["curve"].mean()
+        maxTIou = TIou["curve"].max()
+        
         
         out = dict()
         for metric in opt.Eval.metrics:
