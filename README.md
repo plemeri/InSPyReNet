@@ -54,7 +54,7 @@ URL                      |  Destination Folder
 
 ## 4. Checkpoints
 
-### Trained with LR dataset only (DUTS-TE, 384 X 384)
+### Trained with LR dataset only (DUTS-TR, 384 X 384)
 
 Model (Link) | Backbone |  Train DB                          
 :-|:-|:-
@@ -81,12 +81,30 @@ Model (Link) | Backbone |  Train DB
 ## 5. Results
 
 * Quantitative
-
-![](./figures/fig_quantitative.png) 
+  * Trained with DUTS-TR only
+  ![](./figures/fig_quantitative.png) 
+  
+  * Trained with extra datasets
+  ![](./figures/fig_quantitative2.png) 
 
 * Qualitative
-  
-![](./figures/fig_qualitative.png) 
+
+  * Trained with with DUTS-TR only
+  ![](./figures/fig_qualitative.png)
+  ![](./figures/fig_qualitative2.png)
+
+  * Trained with extra datasets
+    
+    &nbsp; | &nbsp; | &nbsp; | &nbsp;
+    ------ | -----  | -----  | ----- 
+    Image         | GT               | PGNet (H, U) | Ours (D, H*) 
+    Ours (H*, U*) | Ours (D, H*, U*) | Ours (D, H)  | Ours (H, U) 
+    
+    ![](./figures/fig_qualitative3.jpg)
+
+
+
+
 ## 5. Citation
 
 + Backbones:
