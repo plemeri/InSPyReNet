@@ -24,10 +24,10 @@ InSPyReNet                 |  pyramid blending
 ## 2. Preparation
 URL                      |  Destination Folder
 :-|:-
-[Train Datasets](https://drive.google.com/file/d/1Dxt9pe3uvI3Ow5hEXEzH1q3UwEDYzWjt/view?usp=sharing) | `data/Train_Dataset/...`
-[Test Datasets](https://drive.google.com/file/d/1UKJXVnaBgT8ihp3QTOV9NQ1n-UklGbdl/view?usp=sharing) | `data/Test_Dataset/...`
-[Res2Net50 checkpoint](https://drive.google.com/file/d/1MMhioAsZ-oYa5FpnTi22XBGh5HkjLX3y/view?usp=sharing) | `data/backbone_ckpt/*.pth`
-[SwinB checkpoint](https://drive.google.com/file/d/1fBJFMupe5pV-Vtou-k8LTvHclWs0y1bI/view?usp=sharing) | `data/backbone_ckpt/*.pth`
+[Train Datasets](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/EVsFkbokdZhGu-Xc5CQaDzQBEn5YRGpTqkBF0qZJYb4PaA?e=FSytKx) | `data/Train_Dataset/...`
+[Test Datasets](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/Edc1cQwr5_BItpauYpGksYcBAbaVpLFIVzWoWxrVWIJ8xg?e=Dla9fV) | `data/Test_Dataset/...`
+[Res2Net50 checkpoint](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/EUO7GDBwoC9CulTPdnq_yhQBlc0SIyyELMy3OmrNhOjcGg?e=T3PVyG) | `data/backbone_ckpt/*.pth`
+[SwinB checkpoint](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/ESlYCLy0endMhcZm9eC2A4ABatxupp4UPh03EcqFjbtSRw?e=7y6lLt) | `data/backbone_ckpt/*.pth`
   
   * Train with extra training datasets (HRSOD, UHRSD):
   ```
@@ -54,29 +54,29 @@ URL                      |  Destination Folder
 
 ## 4. Checkpoints
 
-### Trained with LR dataset only (DUTS-TE, $384 \times 384$)
+### Trained with LR dataset only (DUTS-TE, 384 X 384)
 
-Model                      |  Train DB                          
-:-|:-
-[InSPyReNet (Res2Net50)](https://drive.google.com/file/d/12moRuU8F0-xRvE16bVg6mkGWDuqYHJor/view?usp=sharing) | DUTS-TR                             
-[InSPyReNet (SwinB)](https://drive.google.com/file/d/1k5hNJImgEgSmz-ZeJEEb_dVkrOnswVMq/view?usp=sharing) | DUTS-TR
+Model (Link) | Backbone |  Train DB                          
+:-|:-|:-
+[Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/ERqm7RPeNBFPvVxkA5P5G2AB-mtFsiYkCNHnBf0DcwpFzw?e=nayVno) | Res2Net50 |DUTS-TR                             
+[Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/EV0ow4E8LddCgu5tAuAkMbcBpBYoEDmJgQg5wkiuvLoQUA?e=cOZspv) | SwinB | DUTS-TR
 
-### Trained with LR+HR dataset (with LR scale $384 \times 384$)
+### Trained with LR+HR dataset (with LR scale 384 X 384)
 
-Model                      |  Train DB                          
-:-|:-
-[InSPyReNet (SwinB)](https://drive.google.com/file/d/1nbs6Xa7NMtcikeHFtkQRVrsHbBRHtIqC/view?usp=sharing)         | DUTS-TR, HRSOD-TR-LR                
-[InSPyReNet (SwinB)](https://drive.google.com/file/d/1uLSIYXlRsZv4Ho0C-c87xKPhmF_b-Ll4/view?usp=sharing)         | HRSOD-TR-LR, UHRSD-TR-LR            
-[InSPyReNet (SwinB)](https://drive.google.com/file/d/14gRNwR7XwJ5oEcR4RWIVbYH3HEV6uBUq/view?usp=sharing)         | DUTS-TR, HRSOD-TR-LR, UHRSD-TR-LR
+Model (Link) | Backbone |  Train DB                          
+:-|:-|:-
+[Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/EWxPZoIKALlGsfrNgUFNvxwBC8IE8jzzhPNtzcbHmTNFcg?e=e22wmy) | SwinB | DUTS-TR, HRSOD-TR-LR                
+[Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/EQe-iy0AZctIkgl3o-BmVYUBn795wvii3tsnBq1fNUbc9g?e=gMZ4PV) | SwinB | HRSOD-TR-LR, UHRSD-TR-LR            
+[Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/EfsCbnfAU1RAqCJIkj1ewRgBhFetStsGB6SMSq_UJZimjA?e=Ghuacy) | SwinB | DUTS-TR, HRSOD-TR-LR, UHRSD-TR-LR
 
-* LR denotes resized into low-resolution scale (i.e. $384 \times 384$).
+* *-LR denotes resized into low-resolution scale (i.e., 384 X 384).
 
-### Trained with LR+HR dataset (with HR scale $1024 \times 1024$)
+### Trained with LR+HR dataset (with HR scale 1024 X 1024)
 
-Model                      |  Train DB                          
-:-|:-
-[InSPyReNet (SwinB)](https://drive.google.com/file/d/1UBGFDUYZ9SysZr96dhsscZg7nDXt6IUD/view?usp=sharing)         | DUTS-TR, HRSOD-TR
-[InSPyReNet (SwinB)](https://drive.google.com/file/d/1HB02tiInEgo-pNzwqyvyV6eSN1Y2xPRJ/view?usp=sharing)         | HRSOD-TR, UHRSD-TR
+Model (Link) | Backbone |  Train DB                          
+:-|:-|:-
+[Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/EW2Qg-tMBBxNkygMj-8QgMUBiqHox5ExTOJl0LGLsn6AtA?e=Mam8Ur) | SwinB | DUTS-TR, HRSOD-TR
+[Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/EeE8nnCt_AdFvxxu0JsxwDgBCtGchuUka6DW9za_epX-Qw?e=U7wZu9) | SwinB | HRSOD-TR, UHRSD-TR
 
 ## 5. Results
 
