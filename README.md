@@ -95,10 +95,12 @@ Model (Link) | Backbone |  Train DB
 
   * Trained with extra datasets
     
-    <span style="font-weight:normal">Image</span> | <span style="font-weight:normal">GT</span> | <span style="font-weight:normal">PGNet (H, U)</span> | <span style="font-weight:normal">Ours (D, H*)</span>
-    ------ | -----  | -----  | ----- 
-    Ours (H*, U*) | Ours (D, H*, U*) | Ours (D, H)  | Ours (H, U) 
-    
+    * Orders for each sample
+      Image         | GT               | PGNet (H, U) | Ours (D, H*) 
+      ------ | -----  | -----  | ----- 
+      Ours (H*, U*) | Ours (D, H*, U*) | Ours (D, H)  | Ours (H, U) 
+      * \* denotes LR scale for training time. Please refer to the paper.
+      
     ![](./figures/fig_qualitative3.jpg)
 
 
