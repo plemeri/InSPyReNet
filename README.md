@@ -56,14 +56,14 @@ URL                      |  Destination Folder
 
 ### Trained with LR dataset only (DUTS-TR, 384 X 384)
 
-Model (Link) | Backbone |  Train DB                          
+URL | Backbone |  Train DB                          
 :-|:-|:-
 [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/ERqm7RPeNBFPvVxkA5P5G2AB-mtFsiYkCNHnBf0DcwpFzw?e=nayVno) | Res2Net50 |DUTS-TR                             
 [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/EV0ow4E8LddCgu5tAuAkMbcBpBYoEDmJgQg5wkiuvLoQUA?e=cOZspv) | SwinB | DUTS-TR
 
 ### Trained with LR+HR dataset (with LR scale 384 X 384)
 
-Model (Link) | Backbone |  Train DB                          
+URL | Backbone |  Train DB                          
 :-|:-|:-
 [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/EWxPZoIKALlGsfrNgUFNvxwBC8IE8jzzhPNtzcbHmTNFcg?e=e22wmy) | SwinB | DUTS-TR, HRSOD-TR-LR                
 [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/EQe-iy0AZctIkgl3o-BmVYUBn795wvii3tsnBq1fNUbc9g?e=gMZ4PV) | SwinB | HRSOD-TR-LR, UHRSD-TR-LR            
@@ -73,7 +73,7 @@ Model (Link) | Backbone |  Train DB
 
 ### Trained with LR+HR dataset (with HR scale 1024 X 1024)
 
-Model (Link) | Backbone |  Train DB                          
+URL | Backbone |  Train DB                          
 :-|:-|:-
 [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/EW2Qg-tMBBxNkygMj-8QgMUBiqHox5ExTOJl0LGLsn6AtA?e=Mam8Ur) | SwinB | DUTS-TR, HRSOD-TR
 [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/EeE8nnCt_AdFvxxu0JsxwDgBCtGchuUka6DW9za_epX-Qw?e=U7wZu9) | SwinB | HRSOD-TR, UHRSD-TR
@@ -83,9 +83,10 @@ Model (Link) | Backbone |  Train DB
 * Quantitative
   * Trained with DUTS-TR only
   ![](./figures/fig_quantitative.png) 
+  ![](./figures/fig_quantitative2.png) 
   
   * Trained with extra datasets
-  ![](./figures/fig_quantitative2.png) 
+  ![](./figures/fig_quantitative3.png) 
 
 * Qualitative
 
@@ -101,7 +102,7 @@ Model (Link) | Backbone |  Train DB
       Ours (H*, U*) | Ours (D, H*, U*) | Ours (D, H)  | Ours (H, U) 
       * \* denotes LR scale for training time. Please refer to the paper.
       
-    ![](./figures/fig_qualitative3.jpg)
+    ![](./figures/fig_qualitative3.png)
 
 
 
