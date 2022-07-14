@@ -2,8 +2,7 @@
 
 PyTorch implementation of Revisiting Image Pyramid Structure for High Resolution Salient Object Detection (InSPyReNet)
 
-## Abstract
-
+> **Abstract:**
   Salient object detection (SOD) has been in the spotlight recently, yet has been studied less for high-resolution (HR) images. 
   Unfortunately, HR images and their pixel-level annotations are certainly more labor-intensive and time-consuming compared to low-resolution (LR) images.
   Therefore, we propose an image pyramid-based SOD framework, Inverse Saliency Pyramid Reconstruction Network (InSPyReNet), for HR prediction without any of HR datasets.
@@ -96,13 +95,13 @@ URL | Backbone |  Train DB
 
   * Trained with extra datasets
     
-    * Orders for each sample
-      Image         | GT               | PGNet (H, U) | Ours (D, H*) 
-      ------ | -----  | -----  | ----- 
-      Ours (H*, U*) | Ours (D, H*, U*) | Ours (D, H)  | Ours (H, U) 
-      * \* denotes LR scale for training time. Please refer to the paper.
+    * Orders for each sample (\* denotes LR scale for training time. Please refer to the Table 3. in the supplementary material)
+    
+    Image         | GT               | PGNet (H, U) | Ours (D, H*) 
+    ------ | -----  | -----  | ----- 
+    Ours (H*, U*) | Ours (D, H*, U*) | Ours (D, H)  | Ours (H, U) 
       
-    ![](./figures/fig_qualitative3.png)
+    ![](./figures/fig_qualitative3.jpg)
 
 
 
