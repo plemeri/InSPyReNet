@@ -51,7 +51,26 @@ URL                      |  Destination Folder
   python run/Eval.py --config configs/InSPyReNet_SwinB.yaml --verbose
   ```
 
-## 4. Checkpoints
+## 4. Inference on your own data
+  + You can inference your own single image or images (.jpg, .jpeg, and .png are supported), single video or videos (.mp4, .mov, and .avi are supported), and webcam input (ubuntu and macos are tested so far).
+  + `python run/Inference.py --config configs/InSPyReNet_SwinB.yaml --source [SOURCE] --dest [DEST] --type [TYPE] --gpu --jit --verbose`
+    + SOURCE: Specify your data in this argument.
+      + Single image - `image.png`
+      + Folder containing images - `path/to/img/folder`
+      + Single video - `video.mp4`
+      + Folder containing videos - `path/to/vid/folder`
+      + Webcam input: `0` (may vary depends on your device.)
+    + DEST (optional): Specify your destination folder. If not specified, it will be saved in `results` folder.
+    + TYPE: Choose between `map, green, rgba, blur`
+      + `map` will output saliency map only. 
+      + `green` will change the background with green screen. 
+      + `rgba` will generate RGBA output regarding saliency score as an alpha map. Note that this will not work for video and webcam input. 
+      + `blur` will blur the background.
+    + --gpu: Use this argument if you want to use GPU. 
+    + --jit: Slightly improves inference speed when used. 
+    + --verbose: Use when you want to visualize progress.
+
+## 5. Checkpoints
 
 ### Trained with LR dataset only (DUTS-TR, 384 X 384)
 
@@ -77,7 +96,7 @@ URL | Backbone |  Train DB
 [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/EW2Qg-tMBBxNkygMj-8QgMUBiqHox5ExTOJl0LGLsn6AtA?e=Mam8Ur) | SwinB | DUTS-TR, HRSOD-TR
 [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/EeE8nnCt_AdFvxxu0JsxwDgBCtGchuUka6DW9za_epX-Qw?e=U7wZu9) | SwinB | HRSOD-TR, UHRSD-TR
 
-## 5. Results
+## 6. Results
 
 * Quantitative
   * Trained with DUTS-TR only
@@ -106,7 +125,7 @@ URL | Backbone |  Train DB
 
 
 
-## 5. Citation
+## 7. Citation
 
 + Backbones:
   + Res2Net: [A New Multi-scale Backbone Architecture](https://github.com/Res2Net/Res2Net-PretrainedModels)
