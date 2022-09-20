@@ -1,6 +1,7 @@
 # Revisiting Image Pyramid Structure for High Resolution Salient Object Detection (InSPyReNet)
 
 PyTorch implementation of Revisiting Image Pyramid Structure for High Resolution Salient Object Detection (InSPyReNet)
+
 To appear in the 16th Asian Conference on Computer Vision (ACCV2022)
 
 > **Abstract:**
@@ -36,15 +37,6 @@ URL                      |  Destination Folder
 [Res2Net50 checkpoint](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/EUO7GDBwoC9CulTPdnq_yhQBlc0SIyyELMy3OmrNhOjcGg?e=T3PVyG) | `data/backbone_ckpt/*.pth`
 [SwinB checkpoint](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/ESlYCLy0endMhcZm9eC2A4ABatxupp4UPh03EcqFjbtSRw?e=7y6lLt) | `data/backbone_ckpt/*.pth`
   
-  * Train with extra training datasets (HRSOD, UHRSD):
-  ```
-  Train:
-    Dataset:
-        type: "RGB_Dataset"
-        root: "data/RGB_Dataset/Train_Dataset"
-        sets: ['DUTS-TR'] --> ['DUTS-TR', 'HRSOD-TR-LR', 'UHRSD-TR-LR']
-  ```
-
 ## 3. Train & Evaluate
   * Train InSPyReNet (SwinB)
   ```
@@ -82,10 +74,10 @@ URL                      |  Destination Folder
 
 ### Trained with LR dataset only (DUTS-TR, 384 X 384)
 
-URL | Backbone |  Train DB                          
-:-|:-|:-
-[Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/ERqm7RPeNBFPvVxkA5P5G2AB-mtFsiYkCNHnBf0DcwpFzw?e=nayVno) | Res2Net50 |DUTS-TR                             
-[Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/EV0ow4E8LddCgu5tAuAkMbcBpBYoEDmJgQg5wkiuvLoQUA?e=cOZspv) | SwinB | DUTS-TR
+URL | Backbone |  Train DB  | Config                        
+:-|:-|:-|:-
+[Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/ERqm7RPeNBFPvVxkA5P5G2AB-mtFsiYkCNHnBf0DcwpFzw?e=nayVno) | Res2Net50 | DUTS-TR | [InSPyReNet_Res2Net50](configs/InSPyReNet_Res2Net50.yaml)
+[Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/EV0ow4E8LddCgu5tAuAkMbcBpBYoEDmJgQg5wkiuvLoQUA?e=cOZspv) | SwinB | DUTS-TR | [InSPyReNet_SwinB.yaml](configs/InSPyReNet_SwinB.yaml)
 
 ### Trained with LR+HR dataset (with LR scale 384 X 384)
 
@@ -103,6 +95,7 @@ URL | Backbone |  Train DB
 :-|:-|:-
 [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/EW2Qg-tMBBxNkygMj-8QgMUBiqHox5ExTOJl0LGLsn6AtA?e=Mam8Ur) | SwinB | DUTS-TR, HRSOD-TR
 [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/EeE8nnCt_AdFvxxu0JsxwDgBCtGchuUka6DW9za_epX-Qw?e=U7wZu9) | SwinB | HRSOD-TR, UHRSD-TR
+
 
 ## 6. Results
 
