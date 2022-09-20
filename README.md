@@ -16,6 +16,7 @@ To appear in the 16th Asian Conference on Computer Vision (ACCV2022)
 <div align="center">
   <img src="./figures/fig_architecture.png" width="1200px">
 </div>
+
 ### pyramid blending
 
 <div align="center">
