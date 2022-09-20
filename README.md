@@ -1,6 +1,7 @@
 # Revisiting Image Pyramid Structure for High Resolution Salient Object Detection (InSPyReNet)
 
 PyTorch implementation of Revisiting Image Pyramid Structure for High Resolution Salient Object Detection (InSPyReNet)
+To appear in the 16th Asian Conference on Computer Vision (ACCV2022)
 
 > **Abstract:**
   Salient object detection (SOD) has been in the spotlight recently, yet has been studied less for high-resolution (HR) images. 
@@ -11,9 +12,15 @@ PyTorch implementation of Revisiting Image Pyramid Structure for High Resolution
 
 ## Architecture
 
-InSPyReNet                 |  pyramid blending
-:-------------------------:|:-------------------------:
-![](./figures/fig_architecture.png)  |  ![](./figures/fig_pyramid_blending.png)
+### InSPyReNet
+<div align="center">
+  <img src="./figures/fig_architecture.png" width="1200px">
+</div>
+### pyramid blending
+
+<div align="center">
+  <img src="./figures/fig_pyramid_blending.png" width="600px">
+</div>
 
 ## 1. Create environment
   + Create conda environment with following command `conda create -y -n inspyrenet python=3.8`
