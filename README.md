@@ -4,6 +4,8 @@ PyTorch implementation of Revisiting Image Pyramid Structure for High Resolution
 
 To appear in the 16th Asian Conference on Computer Vision (ACCV2022)
 
+[[Arxiv](https://arxiv.org/abs/2209.09475)]
+
 > **Abstract:**
   Salient object detection (SOD) has been in the spotlight recently, yet has been studied less for high-resolution (HR) images. 
   Unfortunately, HR images and their pixel-level annotations are certainly more labor-intensive and time-consuming compared to low-resolution (LR) images.
@@ -123,10 +125,12 @@ URL | Backbone |  Train DB
       
     ![](./figures/fig_qualitative3.jpg)
 
+## 7.Citation
 
+```
+```
 
-
-## 7. Citation
+## References
 
 + Backbones:
   + Res2Net: [A New Multi-scale Backbone Architecture](https://github.com/Res2Net/Res2Net-PretrainedModels)
