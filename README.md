@@ -44,6 +44,14 @@ URL                      |  Destination Folder
   ```
   python run/Train.py --config configs/InSPyReNet_SwinB.yaml --verbose
   ```
+  * Train with extra training datasets is just changing [this line](https://github.com/plemeri/InSPyReNet/blob/217d7d4944506870a60987533af685140a0bc642/configs/InSPyReNet_SwinB.yaml#L12), simply adding more directories  (HRSOD, UHRSD):
+   ```
+   Train:
+     Dataset:
+         type: "RGB_Dataset"
+         root: "data/RGB_Dataset/Train_Dataset"
+         sets: ['DUTS-TR'] --> ['DUTS-TR', 'HRSOD-TR-LR', 'UHRSD-TR-LR']
+   ```
   * Inference for test benchmarks
   ```
   python run/Test.py --config configs/InSPyReNet_SwinB.yaml --verbose
@@ -52,6 +60,8 @@ URL                      |  Destination Folder
   ```
   python run/Eval.py --config configs/InSPyReNet_SwinB.yaml --verbose
   ```
+
+   * Please note that we only uploaded the low-resolution (LR) version of HRSOD and UHRSD due to their large image resolution. In order to use them, please download them from the original repositories (see references below), and change the directory names as we did to the LR versions.
 
 ## 4. Inference on your own data
   + You can inference your own single image or images (.jpg, .jpeg, and .png are supported), single video or videos (.mp4, .mov, and .avi are supported), and webcam input (ubuntu and macos are tested so far).
@@ -74,6 +84,8 @@ URL                      |  Destination Folder
 
 ## 5. Checkpoints
 
+* If you want to try our trained checkpoints below, please make sure to locate `latest.pth` file to the [correct location](https://github.com/plemeri/InSPyReNet/blob/217d7d4944506870a60987533af685140a0bc642/configs/InSPyReNet_SwinB.yaml#L72). 
+
 ### Trained with LR dataset only (DUTS-TR, 384 X 384)
 
 URL | Backbone |  Train DB  | Config                        
@@ -83,20 +95,20 @@ URL | Backbone |  Train DB  | Config
 
 ### Trained with LR+HR dataset (with LR scale 384 X 384)
 
-URL | Backbone |  Train DB                          
-:-|:-|:-
-[Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/EWxPZoIKALlGsfrNgUFNvxwBC8IE8jzzhPNtzcbHmTNFcg?e=e22wmy) | SwinB | DUTS-TR, HRSOD-TR-LR                
-[Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/EQe-iy0AZctIkgl3o-BmVYUBn795wvii3tsnBq1fNUbc9g?e=gMZ4PV) | SwinB | HRSOD-TR-LR, UHRSD-TR-LR            
-[Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/EfsCbnfAU1RAqCJIkj1ewRgBhFetStsGB6SMSq_UJZimjA?e=Ghuacy) | SwinB | DUTS-TR, HRSOD-TR-LR, UHRSD-TR-LR
+URL | Backbone |  Train DB  | Config                        
+:-|:-|:-|:-
+[Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/EWxPZoIKALlGsfrNgUFNvxwBC8IE8jzzhPNtzcbHmTNFcg?e=e22wmy) | SwinB | DUTS-TR, HRSOD-TR-LR | [InSPyReNet_SwinB.yaml](configs/InSPyReNet_SwinB.yaml)               
+[Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/EQe-iy0AZctIkgl3o-BmVYUBn795wvii3tsnBq1fNUbc9g?e=gMZ4PV) | SwinB | HRSOD-TR-LR, UHRSD-TR-LR | [InSPyReNet_SwinB.yaml](configs/InSPyReNet_SwinB.yaml)           
+[Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/EfsCbnfAU1RAqCJIkj1ewRgBhFetStsGB6SMSq_UJZimjA?e=Ghuacy) | SwinB | DUTS-TR, HRSOD-TR-LR, UHRSD-TR-LR | [InSPyReNet_SwinB.yaml](configs/InSPyReNet_SwinB.yaml)
 
 * *-LR denotes resized into low-resolution scale (i.e., 384 X 384).
 
 ### Trained with LR+HR dataset (with HR scale 1024 X 1024)
 
-URL | Backbone |  Train DB                          
-:-|:-|:-
-[Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/EW2Qg-tMBBxNkygMj-8QgMUBiqHox5ExTOJl0LGLsn6AtA?e=Mam8Ur) | SwinB | DUTS-TR, HRSOD-TR
-[Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/EeE8nnCt_AdFvxxu0JsxwDgBCtGchuUka6DW9za_epX-Qw?e=U7wZu9) | SwinB | HRSOD-TR, UHRSD-TR
+URL | Backbone |  Train DB  | Config                        
+:-|:-|:-|:-
+[Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/EW2Qg-tMBBxNkygMj-8QgMUBiqHox5ExTOJl0LGLsn6AtA?e=Mam8Ur) | SwinB | DUTS-TR, HRSOD-TR | [InSPyReNet_SwinB.yaml](configs/InSPyReNet_SwinB.yaml)
+[Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/EeE8nnCt_AdFvxxu0JsxwDgBCtGchuUka6DW9za_epX-Qw?e=U7wZu9) | SwinB | HRSOD-TR, UHRSD-TR | [InSPyReNet_SwinB.yaml](configs/InSPyReNet_SwinB.yaml)
 
 
 ## 6. Results
