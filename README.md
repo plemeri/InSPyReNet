@@ -26,20 +26,13 @@ To appear in the 16th Asian Conference on Computer Vision (ACCV2022)
 
 [Demo1](./figures/fig_demo1.gif) | [Demo2](./figures/fig_demo2.gif)
 :-:|:-:
-<img src=./figures/fig_demo1.gif height="400px" width="400px"> | <img src=./figures/fig_demo2.gif height="400px" width="400px">
+<img src=./figures/fig_demo1.gif height="350px" width="350px"> | <img src=./figures/fig_demo2.gif height="350px" width="350px">
 
 ## Architecture
 
-### InSPyReNet
-<div align="center">
-  <img src="./figures/fig_architecture.png" width="1200px">
-</div>
-
-### pyramid blending
-
-<div align="center">
-  <img src="./figures/fig_pyramid_blending.png" width="600px">
-</div>
+[InSPyReNet](./figures/fig_architecture.png) | [Demo2](./figures/fig_pyramid_blending.png)
+:-:|:-:
+<img src=./figures/fig_architecture.png height="350px" width="350px"> | <img src=./figures/fig_pyramid_blending.png height="350px" width="350px">
 
 ## 1. Create environment
   + Create conda environment with following command `conda create -y -n inspyrenet python=3.8`
@@ -134,28 +127,18 @@ SwinB | DUTS-TR, DUTS-TE, FSS-1000, MSRA-10K, ECSSD, HRSOD-TR-LR, UHRSD-TR-LR | 
 ## 6. Results
 
 * Quantitative
-  * Trained with DUTS-TR only
-  ![](./figures/fig_quantitative.png) 
-  ![](./figures/fig_quantitative2.png) 
-  
-  * Trained with extra datasets
-  ![](./figures/fig_quantitative3.png) 
+
+[LR Benchmark](./figures/fig_quantitative.png) | [HR Benchmark](./figures/fig_quantitative2.png) | [HR Benchmark (Trained with extra DB)](./figures/fig_quantitative3.png) 
+:-:|:-:|:-:
+<img src=./figures/fig_quantitative.png height="250px" width="250px"> | <img src=./figures/fig_quantitative2.png height="250px" width="250px"> | <img src=./figures/fig_quantitative3.png height="250px" width="250px">
+
 
 * Qualitative
 
-  * Trained with with DUTS-TR only
-  ![](./figures/fig_qualitative.png)
-  ![](./figures/fig_qualitative2.png)
+[DAVIS-S & HRSOD](./figures/fig_qualitative.png) | [UHRSD](./figures/fig_qualitative2.png) | [UHRSD (Trained with extra DB)](./figures/fig_qualitative3.jpg) 
+:-:|:-:|:-:
+<img src=./figures/fig_qualitative.png height="250px" width="250px"> | <img src=./figures/fig_qualitative2.png height="250px" width="250px"> | <img src=./figures/fig_qualitative3.jpg height="250px" width="250px">
 
-  * Trained with extra datasets
-    
-    * Orders for each sample (\* denotes LR scale for training time. Please refer to the Table 3. in the supplementary material)
-    
-    Image         | GT               | PGNet (H, U) | Ours (D, H*) 
-    ------ | -----  | -----  | ----- 
-    Ours (H*, U*) | Ours (D, H*, U*) | Ours (D, H)  | Ours (H, U) 
-      
-    ![](./figures/fig_qualitative3.jpg)
 
 ## 7.Citation
 
@@ -171,15 +154,9 @@ SwinB | DUTS-TR, DUTS-TE, FSS-1000, MSRA-10K, ECSSD, HRSOD-TR-LR, UHRSD-TR-LR | 
 ## References
 
 + Backbones:
-  + Res2Net: [A New Multi-scale Backbone Architecture](https://github.com/Res2Net/Res2Net-PretrainedModels)
-  + Swin Transformer: [Hierarchical Vision Transformer using Shifted Windows](https://github.com/microsoft/Swin-Transformer)
+  + [Res2Net](https://github.com/Res2Net/Res2Net-PretrainedModels), [Swin Transformer](https://github.com/microsoft/Swin-Transformer)
 + Datasets:
-  + [DUTS](http://saliencydetection.net/duts/)
-  + [DUT-OMRON](http://saliencydetection.net/dut-omron/)
-  + [ECSSD](https://i.cs.hku.hk/~gbli/deep_saliency.html)
-  + [HKU-IS](http://www.cse.cuhk.edu.hk/leojia/projects/hsaliency/dataset.html)
-  + [PASCAL-S](http://cbi.gatech.edu/salobj/)
-  + [DAVIS-S, HRSOD](https://github.com/yi94code/HRSOD)
-  + [UHRSD](https://github.com/iCVTEAM/PGNet)
+  + LR Benchmarks: [DUTS](http://saliencydetection.net/duts/), [DUT-OMRON](http://saliencydetection.net/dut-omron/), [ECSSD](https://i.cs.hku.hk/~gbli/deep_saliency.html), [HKU-IS](http://www.cse.cuhk.edu.hk/leojia/projects/hsaliency/dataset.html), [PASCAL-S](http://cbi.gatech.edu/salobj/)
+  + HR Benchmarks: [DAVIS-S, HRSOD](https://github.com/yi94code/HRSOD), [UHRSD](https://github.com/iCVTEAM/PGNet)
 
 + Evaluation Toolkit: [PySOD Metrics](https://github.com/lartpang/PySODMetrics)
