@@ -24,9 +24,9 @@ To appear in the 16th Asian Conference on Computer Vision (ACCV2022)
 
 ## Demo :rocket:
 
-[Demo1](./figures/fig_demo1.gif) | [Demo2](./figures/fig_demo2.gif)
+[Image Sample](./figures/demo_image.gif) | [Video Sample](./figures/demo_video.gif)
 :-:|:-:
-<img src=./figures/fig_demo1.gif height="350px" width="350px"> | <img src=./figures/fig_demo2.gif height="350px" width="350px">
+<img src=./figures/demo_image.gif height="350px" width="350px"> | <img src=./figures/demo_video.gif height="350px" width="350px">
 
 ## Architecture
 
