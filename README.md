@@ -122,7 +122,7 @@ SwinB | HRSOD-TR, UHRSD-TR | [InSPyReNet_SwinB.yaml](configs/InSPyReNet_SwinB.ya
 
 Backbone |  Train DB  | Config | OneDrive | GDrive
 :-|:-|:-|:-|:-
-SwinB | DUTS-TR, DUTS-TE, FSS-1000, MSRA-10K, ECSSD, HRSOD-TR-LR, UHRSD-TR-LR | [InSPyReNet_SwinB.yaml](configs/InSPyReNet_SwinB.yaml) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/ESKuh1zhToVFsIxhUUsgkbgBnu2kFXCFLRuSz1xxsKzjhA?e=02HDrm) | [Link](https://drive.google.com/file/d/1iRX-0MVbUjvAVns5MtVdng6CQlGOIo3m/view?usp=sharing) 
+SwinB | DUTS-TR, DUTS-TE, DUT-OMRON, FSS-1000, MSRA-10K, ECSSD, HKU-IS, PASCAL-S, HRSOD-TR-LR, UHRSD-TR-LR | [InSPyReNet_SwinB.yaml](configs/InSPyReNet_SwinB.yaml) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/ESKuh1zhToVFsIxhUUsgkbgBnu2kFXCFLRuSz1xxsKzjhA?e=02HDrm) | [Link](https://drive.google.com/file/d/1iRX-0MVbUjvAVns5MtVdng6CQlGOIo3m/view?usp=sharing) 
 
 
 ## 6. Pre-Computed Saliency Maps
