@@ -26,10 +26,6 @@ To appear in the 16th Asian Conference on Computer Vision (ACCV2022)
 
 [2022.10.04] [TasksWithCode](https://github.com/taskswithcode) mentioned our work in [Blog](https://medium.com/@taskswithcode/twc-9-7c960c921f69) and reproducing our work on [Colab](https://github.com/taskswithcode/InSPyReNet). Thank you for your attention!
 
-## News :newspaper:
-
-[2022.10.04] [TasksWithCode](https://github.com/taskswithcode) mentioned our work in [Blog](https://medium.com/@taskswithcode/twc-9-7c960c921f69) and reproducing our work on [Colab](https://github.com/taskswithcode/InSPyReNet). Thank you for your attention!
-
 [2022.10.20] :new: We trained our model on [Dichotomous Image Segmentation dataset (DIS5K)](https://xuebinqin.github.io/dis/index.html) and showed competitive results! Trained checkpoint and pre-computed segmentation masks are available in [Checkpoints](#checkpoints) and [Pre-Computed Saliency Maps](#pre-computed-saliency-maps) section.
 
 ## Demo :rocket:
@@ -212,12 +208,6 @@ InSPyReNet_SwinB_DIS5K  0.891309  0.046105  0.93163  0.943378  0.925577  0.85453
   year={2022}
 }
 ```
-## Acknowledgement
-
-This work was supported by Institute of Information & communications Technology Planning & Evaluation (IITP) grant funded by the Korea government (MSIT) 
-(No.2017-0-00897, Development of Object Detection and Recognition for Intelligent Vehicles) and 
-(No.B0101-15-0266, Development of High Performance Visual BigData Discovery Platform for Large-Scale Realtime Data Analysis)
-
 
 ## Acknowledgement
 
