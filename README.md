@@ -154,7 +154,7 @@ Backbone | DUTS-TE | DUT-OMRON | ECSSD | HKU-IS | PASCAL-S | DAVIS-S | HRSOD-TE 
 Res2Net50 | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/Eb0iKXGX1vxEjPhe9KGBKr0Bv7v2vv6Ua5NFybwc6aIi1w?e=oHnGyJ) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/Ef1HaYMvgh1EuuOL8bw3JGYB41-yo6KdTD8FGXcFZX3-Bg?e=TkW2m8) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/EdEQQ8o-yI9BtTpROcuB_iIBFSIk0uBJAkNyob0WI04-kw?e=cwEj2V) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/Ec6LyrumVZ9PoB2Af0OW4dcBrDht0OznnwOBYiu8pdyJ4A?e=Y04Fmn) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/ETPijMHlTRZIjqO5H4LBknUBmy8TGDwOyUQ1H4EnIpHVOw?e=k1afrh) | N/A | N/A | N/A |
 SwinB | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/ETumLjuBantLim4kRqj4e_MBpK_X5XrTwjGQUToN8TKVjw?e=ZT8AWy) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/EZbwxhwT6dtHkBJrIMMjTnkBK_HaDTXgHcDSjxuswZKTZw?e=9XeE4b) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/ESfQK-557uZOmUwG5W49j0EBK42_7dMOaQcPsc_U1zsYlA?e=IvjkKX) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/EURH96JUp55EgUHI0A8RzKoBBqvQc1nVb_a67RgwOY7f-w?e=IP9xKa) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/EakMpwONph9EmnCM2rS3hn4B_TL42T6tuLjBEeEa5ndkIw?e=XksfA5) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/ETUCKFX0k8lAvpsDj5sT23QB2ohuE_ST7oQnWdaW7AoCIw?e=MbSmM2) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/Ea6kf6Kk8fpIs15WWDfJMoYBeQUeo9WXvYx9oM5yWFE1Jg?e=RNN0Ns) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/EVJLvAP3HwtHksZMUolIfCABHqP7GgAWcG_1V5T_Xrnr2g?e=ct3pzo) |
 
-### * :new: DIS5K Results
+### * :new: DIS5K Results [Added in 2022.10.20]
 
 Backbone | DIS-VD | DIS-TE1 | DIS-TE2 | DIS-TE3 | DIS-TE4
 :-|:-|:-|:-|:-|:-|
@@ -167,6 +167,29 @@ SwinB | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_
 [LR Benchmark](./figures/fig_quantitative.png) | [HR Benchmark](./figures/fig_quantitative2.png) | [HR Benchmark (Trained with extra DB)](./figures/fig_quantitative3.png) 
 :-:|:-:|:-:
 <img src=./figures/fig_quantitative.png height="250px" width="250px"> | <img src=./figures/fig_quantitative2.png height="250px" width="250px"> | <img src=./figures/fig_quantitative3.png height="250px" width="250px">
+
+* :new: [Added in 2022.10.20] Quantitative results on DIS5K dataset
+```
+### DIS-VD ###
+                               Sm       mae     adpEm     maxEm     avgEm     adpFm     maxFm     avgFm       wFm      mBA
+InSPyReNet_SwinB_DIS5K  0.886864  0.042793  0.914565  0.935221  0.921736  0.829576  0.876038  0.852392  0.825977  0.76549
+
+### DIS-TE1 ###
+                               Sm       mae     adpEm     maxEm     avgEm     adpFm     maxFm     avgFm       wFm       mBA
+InSPyReNet_SwinB_DIS5K  0.861892  0.044763  0.867959  0.907143  0.895225  0.755639  0.834186  0.808307  0.777114  0.745395
+
+### DIS-TE2 ###
+                               Sm       mae     adpEm     maxEm     avgEm     adpFm     maxFm     avgFm       wFm       mBA
+InSPyReNet_SwinB_DIS5K  0.893478  0.038333  0.913179  0.935649  0.925365  0.828145  0.881145  0.859987  0.833934  0.758754
+
+### DIS-TE3 ###
+                               Sm      mae     adpEm     maxEm     avgEm     adpFm     maxFm     avgFm       wFm       mBA
+InSPyReNet_SwinB_DIS5K  0.901972  0.03811  0.927804  0.949656  0.937635  0.852994  0.903866  0.880221  0.855881  0.774146
+
+### DIS-TE4 ###
+                               Sm       mae    adpEm     maxEm     avgEm     adpFm     maxFm     avgFm       wFm       mBA
+InSPyReNet_SwinB_DIS5K  0.891309  0.046105  0.93163  0.943378  0.925577  0.854539  0.891522  0.865523  0.839571  0.778905
+```
 
 
 * Qualitative
