@@ -2,8 +2,8 @@ Model:
     name: "InSPyReNet_SwinB"
     depth: 64
     pretrained: True
-    base_size: [1024, 1024]
-    threshold: NULL
+    base_size: [384, 384]
+    threshold: 512
 
 Train:
     Dataset:
@@ -12,7 +12,7 @@ Train:
         sets: ['DIS-TR']
         transforms:
             static_resize: 
-                size: [1024, 1024]
+                size: [384, 384]
             random_scale_crop:
                 range: [0.75, 1.25]
             random_flip:
@@ -28,7 +28,7 @@ Train:
                 std: [0.229, 0.224, 0.225]
             totensor: NULL
     Dataloader:
-        batch_size: 2
+        batch_size: 6
         shuffle: True
         num_workers: 8
         pin_memory: False
@@ -39,7 +39,7 @@ Train:
         mixed_precision: False
     Scheduler:
         type: "PolyLr"
-        epoch: 60
+        epoch: 180
         gamma: 0.9
         minimum_lr: 1.0e-07
         warmup_iteration: 12000
@@ -56,10 +56,10 @@ Test:
     Dataset:
         type: "RGB_Dataset"
         root: "data/Test_Dataset"
-        sets:  ['DIS-TE1', 'DIS-TE2', 'DIS-TE3', 'DIS-TE4']
+        sets: ['DIS-VD', 'DIS-TE1', 'DIS-TE2', 'DIS-TE3', 'DIS-TE4']
         transforms:
-            static_resize: 
-                size: [1024, 1024]
+            dynamic_resize:
+                L: 1280
             tonumpy: NULL
             normalize: 
                 mean: [0.485, 0.456, 0.406]
@@ -75,5 +75,5 @@ Eval:
     gt_root: "data/Test_Dataset"
     pred_root: "snapshots/InSPyReNet_SwinB_DIS5K"
     result_path: "results"
-    datasets: ['DIS-TE1', 'DIS-TE2', 'DIS-TE3', 'DIS-TE4']
+    datasets: ['DIS-VD', 'DIS-TE1', 'DIS-TE2', 'DIS-TE3', 'DIS-TE4']
     metrics: ['Sm', 'mae', 'adpEm', 'maxEm', 'avgEm', 'adpFm', 'maxFm', 'avgFm', 'wFm', 'mBA']
