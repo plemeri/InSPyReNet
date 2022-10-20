@@ -26,7 +26,7 @@ To appear in the 16th Asian Conference on Computer Vision (ACCV2022)
 
 [2022.10.04] [TasksWithCode](https://github.com/taskswithcode) mentioned our work in [Blog](https://medium.com/@taskswithcode/twc-9-7c960c921f69) and reproducing our work on [Colab](https://github.com/taskswithcode/InSPyReNet). Thank you for your attention!
 
-[2022.10.20] :new: We trained our model on [Dichotomous Image Segmentation dataset (DIS5K)](https://xuebinqin.github.io/dis/index.html) and showed competitive results! Trained checkpoint and pre-computed segmentation masks are available in <a href="## 5. Checkpoints"> Checkpoints </a> and <a href="## 6. Pre-Computed Saliency Maps"> Pre-Computed Saliency Maps </a> section.
+[2022.10.20] :new: We trained our model on [Dichotomous Image Segmentation dataset (DIS5K)](https://xuebinqin.github.io/dis/index.html) and showed competitive results! Trained checkpoint and pre-computed segmentation masks are available in [Checkpoints](##5.-checkpoints) and [Pre-Computed Saliency Maps](##6.-pre-computed-saliency-maps) section.
 
 ## Demo :rocket:
 
@@ -138,11 +138,11 @@ Backbone |  Train DB  | Config | OneDrive | GDrive
 SwinB | DUTS-TR, DUTS-TE, DUT-OMRON, FSS-1000, MSRA-10K, ECSSD, HKU-IS, PASCAL-S, HRSOD-TR-LR, UHRSD-TR-LR | [InSPyReNet_SwinB.yaml](configs/InSPyReNet_SwinB.yaml) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/ESKuh1zhToVFsIxhUUsgkbgBnu2kFXCFLRuSz1xxsKzjhA?e=02HDrm) | [Link](https://drive.google.com/file/d/1iRX-0MVbUjvAVns5MtVdng6CQlGOIo3m/view?usp=sharing)
 
 ### :new: Trained with Dichotomous Image Segmentation dataset (DIS5K-TR) with LR scale (384 X 384) [Added in 2022.10.20] 
-* If you want to train / inference with DIS5K, you may need to change the subdirectories' names (`im` and `gt`) to our way (`images` and `masks`) for training and testing datasets. Please refer to the <a href="## 2. Preparation"> Preparation </a> section.
+* If you want to train / inference with DIS5K, you may need to change the subdirectories' names (`im` and `gt`) to our way (`images` and `masks`) for training and testing datasets. Please refer to the [Preparation](##2.-preparation) </a> section.
 
 Backbone |  Train DB  | Config | OneDrive | GDrive
 :-|:-|:-|:-|:-
-SwinB | DIS5K-TR | [InSPyReNet_SwinB.yaml](configs/InSPyReNet_SwinB_DIS5K.yaml) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/ERKrQ_YeoJRHl_3HcH8ZJLoBedsa6hZlmIIf66wobZRGuw?e=EywJmS) | [Link](https://drive.google.com/file/d/1iRX-0MVbUjvAVns5MtVdng6CQlGOIo3m/view?usp=sharing)
+SwinB | DIS5K-TR | [InSPyReNet_SwinB_DIS5K.yaml](configs/InSPyReNet_SwinB_DIS5K.yaml) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/ERKrQ_YeoJRHl_3HcH8ZJLoBedsa6hZlmIIf66wobZRGuw?e=EywJmS) | [Link](https://drive.google.com/file/d/1Sj7GZoocGMHyKNhFnQQc1FTs76ysJIX3/view?usp=sharing)
 
 
 ## 6. Pre-Computed Saliency Maps
@@ -157,8 +157,7 @@ SwinB | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_
 ### * :new: DIS5K Results
 
 Backbone | DIS-VD | DIS-TE1 | DIS-TE2 | DIS-TE3 | DIS-TE4
-:-|:-|:-|:-|:-|:-|:-|:-|:-
-
+:-|:-|:-|:-|:-|:-|
 SwinB | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/EUbzddb_QRRCtnXC8Xl6vZoBC6IqOfom52BWbzOYk-b2Ow?e=aqJYi1) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/ESeW_SOD26tHjBLymmgFaXwBIJlljzNycaGWXLpOp_d_kA?e=2EyMai) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/EYWT5fZDjI5Bn-lr-iQM1TsB1num0-UqfJC1TIv-LuOXoA?e=jCcnty) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/EQXm1DEBfaNJmH0B-A3o23kBn4v5j53kP2nF9CpG9SQkyw?e=lEUiZh) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/EZeH2ufGsFZIoUh6D8Rtv88BBF_ddQXav4xYXXRP_ayEAg?e=AMzIp8)
 
 ## 7. Results
@@ -200,6 +199,7 @@ This work was supported by Institute of Information & communications Technology 
 + Datasets:
   + LR Benchmarks: [DUTS](http://saliencydetection.net/duts/), [DUT-OMRON](http://saliencydetection.net/dut-omron/), [ECSSD](https://i.cs.hku.hk/~gbli/deep_saliency.html), [HKU-IS](http://www.cse.cuhk.edu.hk/leojia/projects/hsaliency/dataset.html), [PASCAL-S](http://cbi.gatech.edu/salobj/)
   + HR Benchmarks: [DAVIS-S, HRSOD](https://github.com/yi94code/HRSOD), [UHRSD](https://github.com/iCVTEAM/PGNet)
+  + Dichotomous Image Segmentation: [DIS5K](https://xuebinqin.github.io/dis/index.html)
 
 + Evaluation Toolkit
   + SOD Metrics (e.g., S-measure): [PySOD Metrics](https://github.com/lartpang/PySODMetrics)
