@@ -169,28 +169,15 @@ SwinB | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_
 <img src=./figures/fig_quantitative.png height="250px" width="250px"> | <img src=./figures/fig_quantitative2.png height="250px" width="250px"> | <img src=./figures/fig_quantitative3.png height="250px" width="250px">
 
 * :new: [Added in 2022.10.20] Quantitative results on DIS5K dataset
-```
-### DIS-VD ###
-                               Sm       mae     adpEm     maxEm     avgEm     adpFm     maxFm     avgFm       wFm      mBA
-InSPyReNet_SwinB_DIS5K  0.886864  0.042793  0.914565  0.935221  0.921736  0.829576  0.876038  0.852392  0.825977  0.76549
+  * *: HCE here is relax Human Correction Error which is proposed in DIS([project page](https://xuebinqin.github.io/dis/index.html) | [paper](https://arxiv.org/pdf/2203.03041.pdf)) and you can compute yourself from their [github](https://github.com/xuebinqin/DIS) repository.
 
-### DIS-TE1 ###
-                               Sm       mae     adpEm     maxEm     avgEm     adpFm     maxFm     avgFm       wFm       mBA
-InSPyReNet_SwinB_DIS5K  0.861892  0.044763  0.867959  0.907143  0.895225  0.755639  0.834186  0.808307  0.777114  0.745395
-
-### DIS-TE2 ###
-                               Sm       mae     adpEm     maxEm     avgEm     adpFm     maxFm     avgFm       wFm       mBA
-InSPyReNet_SwinB_DIS5K  0.893478  0.038333  0.913179  0.935649  0.925365  0.828145  0.881145  0.859987  0.833934  0.758754
-
-### DIS-TE3 ###
-                               Sm      mae     adpEm     maxEm     avgEm     adpFm     maxFm     avgFm       wFm       mBA
-InSPyReNet_SwinB_DIS5K  0.901972  0.03811  0.927804  0.949656  0.937635  0.852994  0.903866  0.880221  0.855881  0.774146
-
-### DIS-TE4 ###
-                               Sm       mae    adpEm     maxEm     avgEm     adpFm     maxFm     avgFm       wFm       mBA
-InSPyReNet_SwinB_DIS5K  0.891309  0.046105  0.93163  0.943378  0.925577  0.854539  0.891522  0.865523  0.839571  0.778905
-```
-
+Dataset | Sm | mae | adpEm | maxEm | avgEm | adpFm | maxFm | avgFm | wFm | mBA | HCE<sup>*</sup>
+:-|:-|:-|:-|:-|:-|:-|:-|:-|:-|:-|:-|
+ DIS-VD  | 0.886864 | 0.042793 | 0.914565 | 0.935221 | 0.921736 | 0.829576 | 0.876038 | 0.852392 | 0.825977 | 0.76549  | 905
+ DIS-TE1 | 0.861892 | 0.044763 | 0.867959 | 0.907143 | 0.895225 | 0.755639 | 0.834186 | 0.808307 | 0.777114 | 0.745395 | 148
+ DIS-TE2 | 0.893478 | 0.038333 | 0.913179 | 0.935649 | 0.925365 | 0.828145 | 0.881145 | 0.859987 | 0.833934 | 0.758754 | 316
+ DIS-TE3 | 0.901972 | 0.03811  | 0.927804 | 0.949656 | 0.937635 | 0.852994 | 0.903866 | 0.880221 | 0.855881 | 0.774146 | 582
+ DIS-TE4 | 0.891309 | 0.046105 | 0.93163  | 0.943378 | 0.925577 | 0.854539 | 0.891522 | 0.865523 | 0.839571 | 0.778905 | 2243
 
 * Qualitative
 
