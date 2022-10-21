@@ -168,7 +168,7 @@ SwinB | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_
 :-:|:-:|:-:
 <img src=./figures/fig_quantitative.png height="250px" width="250px"> | <img src=./figures/fig_quantitative2.png height="250px" width="250px"> | <img src=./figures/fig_quantitative3.png height="250px" width="250px">
 
-* :new: [Added in 2022.10.20] Quantitative results on DIS5K dataset
+* :new: [Added in 2022.10.20] Quantitative results on DIS5K dataset [[Log file](https://postechackr-my.sharepoint.com/:t:/g/personal/taehoon1018_postech_ac_kr/EeczZ1XEboZKhxqif9m1VwsBhMc--dLYqlZ_5TicEXr2ZA?e=aCFXhp)]
   * *: HCE here is relax Human Correction Error which is proposed in DIS([project page](https://xuebinqin.github.io/dis/index.html) | [paper](https://arxiv.org/pdf/2203.03041.pdf)) and you can compute yourself from their [github](https://github.com/xuebinqin/DIS) repository.
 
 Dataset | Sm | mae | adpEm | maxEm | avgEm | adpFm | maxFm | avgFm | wFm | mBA | HCE<sup>*</sup>
