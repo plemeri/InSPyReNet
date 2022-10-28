@@ -64,6 +64,6 @@ def test(opt, args):
             Image.fromarray((pred * 255).astype(np.uint8)).save(os.path.join(save_path, sample['name'][0] + '.png'))
 
 if __name__ == "__main__":
-    args = _args()
+    args = parse_args()
     opt = load_config(args.config)
     test(opt, args)

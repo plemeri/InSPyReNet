@@ -67,10 +67,16 @@ Res2Net50 checkpoint | `data/backbone_ckpt/*.pth` | [Link](https://postechackr-m
 SwinB checkpoint | `data/backbone_ckpt/*.pth` | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/ESlYCLy0endMhcZm9eC2A4ABatxupp4UPh03EcqFjbtSRw?e=7y6lLt) | [Link](https://drive.google.com/file/d/1fBJFMupe5pV-Vtou-k8LTvHclWs0y1bI/view?usp=sharing)
   
 ## Train & Evaluate
-  * Train InSPyReNet (SwinB)
+
+  * Train InSPyReNet
   ```
+  # Single GPU
   python run/Train.py --config configs/InSPyReNet_SwinB.yaml --verbose
+  
+  # Multi GPUs with DDP 
+  torchrun --standalone --nproc_per_node=[NUM_GPU] Expr.py --config configs/InSPyReNet_SwinB.yaml --verbose
   ```
+
   * Train with extra training datasets can be done by just changing [Train.Dataset.sets](https://github.com/plemeri/InSPyReNet/blob/217d7d4944506870a60987533af685140a0bc642/configs/InSPyReNet_SwinB.yaml#L12) in the `yaml` config file, which is just simply adding more directories (e.g., HRSOD-TR, HRSOD-TR-LR, UHRSD-TR, ...):
    ```
    Train:
@@ -87,6 +93,16 @@ SwinB checkpoint | `data/backbone_ckpt/*.pth` | [Link](https://postechackr-my.sh
   ```
   python run/Eval.py --config configs/InSPyReNet_SwinB.yaml --verbose
   ```
+
+  * All-in-One command (Train, Test, Eval at the same time)
+  ```
+  # Single GPU
+  python Expr.py --config configs/InSPyReNet_SwinB.yaml --verbose
+
+  # Multi GPUs with DDP 
+  torchrun --standalone --nproc_per_node=[NUM_GPU] Expr.py --config configs/InSPyReNet_SwinB.yaml --verbose
+  ```
+
 
    * Please note that we only uploaded the low-resolution (LR) version of HRSOD and UHRSD due to their large image resolution. In order to use them, please download them from the original repositories (see references below), and change the directory names as we did to the LR versions.
 

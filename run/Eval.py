@@ -18,22 +18,10 @@ from utils.misc import *
 
 BETA = 1.0
 
-
-def _args():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--config', type=str, default='configs/InSPyReNet_SwinB.yaml')
-    # parser.add_argument('--stat', action='store_true', default=False)
-    parser.add_argument('--verbose', action='store_true', default=False)
-    return parser.parse_args()
-
-
 def evaluate(opt, args):
     if os.path.isdir(opt.Eval.result_path) is False:
         os.makedirs(opt.Eval.result_path)
         
-    # if args.stat is True and os.path.isdir(os.path.join(opt.Eval.pred_root, 'stat')) is False:
-        # os.makedirs(os.path.join(opt.Eval.pred_root, 'stat'))
-
     method = os.path.split(opt.Eval.pred_root)[-1]
 
     if args.verbose is True:
@@ -127,7 +115,6 @@ def evaluate(opt, args):
         avgTIou = TIou["curve"].mean()
         maxTIou = TIou["curve"].max()
         
-        
         out = dict()
         for metric in opt.Eval.metrics:
             out[metric] = eval(metric)
@@ -141,22 +128,13 @@ def evaluate(opt, args):
             result = pd.DataFrame(data=out, index=[method])
             result.to_pickle(pkl)
         result.to_csv(os.path.join(opt.Eval.result_path, 'result_' + dataset + '.csv'))
-        
         results.append(result)
         
-        # if args.stat is True:
-        #     Fm_info = FM.get_results()
-        #     Fm = Fm_info["fm"]
-        #     PR = Fm_info["pr"]
-        #     stat = {'Pre': np.flip(PR["p"]), 'Recall': np.flip(PR["r"]), 'Fmeasure_Curve': np.flip(Fm["curve"]), 'score': np.array(SM.sms)}
-        #     with open(os.path.join(opt.Eval.pred_root, 'stat', dataset + '.pkl'), 'wb') as f:
-        #         pickle.dump(stat, f)
-                
     if args.verbose is True:
         for dataset, result in zip(datasets, results):
             print('###', dataset, '###', '\n', result.sort_index(), '\n')
     
 if __name__ == "__main__":
-    args = _args()
+    args = parse_args()
     opt = load_config(args.config)
     evaluate(opt, args)

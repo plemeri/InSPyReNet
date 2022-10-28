@@ -1,6 +1,6 @@
 import os
 import torch
-import argparse
+
 import tqdm
 import sys
 
@@ -8,10 +8,11 @@ import cv2
 import torch.nn as nn
 import torch.distributed as dist
 import torch.cuda as cuda
+import torch.multiprocessing as mp
 
 from torch.utils.data.dataloader import DataLoader
-from torch.utils.data.distributed import DistributedSampler
 from torch.optim import Adam, SGD
+from torch.utils.data.distributed import DistributedSampler
 from torch.cuda.amp.grad_scaler import GradScaler
 from torch.cuda.amp.autocast_mode import autocast
 
@@ -27,41 +28,15 @@ from utils.misc import *
 torch.backends.cuda.matmul.allow_tf32 = False
 torch.backends.cudnn.allow_tf32 = False
 
-def _args():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--config',     type=str, default='configs/InSPyReNet_SwinB.yaml')
-    parser.add_argument('--local_rank', type=int, default=-1)
-    parser.add_argument('--resume',     action='store_true', default=False)
-    parser.add_argument('--verbose',    action='store_true', default=False)
-    parser.add_argument('--debug',      action='store_true', default=False)
-    return parser.parse_args()
-
-
 def train(opt, args):
-    if "CUDA_VISIBLE_DEVICES" not in os.environ.keys():
-        device_ids = ['0']
-    else:
-        device_ids = os.environ["CUDA_VISIBLE_DEVICES"].split(',')
-    device_num = len(device_ids)
-    model_ckpt = None
-    state_ckpt = None
-    
-    if args.resume is True:
-        if os.path.isfile(os.path.join(opt.Train.Checkpoint.checkpoint_dir, 'latest.pth')):
-            print('Resume from checkpoint')
-            model_ckpt = torch.load(os.path.join(opt.Train.Checkpoint.checkpoint_dir, 'latest.pth'), map_location='cpu')
-        if os.path.isfile(os.path.join(opt.Train.Checkpoint.checkpoint_dir, 'state.pth')):
-            print('Resume from state')
-            state_ckpt = torch.load(os.path.join(opt.Train.Checkpoint.checkpoint_dir,  'state.pth'), map_location='cpu')
-        
     train_dataset = eval(opt.Train.Dataset.type)(
         root=opt.Train.Dataset.root, 
         sets=opt.Train.Dataset.sets,
         tfs=opt.Train.Dataset.transforms)
 
-    if device_num > 1:
-        cuda.set_device(args.local_rank)
-        dist.init_process_group(backend='nccl')
+    if args.device_num > 1:
+        cuda.set_device(args.device_id)
+        dist.init_process_group(backend='nccl', rank=args.local_rank, world_size=args.device_num)
         train_sampler = DistributedSampler(train_dataset, shuffle=True)
     else:
         train_sampler = None
@@ -74,15 +49,27 @@ def train(opt, args):
                             pin_memory=opt.Train.Dataloader.pin_memory,
                             drop_last=True)
 
+    model_ckpt = None
+    state_ckpt = None
+    
+    if args.resume is True:
+        if os.path.isfile(os.path.join(opt.Train.Checkpoint.checkpoint_dir, 'latest.pth')):
+            model_ckpt = torch.load(os.path.join(opt.Train.Checkpoint.checkpoint_dir, 'latest.pth'), map_location='cpu')
+            if args.local_rank <= 0:
+                print('Resume from checkpoint')
+        if os.path.isfile(os.path.join(opt.Train.Checkpoint.checkpoint_dir, 'state.pth')):
+            state_ckpt = torch.load(os.path.join(opt.Train.Checkpoint.checkpoint_dir,  'state.pth'), map_location='cpu')
+            if args.local_rank <= 0:
+                print('Resume from state')
+        
     model = eval(opt.Model.name)(**opt.Model)
     if model_ckpt is not None:
         model.load_state_dict(model_ckpt)
 
-    if device_num > 1:
+    if args.device_num > 1:
         model = nn.SyncBatchNorm.convert_sync_batchnorm(model)
         model = model.cuda()
-        model = nn.parallel.DistributedDataParallel(model, device_ids=[
-                                                    args.local_rank], output_device=args.local_rank, find_unused_parameters=True)
+        model = nn.parallel.DistributedDataParallel(model, device_ids=[args.device_id], find_unused_parameters=True)
     else:
         model = model.cuda()
 
@@ -131,7 +118,7 @@ def train(opt, args):
         if args.local_rank <= 0 and args.verbose is True:
             step_iter = tqdm.tqdm(enumerate(train_loader, start=1), desc='Iter', total=len(
                 train_loader), position=1, leave=False, bar_format='{desc:<5.5}{percentage:3.0f}%|{bar:40}{r_bar}')
-            if device_num > 1 and train_sampler is not None:
+            if args.device_num > 1 and train_sampler is not None:
                 train_sampler.set_epoch(epoch)
         else:
             step_iter = enumerate(train_loader, start=1)
@@ -156,12 +143,13 @@ def train(opt, args):
 
             if args.local_rank <= 0 and args.verbose is True:
                 step_iter.set_postfix({'loss': out['loss'].item()})
+
         if args.local_rank <= 0:
             os.makedirs(opt.Train.Checkpoint.checkpoint_dir, exist_ok=True)
             os.makedirs(os.path.join(
                 opt.Train.Checkpoint.checkpoint_dir, 'debug'), exist_ok=True)
             if epoch % opt.Train.Checkpoint.checkpoint_epoch == 0:
-                if device_num > 1:
+                if args.device_num > 1:
                     model_ckpt = model.module.state_dict()  
                 else:
                     model_ckpt = model.state_dict()
@@ -176,13 +164,13 @@ def train(opt, args):
             if args.debug is True:
                 debout = debug_tile(sum([out[k] for k in opt.Train.Debug.keys], []), activation=torch.sigmoid)
                 cv2.imwrite(os.path.join(opt.Train.Checkpoint.checkpoint_dir, 'debug', str(epoch) + '.png'), debout)
-
+    
     if args.local_rank <= 0:
-        torch.save(model.module.state_dict() if device_num > 1 else model.state_dict(),
+        torch.save(model.module.state_dict() if args.device_num > 1 else model.state_dict(),
                     os.path.join(opt.Train.Checkpoint.checkpoint_dir, 'latest.pth'))
 
 
 if __name__ == '__main__':
-    args = _args()
+    args = parse_args()
     opt = load_config(args.config)
     train(opt, args)
