@@ -194,10 +194,10 @@ Dataset | Sm | mae | adpEm | maxEm | avgEm | adpFm | maxFm | avgFm | wFm | mBA |
 ## Citation
 
 ```
-@article{kim2022revisiting,
+@inproceedings{kim2022revisiting,
   title={Revisiting Image Pyramid Structure for High Resolution Salient Object Detection},
   author={Kim, Taehun and Kim, Kunhee and Lee, Joonyeong and Cha, Dongmin and Lee, Jiho and Kim, Daijin},
-  journal={arXiv preprint arXiv:2209.09475},
+  booktitle={Proceedings of the Asian Conference on Computer Vision},
   year={2022}
 }
 ```
