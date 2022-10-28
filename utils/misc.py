@@ -1,17 +1,15 @@
-import torch
+import re
+import os
 import yaml
+import cv2
+import argparse
+import numpy as np
+
+import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import cv2
-import numpy as np
-import re
-import random
-import math
 
 from easydict import EasyDict as ed
-
-import torch.nn as nn
-import torch.nn.functional as F
 
 class Simplify(nn.Module):
     def __init__(self, model):
@@ -25,6 +23,38 @@ class Simplify(nn.Module):
     def forward(self, x):
         out = self.model({'image': x})
         return out['pred']
+
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--config', type=str, default='configs/InSPyReNet_SwinB.yaml')
+    parser.add_argument('--resume', action='store_true', default=False)
+    parser.add_argument('--verbose', action='store_true', default=False)
+    parser.add_argument('--debug', action='store_true', default=False)
+    args = parser.parse_args()
+    
+    cuda_visible_devices = None
+    local_rank = -1
+    device_id = None
+
+    if "CUDA_VISIBLE_DEVICES" in os.environ.keys():
+        cuda_visible_devices = [int(i) for i in os.environ["CUDA_VISIBLE_DEVICES"].split(',')]
+    if "LOCAL_RANK" in os.environ.keys():
+        local_rank = int(os.environ["LOCAL_RANK"])
+
+    if local_rank == -1:
+        device_num = 1
+    elif cuda_visible_devices is None:
+        device_num = torch.cuda.device_count()
+        device_id = local_rank % device_num
+    else:
+        device_num = len(cuda_visible_devices)
+        device_id = cuda_visible_devices[local_rank]
+
+    args.device_num = device_num
+    args.device_id = device_id
+    args.local_rank = local_rank
+
+    return args
 
 def sort(x):
     convert = lambda text: int(text) if text.isdigit() else text.lower()
