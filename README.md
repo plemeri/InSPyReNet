@@ -34,6 +34,8 @@ To appear in the 16th Asian Conference on Computer Vision (ACCV2022)
 
 [2022.10.20] :new: We trained our model on [Dichotomous Image Segmentation dataset (DIS5K)](https://xuebinqin.github.io/dis/index.html) and showed competitive results! Trained checkpoint and pre-computed segmentation masks are available in [Checkpoints](#checkpoints) and [Pre-Computed Saliency Maps](#pre-computed-saliency-maps) section. Also, you can check our qualitative and quantitative results in [Results](#results) section.
 
+[2022.10.28] Multi GPU training for latest pytorch is now available.
+
 ## Demo :rocket:
 
 [Image Sample](./figures/demo_image.gif) | [Video Sample](./figures/demo_video.gif)
