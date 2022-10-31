@@ -36,6 +36,8 @@ To appear in the 16th Asian Conference on Computer Vision (ACCV2022)
 
 [2022.10.28] Multi GPU training for latest pytorch is now available.
 
+[2022.10.31] :new: [TasksWithCode](https://github.com/taskswithcode) provided an amazing web demo with streamlit. Visit the [WepApp](https://www.taskswithcode.com/salient_object_detection/) and try with your image! 
+
 ## Demo :rocket:
 
 [Image Sample](./figures/demo_image.gif) | [Video Sample](./figures/demo_video.gif)
@@ -225,6 +227,9 @@ Dataset | Sm | mae | adpEm | maxEm | avgEm | adpFm | maxFm | avgFm | wFm | mBA |
 This work was supported by Institute of Information & communications Technology Planning & Evaluation (IITP) grant funded by the Korea government (MSIT) 
 (No.2017-0-00897, Development of Object Detection and Recognition for Intelligent Vehicles) and 
 (No.B0101-15-0266, Development of High Performance Visual BigData Discovery Platform for Large-Scale Realtime Data Analysis)
+
+### Special Thanks to
+* [TasksWithCode](https://github.com/taskswithcode) team for sharing our work and amazing web app demo.
 
 
 ## References
