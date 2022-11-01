@@ -36,9 +36,11 @@ To appear in the 16th Asian Conference on Computer Vision (ACCV2022)
 
 [2022.10.28] Multi GPU training for latest pytorch is now available.
 
-[2022.10.31] :new: [TasksWithCode](https://github.com/taskswithcode) provided an amazing web demo with streamlit. Visit the [WepApp](https://www.taskswithcode.com/salient_object_detection/) and try with your image! 
+[2022.10.31] :new: [TasksWithCode](https://github.com/taskswithcode) provided an amazing web demo with [HuggingFace](https://huggingface.co). Visit the [WepApp](https://huggingface.co/spaces/taskswithcode/salient-object-detection) and try with your image! 
 
 ## Demo :rocket:
+
+* <img src=https://huggingface.co/front/assets/huggingface_logo-noborder.svg height="20px" width="20px"> Try [WepApp](https://huggingface.co/spaces/taskswithcode/salient-object-detection) on HuggingFace to generate your own results!
 
 [Image Sample](./figures/demo_image.gif) | [Video Sample](./figures/demo_video.gif)
 :-:|:-:
