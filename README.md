@@ -19,7 +19,14 @@ Official PyTorch implementation of PyTorch implementation of Revisiting Image Py
 
 To appear in the 16th Asian Conference on Computer Vision (ACCV2022)
 
-[[Arxiv](https://arxiv.org/abs/2209.09475)]
+<p align="center">
+<a href="https://arxiv.org/abs/2209.09475"><img  src="https://img.shields.io/badge/arXiv-Paper-<COLOR>.svg" ></a>
+<a href=""><img  src="https://img.shields.io/badge/license-MIT-blue"></a>
+<a href=""><img  src="https://img.shields.io/static/v1?label=inproceedings&message=Paper&color=orange"></a>
+<a href="https://huggingface.co/spaces/taskswithcode/salient-object-detection"><img  src="https://img.shields.io/static/v1?label=HuggingFace&message=Demo&color=yellow"></a>
+<a href="https://www.taskswithcode.com/salient_object_detection/"><img  src="https://img.shields.io/static/v1?label=TasksWithCode&message=Demo&color=blue"></a>
+<a href="https://colab.research.google.com/github/taskswithcode/InSPyReNet/blob/main/TWCSOD.ipynb"><img  src="https://img.shields.io/static/v1?label=Colab&message=Demo&color=blue"></a>
+</p>
 
 > **Abstract:**
   Salient object detection (SOD) has been in the spotlight recently, yet has been studied less for high-resolution (HR) images. 
@@ -60,9 +67,9 @@ To appear in the 16th Asian Conference on Computer Vision (ACCV2022)
 ## Preparation
 
 * For training, you may need training datasets and ImageNet pre-trained checkpoints for the backbone. For testing (inference), you may need test datasets (sample images).
-* Training datasets are expected to be located under [Train.Dataset.root](https://github.com/plemeri/InSPyReNet/blob/217d7d4944506870a60987533af685140a0bc642/configs/InSPyReNet_SwinB.yaml#L10). Likewise, testing datasets should be under [Test.Dataset.root](https://github.com/plemeri/InSPyReNet/blob/217d7d4944506870a60987533af685140a0bc642/configs/InSPyReNet_SwinB.yaml#L58).
+* Training datasets are expected to be located under [Train.Dataset.root](https://github.com/plemeri/InSPyReNet/blob/main/configs/InSPyReNet_SwinB.yaml#L10). Likewise, testing datasets should be under [Test.Dataset.root](https://github.com/plemeri/InSPyReNet/blob/main/configs/InSPyReNet_SwinB.yaml#L58).
 * Each dataset folder should contain `images` folder and `masks` folder for images and ground truth masks respectively.
-* You may use multiple training datasets by listing dataset folders for [Train.Dataset.sets](https://github.com/plemeri/InSPyReNet/blob/217d7d4944506870a60987533af685140a0bc642/configs/InSPyReNet_SwinB.yaml#L12), such as `[DUTS-TR] -> [DUTS-TR, HRSOD-TR, UHRSD-TR]`.
+* You may use multiple training datasets by listing dataset folders for [Train.Dataset.sets](https://github.com/plemeri/InSPyReNet/blob/main/configs/InSPyReNet_SwinB.yaml#L12), such as `[DUTS-TR] -> [DUTS-TR, HRSOD-TR, UHRSD-TR]`.
 
 
 Item | Destination Folder | OneDrive | GDrive
@@ -83,7 +90,7 @@ SwinB checkpoint | `data/backbone_ckpt/*.pth` | [Link](https://postechackr-my.sh
   torchrun --standalone --nproc_per_node=[NUM_GPU] Expr.py --config configs/InSPyReNet_SwinB.yaml --verbose
   ```
 
-  * Train with extra training datasets can be done by just changing [Train.Dataset.sets](https://github.com/plemeri/InSPyReNet/blob/217d7d4944506870a60987533af685140a0bc642/configs/InSPyReNet_SwinB.yaml#L12) in the `yaml` config file, which is just simply adding more directories (e.g., HRSOD-TR, HRSOD-TR-LR, UHRSD-TR, ...):
+  * Train with extra training datasets can be done by just changing [Train.Dataset.sets](https://github.com/plemeri/InSPyReNet/blob/main/configs/InSPyReNet_SwinB.yaml#L12) in the `yaml` config file, which is just simply adding more directories (e.g., HRSOD-TR, HRSOD-TR-LR, UHRSD-TR, ...):
    ```
    Train:
      Dataset:
@@ -133,7 +140,7 @@ SwinB checkpoint | `data/backbone_ckpt/*.pth` | [Link](https://postechackr-my.sh
 
 ## Checkpoints
 
-Note: If you want to try our trained checkpoints below, please make sure to locate `latest.pth` file to the [Test.Checkpoint.checkpoint_dir](https://github.com/plemeri/InSPyReNet/blob/217d7d4944506870a60987533af685140a0bc642/configs/InSPyReNet_SwinB.yaml#L72). 
+Note: If you want to try our trained checkpoints below, please make sure to locate `latest.pth` file to the [Test.Checkpoint.checkpoint_dir](https://github.com/plemeri/InSPyReNet/blob/main/configs/InSPyReNet_SwinB.yaml#L72). 
 
 ### Trained with LR dataset only (DUTS-TR, 384 X 384)
 
