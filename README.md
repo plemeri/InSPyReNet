@@ -53,7 +53,7 @@ To appear in the 16th Asian Conference on Computer Vision (ACCV2022)
 
 [WepApp](https://huggingface.co/spaces/taskswithcode/salient-object-detection) | [Image Sample](./figures/demo_image.gif) | [Video Sample](./figures/demo_video.gif)
 :-:|:-:|:-:
-<img src=./figures/demo_webapp.gif height="200px" width="200px"> | <img src=./figures/demo_image.gif height="200px" width="200px"> | <img src=./figures/demo_video.gif height="200px" width="200px">
+<img src=./figures/demo_webapp.gif height="250px" width="250px"> | <img src=./figures/demo_image.gif height="250px" width="250px"> | <img src=./figures/demo_video.gif height="250px" width="250px">
 
 ## Architecture
 
