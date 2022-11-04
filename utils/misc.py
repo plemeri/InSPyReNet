@@ -34,7 +34,6 @@ def parse_args():
     
     cuda_visible_devices = None
     local_rank = -1
-    device_id = None
 
     if "CUDA_VISIBLE_DEVICES" in os.environ.keys():
         cuda_visible_devices = [int(i) for i in os.environ["CUDA_VISIBLE_DEVICES"].split(',')]
@@ -45,13 +44,10 @@ def parse_args():
         device_num = 1
     elif cuda_visible_devices is None:
         device_num = torch.cuda.device_count()
-        device_id = local_rank % device_num
     else:
         device_num = len(cuda_visible_devices)
-        device_id = cuda_visible_devices[local_rank]
 
     args.device_num = device_num
-    args.device_id = device_id
     args.local_rank = local_rank
 
     return args
