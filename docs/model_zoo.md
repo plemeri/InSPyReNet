@@ -13,11 +13,11 @@ SwinB | DUTS-TR | [InSPyReNet_SwinB.yaml](../configs/InSPyReNet_SwinB.yaml) | [L
 
 Backbone |  Train DB  | Config | OneDrive | GDrive
 :-|:-|:-|:-|:-
-SwinB | DUTS-TR, HRSOD-TR-LR | [InSPyReNet_SwinB_DH_LR.yaml](../configs/extra_dataset/InSPyReNet_SwinB_DH_LR.yaml) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/EWxPZoIKALlGsfrNgUFNvxwBC8IE8jzzhPNtzcbHmTNFcg?e=e22wmy) | [Link](https://drive.google.com/file/d/1nbs6Xa7NMtcikeHFtkQRVrsHbBRHtIqC/view?usp=sharing) 
-SwinB | HRSOD-TR-LR, UHRSD-TR-LR | [InSPyReNet_SwinB_HU_LR.yaml](../configs/extra_dataset/InSPyReNet_SwinB_HU_LR.yaml) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/EQe-iy0AZctIkgl3o-BmVYUBn795wvii3tsnBq1fNUbc9g?e=gMZ4PV) | [Link](https://drive.google.com/file/d/1uLSIYXlRsZv4Ho0C-c87xKPhmF_b-Ll4/view?usp=sharing) 
-SwinB | DUTS-TR, HRSOD-TR-LR, UHRSD-TR-LR | [InSPyReNet_SwinB_DHU_LR.yaml](../configs/extra_dataset/InSPyReNet_SwinB_DHU_LR.yaml) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/EfsCbnfAU1RAqCJIkj1ewRgBhFetStsGB6SMSq_UJZimjA?e=Ghuacy) | [Link](https://drive.google.com/file/d/14gRNwR7XwJ5oEcR4RWIVbYH3HEV6uBUq/view?usp=sharing) 
+SwinB | DUTS-TR, HRSOD-TR | [InSPyReNet_SwinB_DH_LR.yaml](../configs/extra_dataset/InSPyReNet_SwinB_DH_LR.yaml) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/EWxPZoIKALlGsfrNgUFNvxwBC8IE8jzzhPNtzcbHmTNFcg?e=e22wmy) | [Link](https://drive.google.com/file/d/1nbs6Xa7NMtcikeHFtkQRVrsHbBRHtIqC/view?usp=sharing) 
+SwinB | HRSOD-TR, UHRSD-TR | [InSPyReNet_SwinB_HU_LR.yaml](../configs/extra_dataset/InSPyReNet_SwinB_HU_LR.yaml) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/EQe-iy0AZctIkgl3o-BmVYUBn795wvii3tsnBq1fNUbc9g?e=gMZ4PV) | [Link](https://drive.google.com/file/d/1uLSIYXlRsZv4Ho0C-c87xKPhmF_b-Ll4/view?usp=sharing) 
+SwinB | DUTS-TR, HRSOD-TR, UHRSD-TR | [InSPyReNet_SwinB_DHU_LR.yaml](../configs/extra_dataset/InSPyReNet_SwinB_DHU_LR.yaml) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/EfsCbnfAU1RAqCJIkj1ewRgBhFetStsGB6SMSq_UJZimjA?e=Ghuacy) | [Link](https://drive.google.com/file/d/14gRNwR7XwJ5oEcR4RWIVbYH3HEV6uBUq/view?usp=sharing) 
 
-* *-LR denotes resized into low-resolution scale (i.e., 384 X 384).
+* * denotes resized into low-resolution scale (i.e., 384 X 384).
 
 ### Trained with LR+HR dataset (with HR scale 1024 X 1024)
 
@@ -53,4 +53,4 @@ SwinB | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_
 
 Backbone | DIS-VD | DIS-TE1 | DIS-TE2 | DIS-TE3 | DIS-TE4
 :-|:-|:-|:-|:-|:-|
-SwinB | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/EUbzddb_QRRCtnXC8Xl6vZoBC6IqOfom52BWbzOYk-b2Ow?e=aqJYi1) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/ESeW_SOD26tHjBLymmgFaXwBIJlljzNycaGWXLpOp_d_kA?e=2EyMai) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/EYWT5fZDjI5Bn-lr-iQM1TsB1num0-UqfJC1TIv-LuOXoA?e=jCcnty) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/EQXm1DEBfaNJmH0B-A3o23kBn4v5j53kP2nF9CpG9SQkyw?e=lEUiZh) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/EZeH2ufGsFZIoUh6D8Rtv88BBF_ddQXav4xYXXRP_ayEAg?e=AMzIp8)
+SwinB | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/EUbzddb_QRRCtnXC8Xl6vZoBC6IqOfom52BWbzOYk-b2Ow?e=aqJYi1) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/ESeW_SOD26tHjBLymmgFaXwBIJlljzNycaGWXLpOp_d_kA?e=2EyMai) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/EYWT5fZDjI5Bn-iQM1TsB1num0-UqfJC1TIv-LuOXoA?e=jCcnty) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/EQXm1DEBfaNJmH0B-A3o23kBn4v5j53kP2nF9CpG9SQkyw?e=lEUiZh) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/EZeH2ufGsFZIoUh6D8Rtv88BBF_ddQXav4xYXXRP_ayEAg?e=AMzIp8)
