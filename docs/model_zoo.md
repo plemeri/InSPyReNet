@@ -31,7 +31,6 @@ Backbone |  Train DB  | Config | OneDrive | GDrive
 SwinB | DUTS-TR, DUTS-TE, DUT-OMRON, FSS-1000, MSRA-10K, ECSSD, HKU-IS, PASCAL-S, HRSOD-TR, UHRSD-TR | [Plus_Ultra.yaml](../configs/extra_dataset/Plus_Ultra.yaml) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/ESKuh1zhToVFsIxhUUsgkbgBnu2kFXCFLRuSz1xxsKzjhA?e=02HDrm) | [Link](https://drive.google.com/file/d/1iRX-0MVbUjvAVns5MtVdng6CQlGOIo3m/view?usp=sharing)
 
 ### :new: Trained with Dichotomous Image Segmentation dataset (DIS5K-TR) with LR scale (384 X 384) [Added in 2022.10.20] 
-* If you want to train / inference with DIS5K, you may need to change the subdirectories' names (`im` and `gt`) to our way (`images` and `masks`) for training and testing datasets. Please refer to the [Preparation](#preparation) section.
 
 Backbone |  Train DB  | Config | OneDrive | GDrive
 :-|:-|:-|:-|:-
