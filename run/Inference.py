@@ -57,7 +57,7 @@ def inference(opt, args):
     if args.jit is True:
         if os.path.isfile(os.path.join(opt.Test.Checkpoint.checkpoint_dir, 'jit.pt')) is False:
             model = Simplify(model)
-            model = torch.jit.trace(model, {'image': torch.rand(1, 3, *opt.Model.base_size).cuda()}, strict=False)
+            model = torch.jit.trace(model, torch.rand(1, 3, *opt.Test.Dataset.transforms.static_resize.size).cuda(), strict=False)
             torch.jit.save(model, os.path.join(opt.Test.Checkpoint.checkpoint_dir, 'jit.pt'))
         
         else:
@@ -110,7 +110,7 @@ def inference(opt, args):
 
         with torch.no_grad():
             if args.jit is True:
-                out = model({'image': sample['image']})
+                out = model(sample['image'])
             else:
                 out = model(sample)
                 

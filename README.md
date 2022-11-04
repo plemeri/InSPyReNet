@@ -51,9 +51,9 @@ To appear in the 16th Asian Conference on Computer Vision (ACCV2022)
 
 * <img src=https://huggingface.co/front/assets/huggingface_logo-noborder.svg height="20px" width="20px"> Try [WepApp](https://huggingface.co/spaces/taskswithcode/salient-object-detection) on HuggingFace to generate your own results!
 
-[Image Sample](./figures/demo_image.gif) | [Video Sample](./figures/demo_video.gif)
-:-:|:-:
-<img src=./figures/demo_image.gif height="350px" width="350px"> | <img src=./figures/demo_video.gif height="350px" width="350px">
+[WepApp](https://huggingface.co/spaces/taskswithcode/salient-object-detection) | [Image Sample](./figures/demo_image.gif) | [Video Sample](./figures/demo_video.gif)
+:-:|:-:|:-:
+<img src=./figures/demo_webapp.gif height="200px" width="200px"> | <img src=./figures/demo_image.gif height="200px" width="200px"> | <img src=./figures/demo_video.gif height="200px" width="200px">
 
 ## Architecture
 
@@ -123,22 +123,25 @@ SwinB checkpoint | `data/backbone_ckpt/*.pth` | [Link](https://postechackr-my.sh
 
 ## Inference on your own data
   + You can inference your own single image or images (.jpg, .jpeg, and .png are supported), single video or videos (.mp4, .mov, and .avi are supported), and webcam input (ubuntu and macos are tested so far).
-  + `python run/Inference.py --config configs/InSPyReNet_SwinB.yaml --source [SOURCE] --dest [DEST] --type [TYPE] --gpu --jit --verbose`
-    + SOURCE: Specify your data in this argument.
-      + Single image - `image.png`
-      + Folder containing images - `path/to/img/folder`
-      + Single video - `video.mp4`
-      + Folder containing videos - `path/to/vid/folder`
-      + Webcam input: `0` (may vary depends on your device.)
-    + DEST (optional): Specify your destination folder. If not specified, it will be saved in `results` folder.
-    + TYPE: Choose between `map, green, rgba, blur`
-      + `map` will output saliency map only. 
-      + `green` will change the background with green screen. 
-      + `rgba` will generate RGBA output regarding saliency score as an alpha map. Note that this will not work for video and webcam input. 
-      + `blur` will blur the background.
-    + --gpu: Use this argument if you want to use GPU. 
-    + --jit: Slightly improves inference speed when used. 
-    + --verbose: Use when you want to visualize progress.
+  ```
+  python run/Inference.py --config configs/InSPyReNet_SwinB.yaml --source [SOURCE] --dest [DEST] --type [TYPE] --gpu --jit --verbose
+  ```
+
+  + SOURCE: Specify your data in this argument.
+    + Single image - `image.png`
+    + Folder containing images - `path/to/img/folder`
+    + Single video - `video.mp4`
+    + Folder containing videos - `path/to/vid/folder`
+    + Webcam input: `0` (may vary depends on your device.)
+  + DEST (optional): Specify your destination folder. If not specified, it will be saved in `results` folder.
+  + TYPE: Choose between `map, green, rgba, blur`
+    + `map` will output saliency map only. 
+    + `green` will change the background with green screen. 
+    + `rgba` will generate RGBA output regarding saliency score as an alpha map. Note that this will not work for video and webcam input. 
+    + `blur` will blur the background.
+  + --gpu: Use this argument if you want to use GPU. 
+  + --jit: Slightly improves inference speed when used. 
+  + --verbose: Use when you want to visualize progress.
 
 ## Checkpoints
 

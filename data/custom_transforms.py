@@ -16,12 +16,20 @@ from utils.misc import *
         
 class static_resize:
     # Resize for training
-    def __init__(self, size=[384, 384]):
+    def __init__(self, size=[384, 384], base_size=None):
         self.size = size
+        self.base_size = base_size
             
     def __call__(self, sample):
         sample['image'] = sample['image'].resize(self.size, Image.BILINEAR)
-        sample['gt'] = sample['gt'].resize(self.size, Image.NEAREST)
+        if 'gt' in sample.keys():
+            sample['gt'] = sample['gt'].resize(self.size, Image.NEAREST)
+            
+        if self.base_size is not None:
+            sample['image_resized'] = sample['image'].resize(self.size, Image.BILINEAR)
+            if 'gt' in sample.keys():
+                sample['gt_resized'] = sample['gt'].resize(self.size, Image.NEAREST)
+                
         return sample
 
 class dynamic_resize:
@@ -42,6 +50,10 @@ class dynamic_resize:
         if 'image' in sample.keys():
             sample['image_resized'] = sample['image'].resize(self.base_size, Image.BILINEAR)
             sample['image'] = sample['image'].resize(size, Image.BILINEAR)
+            
+        if 'gt' in sample.keys():
+            sample['gt_resized'] = sample['gt'].resize(self.base_size, Image.NEAREST)
+            sample['gt'] = sample['gt'].resize(size, Image.NEAREST)
         
         return sample
         
