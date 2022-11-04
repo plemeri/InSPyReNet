@@ -22,8 +22,8 @@ Official PyTorch implementation of PyTorch implementation of Revisiting Image Py
 To appear in the 16th Asian Conference on Computer Vision (ACCV2022)
 
 <p align="center">
+<a href="https://github.com/plemeri/InSPyReNet/blob/main/LICENSE"><img  src="https://img.shields.io/badge/license-MIT-blue"></a>
 <a href="https://arxiv.org/abs/2209.09475"><img  src="https://img.shields.io/badge/arXiv-Paper-<COLOR>.svg" ></a>
-<a href=""><img  src="https://img.shields.io/badge/license-MIT-blue"></a>
 <a href=""><img  src="https://img.shields.io/static/v1?label=inproceedings&message=Paper&color=orange"></a>
 <a href="https://huggingface.co/spaces/taskswithcode/salient-object-detection"><img  src="https://img.shields.io/static/v1?label=HuggingFace&message=Demo&color=yellow"></a>
 <a href="https://www.taskswithcode.com/salient_object_detection/"><img  src="https://img.shields.io/static/v1?label=TasksWithCode&message=Demo&color=blue"></a>
@@ -88,8 +88,11 @@ SwinB checkpoint | `data/backbone_ckpt/*.pth` | [Link](https://postechackr-my.sh
   # Single GPU
   python run/Train.py --config configs/InSPyReNet_SwinB.yaml --verbose
   
-  # Multi GPUs with DDP 
-  torchrun --standalone --nproc_per_node=[NUM_GPU] Expr.py --config configs/InSPyReNet_SwinB.yaml --verbose
+  # Multi GPUs with DDP (e.g., 4 GPUs)
+  torchrun --standalone --nproc_per_node=4 run/Train.py --config configs/InSPyReNet_SwinB.yaml --verbose
+
+  # Multi GPUs with DDP with designated devices (e.g., 2 GPUs - 0 and 1)
+  CUDA_VISIBLE_DEVICES=0,1 torchrun --standalone --nproc_per_node=2 run/Train.py --config configs/InSPyReNet_SwinB.yaml --verbose
   ```
 
   * Train with extra training datasets can be done by just changing [Train.Dataset.sets](https://github.com/plemeri/InSPyReNet/blob/main/configs/InSPyReNet_SwinB.yaml#L12) in the `yaml` config file, which is just simply adding more directories (e.g., HRSOD-TR, HRSOD-TR-LR, UHRSD-TR, ...):
@@ -109,13 +112,16 @@ SwinB checkpoint | `data/backbone_ckpt/*.pth` | [Link](https://postechackr-my.sh
   python run/Eval.py --config configs/InSPyReNet_SwinB.yaml --verbose
   ```
 
-  * All-in-One command (Train, Test, Eval at the same time)
+  * All-in-One command (Train, Test, Eval in single command)
   ```
   # Single GPU
   python Expr.py --config configs/InSPyReNet_SwinB.yaml --verbose
 
-  # Multi GPUs with DDP 
-  torchrun --standalone --nproc_per_node=[NUM_GPU] Expr.py --config configs/InSPyReNet_SwinB.yaml --verbose
+  # Multi GPUs with DDP (e.g., 4 GPUs)
+  torchrun --standalone --nproc_per_node=4 Expr.py --config configs/InSPyReNet_SwinB.yaml --verbose
+
+  # Multi GPUs with DDP with designated devices (e.g., 2 GPUs - 0 and 1)
+  CUDA_VISIBLE_DEVICES=0,1 torchrun --standalone --nproc_per_node=2 Expr.py --config configs/InSPyReNet_SwinB.yaml --verbose
   ```
 
 
