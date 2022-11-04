@@ -17,8 +17,6 @@ SwinB | DUTS-TR, HRSOD-TR | [InSPyReNet_SwinB_DH_LR.yaml](../configs/extra_datas
 SwinB | HRSOD-TR, UHRSD-TR | [InSPyReNet_SwinB_HU_LR.yaml](../configs/extra_dataset/InSPyReNet_SwinB_HU_LR.yaml) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/EQe-iy0AZctIkgl3o-BmVYUBn795wvii3tsnBq1fNUbc9g?e=gMZ4PV) | [Link](https://drive.google.com/file/d/1uLSIYXlRsZv4Ho0C-c87xKPhmF_b-Ll4/view?usp=sharing) 
 SwinB | DUTS-TR, HRSOD-TR, UHRSD-TR | [InSPyReNet_SwinB_DHU_LR.yaml](../configs/extra_dataset/InSPyReNet_SwinB_DHU_LR.yaml) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/EfsCbnfAU1RAqCJIkj1ewRgBhFetStsGB6SMSq_UJZimjA?e=Ghuacy) | [Link](https://drive.google.com/file/d/14gRNwR7XwJ5oEcR4RWIVbYH3HEV6uBUq/view?usp=sharing) 
 
-* * denotes resized into low-resolution scale (i.e., 384 X 384).
-
 ### Trained with LR+HR dataset (with HR scale 1024 X 1024)
 
 Backbone |  Train DB  | Config | OneDrive | GDrive
