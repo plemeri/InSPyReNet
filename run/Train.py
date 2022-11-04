@@ -35,7 +35,7 @@ def train(opt, args):
         tfs=opt.Train.Dataset.transforms)
 
     if args.device_num > 1:
-        cuda.set_device(args.device_id)
+        cuda.set_device(args.local_rank)
         dist.init_process_group(backend='nccl', rank=args.local_rank, world_size=args.device_num)
         train_sampler = DistributedSampler(train_dataset, shuffle=True)
     else:
@@ -69,7 +69,7 @@ def train(opt, args):
     if args.device_num > 1:
         model = nn.SyncBatchNorm.convert_sync_batchnorm(model)
         model = model.cuda()
-        model = nn.parallel.DistributedDataParallel(model, device_ids=[args.device_id], find_unused_parameters=True)
+        model = nn.parallel.DistributedDataParallel(model, device_ids=[args.local_rank], find_unused_parameters=True)
     else:
         model = model.cuda()
 
