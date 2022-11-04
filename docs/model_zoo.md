@@ -1,21 +1,21 @@
 # :giraffe: Model Zoo
 
-## :label: Note: If you want to try our trained checkpoints below, please make sure to locate `latest.pth` file to the [Test.Checkpoint.checkpoint_dir](https://github.com/plemeri/InSPyReNet/blob/main/configs/InSPyReNet_SwinB.yaml#L72). 
+## :label: Note: If you want to try our trained checkpoints below, please make sure to locate `latest.pth` file to the [Test.Checkpoint.checkpoint_dir](https://github.com/plemeri/InSPyReNet/blob/main/../configs/InSPyReNet_SwinB.yaml#L72). 
 
 ### Trained with LR dataset only (DUTS-TR, 384 X 384)
 
 Backbone |  Train DB  | Config | OneDrive | GDrive
 :-|:-|:-|:-|:-
-Res2Net50 | DUTS-TR | [InSPyReNet_Res2Net50.yaml](configs/InSPyReNet_Res2Net50.yaml) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/ERqm7RPeNBFPvVxkA5P5G2AB-mtFsiYkCNHnBf0DcwpFzw?e=nayVno) | [Link](https://drive.google.com/file/d/12moRuU8F0-xRvE16bVg6mkGWDuqYHJor/view?usp=sharing)
-SwinB | DUTS-TR | [InSPyReNet_SwinB.yaml](configs/InSPyReNet_SwinB.yaml) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/EV0ow4E8LddCgu5tAuAkMbcBpBYoEDmJgQg5wkiuvLoQUA?e=cOZspv) | [Link](https://drive.google.com/file/d/1k5hNJImgEgSmz-ZeJEEb_dVkrOnswVMq/view?usp=sharing)
+Res2Net50 | DUTS-TR | [InSPyReNet_Res2Net50.yaml](../configs/InSPyReNet_Res2Net50.yaml) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/ERqm7RPeNBFPvVxkA5P5G2AB-mtFsiYkCNHnBf0DcwpFzw?e=nayVno) | [Link](https://drive.google.com/file/d/12moRuU8F0-xRvE16bVg6mkGWDuqYHJor/view?usp=sharing)
+SwinB | DUTS-TR | [InSPyReNet_SwinB.yaml](../configs/InSPyReNet_SwinB.yaml) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/EV0ow4E8LddCgu5tAuAkMbcBpBYoEDmJgQg5wkiuvLoQUA?e=cOZspv) | [Link](https://drive.google.com/file/d/1k5hNJImgEgSmz-ZeJEEb_dVkrOnswVMq/view?usp=sharing)
 
 ### Trained with LR+HR dataset (with LR scale 384 X 384)
 
 Backbone |  Train DB  | Config | OneDrive | GDrive
 :-|:-|:-|:-|:-
-SwinB | DUTS-TR, HRSOD-TR-LR | [InSPyReNet_SwinB_DH_LR.yaml](configs/extra_dataset/InSPyReNet_SwinB_DH_LR.yaml) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/EWxPZoIKALlGsfrNgUFNvxwBC8IE8jzzhPNtzcbHmTNFcg?e=e22wmy) | [Link](https://drive.google.com/file/d/1nbs6Xa7NMtcikeHFtkQRVrsHbBRHtIqC/view?usp=sharing) 
-SwinB | HRSOD-TR-LR, UHRSD-TR-LR | [InSPyReNet_SwinB_HU_LR.yaml](configs/extra_dataset/InSPyReNet_SwinB_HU_LR.yaml) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/EQe-iy0AZctIkgl3o-BmVYUBn795wvii3tsnBq1fNUbc9g?e=gMZ4PV) | [Link](https://drive.google.com/file/d/1uLSIYXlRsZv4Ho0C-c87xKPhmF_b-Ll4/view?usp=sharing) 
-SwinB | DUTS-TR, HRSOD-TR-LR, UHRSD-TR-LR | [InSPyReNet_SwinB_DHU_LR.yaml](configs/extra_dataset/InSPyReNet_SwinB_DHU_LR.yaml) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/EfsCbnfAU1RAqCJIkj1ewRgBhFetStsGB6SMSq_UJZimjA?e=Ghuacy) | [Link](https://drive.google.com/file/d/14gRNwR7XwJ5oEcR4RWIVbYH3HEV6uBUq/view?usp=sharing) 
+SwinB | DUTS-TR, HRSOD-TR-LR | [InSPyReNet_SwinB_DH_LR.yaml](../configs/extra_dataset/InSPyReNet_SwinB_DH_LR.yaml) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/EWxPZoIKALlGsfrNgUFNvxwBC8IE8jzzhPNtzcbHmTNFcg?e=e22wmy) | [Link](https://drive.google.com/file/d/1nbs6Xa7NMtcikeHFtkQRVrsHbBRHtIqC/view?usp=sharing) 
+SwinB | HRSOD-TR-LR, UHRSD-TR-LR | [InSPyReNet_SwinB_HU_LR.yaml](../configs/extra_dataset/InSPyReNet_SwinB_HU_LR.yaml) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/EQe-iy0AZctIkgl3o-BmVYUBn795wvii3tsnBq1fNUbc9g?e=gMZ4PV) | [Link](https://drive.google.com/file/d/1uLSIYXlRsZv4Ho0C-c87xKPhmF_b-Ll4/view?usp=sharing) 
+SwinB | DUTS-TR, HRSOD-TR-LR, UHRSD-TR-LR | [InSPyReNet_SwinB_DHU_LR.yaml](../configs/extra_dataset/InSPyReNet_SwinB_DHU_LR.yaml) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/EfsCbnfAU1RAqCJIkj1ewRgBhFetStsGB6SMSq_UJZimjA?e=Ghuacy) | [Link](https://drive.google.com/file/d/14gRNwR7XwJ5oEcR4RWIVbYH3HEV6uBUq/view?usp=sharing) 
 
 * *-LR denotes resized into low-resolution scale (i.e., 384 X 384).
 
@@ -23,21 +23,21 @@ SwinB | DUTS-TR, HRSOD-TR-LR, UHRSD-TR-LR | [InSPyReNet_SwinB_DHU_LR.yaml](confi
 
 Backbone |  Train DB  | Config | OneDrive | GDrive
 :-|:-|:-|:-|:-
-SwinB | DUTS-TR, HRSOD-TR | [InSPyReNet_SwinB_DH.yaml](configs/extra_dataset/InSPyReNet_SwinB_DH.yaml) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/EW2Qg-tMBBxNkygMj-8QgMUBiqHox5ExTOJl0LGLsn6AtA?e=Mam8Ur) | [Link](https://drive.google.com/file/d/1UBGFDUYZ9SysZr96dhsscZg7nDXt6IUD/view?usp=sharing) 
-SwinB | HRSOD-TR, UHRSD-TR | [InSPyReNet_SwinB_HU.yaml](configs/extra_dataset/InSPyReNet_SwinB_HU.yaml) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/EeE8nnCt_AdFvxxu0JsxwDgBCtGchuUka6DW9za_epX-Qw?e=U7wZu9) | [Link](https://drive.google.com/file/d/1HB02tiInEgo-pNzwqyvyV6eSN1Y2xPRJ/view?usp=sharing)
+SwinB | DUTS-TR, HRSOD-TR | [InSPyReNet_SwinB_DH.yaml](../configs/extra_dataset/InSPyReNet_SwinB_DH.yaml) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/EW2Qg-tMBBxNkygMj-8QgMUBiqHox5ExTOJl0LGLsn6AtA?e=Mam8Ur) | [Link](https://drive.google.com/file/d/1UBGFDUYZ9SysZr96dhsscZg7nDXt6IUD/view?usp=sharing) 
+SwinB | HRSOD-TR, UHRSD-TR | [InSPyReNet_SwinB_HU.yaml](../configs/extra_dataset/InSPyReNet_SwinB_HU.yaml) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/EeE8nnCt_AdFvxxu0JsxwDgBCtGchuUka6DW9za_epX-Qw?e=U7wZu9) | [Link](https://drive.google.com/file/d/1HB02tiInEgo-pNzwqyvyV6eSN1Y2xPRJ/view?usp=sharing)
 
 ### <img src="https://www.kindpng.com/picc/b/124-1249525_all-might-png.png" width=20px> Trained with Massive SOD Datasets (with LR scale 384 x 384, Not in the paper, just for fun!)
 
 Backbone |  Train DB  | Config | OneDrive | GDrive
 :-|:-|:-|:-|:-
-SwinB | DUTS-TR, DUTS-TE, DUT-OMRON, FSS-1000, MSRA-10K, ECSSD, HKU-IS, PASCAL-S, HRSOD-TR, UHRSD-TR | [Plus_Ultra.yaml](configs/extra_dataset/Plus_Ultra.yaml) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/ESKuh1zhToVFsIxhUUsgkbgBnu2kFXCFLRuSz1xxsKzjhA?e=02HDrm) | [Link](https://drive.google.com/file/d/1iRX-0MVbUjvAVns5MtVdng6CQlGOIo3m/view?usp=sharing)
+SwinB | DUTS-TR, DUTS-TE, DUT-OMRON, FSS-1000, MSRA-10K, ECSSD, HKU-IS, PASCAL-S, HRSOD-TR, UHRSD-TR | [Plus_Ultra.yaml](../configs/extra_dataset/Plus_Ultra.yaml) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/ESKuh1zhToVFsIxhUUsgkbgBnu2kFXCFLRuSz1xxsKzjhA?e=02HDrm) | [Link](https://drive.google.com/file/d/1iRX-0MVbUjvAVns5MtVdng6CQlGOIo3m/view?usp=sharing)
 
 ### :new: Trained with Dichotomous Image Segmentation dataset (DIS5K-TR) with LR scale (384 X 384) [Added in 2022.10.20] 
 * If you want to train / inference with DIS5K, you may need to change the subdirectories' names (`im` and `gt`) to our way (`images` and `masks`) for training and testing datasets. Please refer to the [Preparation](#preparation) section.
 
 Backbone |  Train DB  | Config | OneDrive | GDrive
 :-|:-|:-|:-|:-
-SwinB | DIS5K-TR | [InSPyReNet_SwinB_DIS5K.yaml](configs/extra_dataset/InSPyReNet_SwinB_DIS5K.yaml) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/ERKrQ_YeoJRHl_3HcH8ZJLoBedsa6hZlmIIf66wobZRGuw?e=EywJmS) | [Link](https://drive.google.com/file/d/1Sj7GZoocGMHyKNhFnQQc1FTs76ysJIX3/view?usp=sharing)
+SwinB | DIS5K-TR | [InSPyReNet_SwinB_DIS5K.yaml](../configs/extra_dataset/InSPyReNet_SwinB_DIS5K.yaml) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/ERKrQ_YeoJRHl_3HcH8ZJLoBedsa6hZlmIIf66wobZRGuw?e=EywJmS) | [Link](https://drive.google.com/file/d/1Sj7GZoocGMHyKNhFnQQc1FTs76ysJIX3/view?usp=sharing)
 
 
 ## Pre-Computed Saliency Maps
