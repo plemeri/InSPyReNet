@@ -61,13 +61,13 @@ DIS-TE4   | `data/Test_Dataset/...` | [Link](https://postechackr-my.sharepoint.c
   CUDA_VISIBLE_DEVICES=0,1 torchrun --standalone --nproc_per_node=2 run/Train.py --config configs/InSPyReNet_SwinB.yaml --verbose
   ```
 
-  * Train with extra training datasets can be done by just changing [Train.Dataset.sets](https://github.com/plemeri/InSPyReNet/blob/main/configs/InSPyReNet_SwinB.yaml#L12) in the `yaml` config file, which is just simply adding more directories (e.g., HRSOD-TR, HRSOD-TR-LR, UHRSD-TR, ...):
+  * Train with extra training datasets can be done by just changing [Train.Dataset.sets](https://github.com/plemeri/InSPyReNet/blob/main/configs/InSPyReNet_SwinB.yaml#L12) in the `yaml` config file, which is just simply adding more directories (e.g., HRSOD-TR, HRSOD-TR, UHRSD-TR, ...):
    ```
    Train:
      Dataset:
          type: "RGB_Dataset"
          root: "data/RGB_Dataset/Train_Dataset"
-         sets: ['DUTS-TR'] --> ['DUTS-TR', 'HRSOD-TR-LR', 'UHRSD-TR-LR']
+         sets: ['DUTS-TR'] --> ['DUTS-TR', 'HRSOD-TR', 'UHRSD-TR']
    ```
   * Inference for test benchmarks
   ```
@@ -89,10 +89,6 @@ DIS-TE4   | `data/Test_Dataset/...` | [Link](https://postechackr-my.sharepoint.c
   # Multi GPUs with DDP with designated devices (e.g., 2 GPUs - 0 and 1)
   CUDA_VISIBLE_DEVICES=0,1 torchrun --standalone --nproc_per_node=2 Expr.py --config configs/InSPyReNet_SwinB.yaml --verbose
   ```
-
-
-   * Please note that we only uploaded the low-resolution (LR) version of HRSOD and UHRSD due to their large image resolution. In order to use them, please download them from the original repositories (see references below), and change the directory names as we did to the LR versions.
-
 ## Inference on your own data
   + You can inference your own single image or images (.jpg, .jpeg, and .png are supported), single video or videos (.mp4, .mov, and .avi are supported), and webcam input (ubuntu and macos are tested so far).
   ```
