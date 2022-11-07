@@ -9,7 +9,7 @@ import numpy as np
 
 from PIL import Image
 
-filepath = os.path.split(__file__)[0]
+filepath = os.path.split(os.path.abspath(__file__))[0]
 repopath = os.path.split(filepath)[0]
 sys.path.append(repopath)
 
