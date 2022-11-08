@@ -151,7 +151,7 @@ class tonumpy:
 
     def __call__(self, sample):
         for key in sample.keys():
-            if key in ['image', 'image_resized', 'gt']:
+            if key in ['image', 'image_resized', 'gt', 'gt_resized']:
                 sample[key] = np.array(sample[key], dtype=np.float32)
 
         return sample
@@ -175,6 +175,9 @@ class normalize:
 
         if 'gt' in sample.keys():
             sample['gt'] /= self.div
+            
+        if 'gt_resized' in sample.keys():
+            sample['gt_resized'] /= self.div
 
         return sample
 class totensor:
@@ -193,5 +196,9 @@ class totensor:
         if 'gt' in sample.keys():
             sample['gt'] = torch.from_numpy(sample['gt'])
             sample['gt'] = sample['gt'].unsqueeze(dim=0)
+            
+        if 'gt_resized' in sample.keys():
+            sample['gt_resized'] = torch.from_numpy(sample['gt_resized'])
+            sample['gt_resized'] = sample['gt_resized'].unsqueeze(dim=0)
 
         return sample

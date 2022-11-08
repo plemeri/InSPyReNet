@@ -46,7 +46,7 @@ def test(opt, args):
 
         os.makedirs(save_path, exist_ok=True)
         test_dataset = eval(opt.Test.Dataset.type)(opt.Test.Dataset.root, [set], opt.Test.Dataset.transforms)
-        test_loader = DataLoader(dataset=test_dataset, batch_size=1, num_workers=opt.Test.Dataloader.num_workers, pin_memory=opt.Test.Dataloader.pin_memory)
+        test_loader  = DataLoader(dataset=test_dataset, batch_size=1, num_workers=opt.Test.Dataloader.num_workers, pin_memory=opt.Test.Dataloader.pin_memory)
 
         if args.verbose is True:
             samples = tqdm.tqdm(test_loader, desc=set + ' - Test', total=len(test_loader),
