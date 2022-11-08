@@ -26,10 +26,10 @@ class Simplify(nn.Module):
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--config', type=str, default='configs/InSPyReNet_SwinB.yaml')
-    parser.add_argument('--resume', action='store_true', default=False)
-    parser.add_argument('--verbose', action='store_true', default=False)
-    parser.add_argument('--debug', action='store_true', default=False)
+    parser.add_argument('--config',  '-c', type=str,            default='configs/InSPyReNet_SwinB.yaml')
+    parser.add_argument('--resume',  '-r', action='store_true', default=False)
+    parser.add_argument('--verbose', '-v', action='store_true', default=False)
+    parser.add_argument('--debug',   '-d', action='store_true', default=False)
     args = parser.parse_args()
     
     cuda_visible_devices = None

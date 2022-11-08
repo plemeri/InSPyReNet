@@ -84,24 +84,22 @@ precomputed_maps = [
 
 if __name__ == '__main__':
     args = _args()
-    os.makedirs(os.path.join(repopath, 'data', 'Train_Dataset'), exist_ok=True)
-    os.makedirs(os.path.join(repopath, 'data', 'Test_Dataset'),  exist_ok=True)
-    os.makedirs(os.path.join(repopath, 'data', 'backbone_ckpt'), exist_ok=True)
-    os.makedirs(os.path.join(repopath, 'snapshots'), exist_ok=True)
     
     if args.dest is not None:
-        os.system('ln -s ' + os.path.join(args.dest, 'data', 'Train_Dataset')  + ' ' + os.path.join(repopath, 'data', 'Train_Dataset'))
-        os.system('ln -s ' + os.path.join(args.dest, 'data', 'Test_Dataset')   + ' ' + os.path.join(repopath, 'data', 'Test_Dataset'))
-        os.system('ln -s ' + os.path.join(args.dest, 'data', 'backbone_ckpt')  + ' ' + os.path.join(repopath, 'data', 'backbone_ckpt'))
-        os.system('ln -s ' + os.path.join(args.dest, 'snapshots') + ' ' + os.path.join(repopath, 'snapshots'))
+        os.system('ln -s ' + os.path.join(args.dest, 'data', 'Train_Dataset')  + ' ' + os.path.join(repopath, 'data'))
+        os.system('ln -s ' + os.path.join(args.dest, 'data', 'Test_Dataset')   + ' ' + os.path.join(repopath, 'data'))
+        os.system('ln -s ' + os.path.join(args.dest, 'data', 'backbone_ckpt')  + ' ' + os.path.join(repopath, 'data'))
+        os.system('ln -s ' + os.path.join(args.dest, 'snapshots') + ' ' + repopath)
+    else:
+        args.dest = repopath
+        os.makedirs(os.path.join(args.dest, 'data', 'Train_Dataset'), exist_ok=True)
+        os.makedirs(os.path.join(args.dest, 'data', 'Test_Dataset'),  exist_ok=True)
+        os.makedirs(os.path.join(args.dest, 'data', 'backbone_ckpt'), exist_ok=True)
+        os.makedirs(os.path.join(args.dest, 'snapshots'), exist_ok=True)
     
     download_list = train_datasets + test_datasets + backbone_ckpts + pretrained_ckpts + precomputed_maps
     
     for dinfo in download_list:
-        if args.dest is None:
-            dinfo['dest'] = os.path.join(repopath,  dinfo['dest'])
-        else:
-            dinfo['dest'] = os.path.join(args.dest, dinfo['dest'])
-        
+        dinfo['dest'] = os.path.join(args.dest, dinfo['dest'])
         if not dinfo['extra'] or args.extra:
             download_and_unzip(**dinfo)

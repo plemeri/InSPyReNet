@@ -20,14 +20,6 @@ from data.dataloader import *
 torch.backends.cuda.matmul.allow_tf32 = False
 torch.backends.cudnn.allow_tf32 = False
 
-def _args():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--config', type=str, default='configs/InSPyReNet_SwinB.yaml')
-    parser.add_argument('--verbose', action='store_true', default=False)
-    parser.add_argument('--debug',   action='store_true', default=False)
-    return parser.parse_args()
-
-
 def test(opt, args):
     model = eval(opt.Model.name)(**opt.Model)
     model.load_state_dict(torch.load(os.path.join(opt.Test.Checkpoint.checkpoint_dir, 'latest.pth')), strict=True)

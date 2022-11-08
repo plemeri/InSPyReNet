@@ -61,6 +61,28 @@ To appear in the 16th Asian Conference on Computer Vision (ACCV2022)
 :-:|:-:
 <img src=./figures/fig_architecture.png height="350px" width="350px"> | <img src=./figures/fig_pyramid_blending.png height="350px" width="350px">
 
+## Easy Install
+
+<details><summary>How to use easy install</summary>
+<p>
+Downloading each dataset, checkpoint is quite bothering, even for me :zzz:. Instead, you can download data we provide including
+* ImageNet pre-trained backbone checkpoints
+* Training Datasets
+* Testing Datasets for benchmark
+* Pre-trained model checkpoints
+* Pre-computed saliency maps
+
+with single command below.
+```
+python utils/install.py --extra --dest [DEST]
+```
+
+* `--extra, -e`: Without this argument, only the datasets, checkpoint, and results from our main paper will be downloaded. Otherwise, all data will be downloaded including DIS5K results.
+* `--dest [DEST], -d [DEST]`: If you want to specify the destination, use this argument. It will automatically create a symbolic links of the destination folders inside `data` and `snapshots`. Otherwise, it will download inside this repository folder.
+
+</p>
+</details>
+
 ## Getting Started
 
 Please refer to [getting_started.md](./docs/getting_started.md) for trainig, testing, evaluating, and inferencing on your own images.
