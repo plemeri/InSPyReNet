@@ -3,6 +3,11 @@
 ## Create environment
   * Create conda environment with following command `conda create -y -n inspyrenet python`
   * Activate environment with following command `conda activate inspyrenet`
+  * Install latest PyTorch from [Official Website](https://pytorch.org/get-started/locally/)
+    * Linux [2022.11.09]
+    ```
+    pip3 install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu116
+    ```
   * Install requirements with following command `pip install -r requirements.txt`
   
 ## Preparation
