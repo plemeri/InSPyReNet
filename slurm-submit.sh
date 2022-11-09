@@ -15,7 +15,7 @@
 ## Same as gres
 #SBATCH --ntasks-per-node=8
 ## Number of cores per task
-#SBATCH --cpus-per-task=8
+#SBATCH --cpus-per-task=1
 
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=taehoon1018@postech.ac.kr
