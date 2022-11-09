@@ -81,7 +81,7 @@ python utils/download.py --extra --dest [DEST]
 
 ## Getting Started
 
-Please refer to [getting_started.md](./docs/getting_started.md) for trainig, testing, evaluating, and inferencing on your own images.
+Please refer to [getting_started.md](./docs/getting_started.md) for training, testing, and evaluating on benchmarks, and inferencing on your own images.
 
 ## Model Zoo
 
