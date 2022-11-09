@@ -2,14 +2,28 @@ Model:
     name: "InSPyReNet_SwinB"
     depth: 64
     pretrained: True
-    base_size: [1024, 1024]
-    threshold: NULL
+    base_size: [384, 384]
+    threshold: 512
 
 Train:
     Dataset:
         type: "RGB_Dataset"
-        root: "data/Train_Dataset"
-        sets: ['DIS-TR']
+        root: "data"
+        sets: [
+               'Train_Dataset/DUTS-TR', 
+               'Train_Dataset/HRSOD-TR', 
+               'Train_Dataset/UHRSD-TR', 
+               'Test_Dataset/DUTS-TE', 
+               'Test_Dataset/DUT-OMRON', 
+               'Test_Dataset/ECSSD', 
+               'Test_Dataset/HKU-IS', 
+               'Test_Dataset/PASCAL-S', 
+               'Test_Dataset/DAVIS-S', 
+               'Test_Dataset/HRSOD-TE',
+               'Test_Dataset/UHRSD-TE', 
+               'Test_Dataset/FSS-1000', 
+               'Test_Dataset/MSRA-10K'
+               ]
         transforms:
             static_resize: 
                 size: [384, 384]
@@ -39,13 +53,13 @@ Train:
         mixed_precision: False
     Scheduler:
         type: "PolyLr"
-        epoch: 180
+        epoch: 60
         gamma: 0.9
         minimum_lr: 1.0e-07
         warmup_iteration: 12000
     Checkpoint:
         checkpoint_epoch: 1
-        checkpoint_dir: "snapshots/InSPyReNet_SwinB_DIS5K"
+        checkpoint_dir: "snapshots/Plus_Ultra_LR"
     Debug:
         keys: ['saliency', 'laplacian']
     
@@ -53,7 +67,7 @@ Test:
     Dataset:
         type: "RGB_Dataset"
         root: "data/Test_Dataset"
-        sets: ['DIS-VD', 'DIS-TE1', 'DIS-TE2', 'DIS-TE3', 'DIS-TE4']
+        sets:  ['DUTS-TE', 'DUT-OMRON', 'ECSSD', 'HKU-IS', 'PASCAL-S', 'DAVIS-S', 'HRSOD-TE', 'UHRSD-TE']
         transforms:
             dynamic_resize:
                 L: 1280
@@ -66,11 +80,11 @@ Test:
         num_workers: 8
         pin_memory: True
     Checkpoint:
-        checkpoint_dir: "snapshots/InSPyReNet_SwinB_DIS5K"
+        checkpoint_dir: "snapshots/Plus_Ultra_LR"
 
 Eval:
     gt_root: "data/Test_Dataset"
-    pred_root: "snapshots/InSPyReNet_SwinB_DIS5K"
+    pred_root: "snapshots/Plus_Ultra_LR"
     result_path: "results"
-    datasets: ['DIS-VD', 'DIS-TE1', 'DIS-TE2', 'DIS-TE3', 'DIS-TE4']
+    datasets: ['DUTS-TE', 'DUT-OMRON', 'ECSSD', 'HKU-IS', 'PASCAL-S', 'DAVIS-S', 'HRSOD-TE', 'UHRSD-TE']
     metrics: ['Sm', 'mae', 'adpEm', 'maxEm', 'avgEm', 'adpFm', 'maxFm', 'avgFm', 'wFm', 'mBA']

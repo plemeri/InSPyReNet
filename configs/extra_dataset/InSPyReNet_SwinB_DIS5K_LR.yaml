@@ -2,8 +2,8 @@ Model:
     name: "InSPyReNet_SwinB"
     depth: 64
     pretrained: True
-    base_size: [1024, 1024]
-    threshold: NULL
+    base_size: [384, 384]
+    threshold: 512
 
 Train:
     Dataset:
@@ -45,7 +45,7 @@ Train:
         warmup_iteration: 12000
     Checkpoint:
         checkpoint_epoch: 1
-        checkpoint_dir: "snapshots/InSPyReNet_SwinB_DIS5K"
+        checkpoint_dir: "snapshots/InSPyReNet_SwinB_DIS5K_LR"
     Debug:
         keys: ['saliency', 'laplacian']
     
@@ -66,11 +66,11 @@ Test:
         num_workers: 8
         pin_memory: True
     Checkpoint:
-        checkpoint_dir: "snapshots/InSPyReNet_SwinB_DIS5K"
+        checkpoint_dir: "snapshots/InSPyReNet_SwinB_DIS5K_LR"
 
 Eval:
     gt_root: "data/Test_Dataset"
-    pred_root: "snapshots/InSPyReNet_SwinB_DIS5K"
+    pred_root: "snapshots/InSPyReNet_SwinB_DIS5K_LR"
     result_path: "results"
     datasets: ['DIS-VD', 'DIS-TE1', 'DIS-TE2', 'DIS-TE3', 'DIS-TE4']
     metrics: ['Sm', 'mae', 'adpEm', 'maxEm', 'avgEm', 'adpFm', 'maxFm', 'avgFm', 'wFm', 'mBA']

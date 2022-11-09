@@ -2,14 +2,28 @@ Model:
     name: "InSPyReNet_SwinB"
     depth: 64
     pretrained: True
-    base_size: [384, 384]
-    threshold: 512
+    base_size: [1024, 1024]
+    threshold: NULL
 
 Train:
     Dataset:
         type: "RGB_Dataset"
-        root: "data/Train_Dataset"
-        sets: ['PASCAL-S', 'DAVIS-S', 'FSS-1000', 'HRSOD-TR', 'DUT-OMRON', 'HKU-IS', 'MSRA-10K', 'DUTS-TR', 'DUTS-TE', 'UHRSD-TE', 'ECSSD', 'UHRSD-TR', 'HRSOD-TE']
+        root: "data"
+        sets: [
+               'Train_Dataset/DUTS-TR', 
+               'Train_Dataset/HRSOD-TR', 
+               'Train_Dataset/UHRSD-TR', 
+               'Test_Dataset/DUTS-TE', 
+               'Test_Dataset/DUT-OMRON', 
+               'Test_Dataset/ECSSD', 
+               'Test_Dataset/HKU-IS', 
+               'Test_Dataset/PASCAL-S', 
+               'Test_Dataset/DAVIS-S', 
+               'Test_Dataset/HRSOD-TE',
+               'Test_Dataset/UHRSD-TE', 
+               'Test_Dataset/FSS-1000', 
+               'Test_Dataset/MSRA-10K'
+               ]
         transforms:
             static_resize: 
                 size: [384, 384]
@@ -55,8 +69,8 @@ Test:
         root: "data/Test_Dataset"
         sets:  ['DUTS-TE', 'DUT-OMRON', 'ECSSD', 'HKU-IS', 'PASCAL-S', 'DAVIS-S', 'HRSOD-TE', 'UHRSD-TE']
         transforms:
-            dynamic_resize:
-                L: 1280
+            static_resize: 
+                size: [1024, 1024]
             tonumpy: NULL
             normalize: 
                 mean: [0.485, 0.456, 0.406]
