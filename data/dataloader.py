@@ -16,6 +16,8 @@ sys.path.append(repopath)
 from data.custom_transforms import *
 from utils.misc import *
 
+Image.MAX_IMAGE_PIXELS = None
+
 def get_transform(tfs):
     comp = []
     for key, value in zip(tfs.keys(), tfs.values()):

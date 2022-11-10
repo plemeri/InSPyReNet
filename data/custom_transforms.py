@@ -122,6 +122,46 @@ class random_rotate:
                                                     (sample[key].size[1] + base_size[1]) // 2))
 
         return sample
+    
+class hard_region_sampling:
+    def __init__(self, size=[384, 384]):
+        self.size = size
+        self.static_resize = static_resize(size)
+
+    def __call__(self, sample):
+        image = np.array(sample['image'])
+        mask  = np.array(sample['gt'])
+        
+        if np.random.random() < .5:
+            x           = torch.tensor(mask.squeeze()).unsqueeze(0).unsqueeze(0).float() / 255
+            hard_region = torch.abs(F.avg_pool2d(x, kernel_size=31, stride=1, padding=15) - x)
+            target      = torch.where(hard_region > .5)[2:]
+            
+            if len(target[0]) != 0:
+                idx         = torch.randint(0, len(target[0]), (1,))[0]
+                coord       = [target[0][idx], target[1][idx]]
+                
+                if   coord[0] + (self.size[0] // 2) > mask.shape[0]:
+                    coord[0] = mask.shape[0] - (self.size[0] // 2)
+                elif coord[0] - (self.size[0] // 2) < 0:
+                    coord[0] = (self.size[0] // 2)
+
+                if   coord[1] + (self.size[1] // 2) > mask.shape[1]:
+                    coord[1] = mask.shape[1] - (self.size[1] // 2)
+                elif coord[1] - (self.size[1] // 2) < 0:
+                    coord[1] = (self.size[1] // 2)
+
+                top_left     = (coord[0] - (self.size[0] // 2), coord[1] - (self.size[1] // 2))
+                bottom_right = (coord[0] + (self.size[0] // 2), coord[1] + (self.size[1] // 2))
+                
+                sample['image'] = Image.fromarray(image[top_left[0]:bottom_right[0], top_left[1]:bottom_right[1]])
+                sample['gt']    = Image.fromarray( mask[top_left[0]:bottom_right[0], top_left[1]:bottom_right[1]])
+            else:
+                sample = self.static_resize(sample)    
+        else:
+            sample = self.static_resize(sample)
+
+        return sample
 
 class random_image_enhance:
     def __init__(self, methods=['contrast', 'brightness', 'sharpness']):
