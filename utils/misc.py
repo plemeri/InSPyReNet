@@ -3,6 +3,7 @@ import os
 import yaml
 import cv2
 import argparse
+import warnings
 import numpy as np
 
 import torch
@@ -49,6 +50,8 @@ def parse_args():
 
     args.device_num = device_num
     args.local_rank = local_rank
+    
+    warnings.simplefilter("ignore")
 
     return args
 
