@@ -37,11 +37,11 @@ To appear in the 16th Asian Conference on Computer Vision (ACCV2022)
   We design InSPyReNet to produce a strict image pyramid structure of saliency map, which enables to ensemble multiple results with pyramid-based image blending.
   For HR prediction, we design a pyramid blending method which synthesizes two different image pyramids from a pair of LR and HR scale from the same image to overcome effective receptive field (ERF) discrepancy. Our extensive evaluation on public LR and HR SOD benchmarks demonstrates that InSPyReNet surpasses the State-of-the-Art (SotA) methods on various SOD metrics and boundary accuracy.
   
-## News :newspaper:
+## :newspaper: News
 
 [2022.10.04] [TasksWithCode](https://github.com/taskswithcode) mentioned our work in [Blog](https://medium.com/@taskswithcode/twc-9-7c960c921f69) and reproducing our work on [Colab](https://github.com/taskswithcode/InSPyReNet). Thank you for your attention!
 
-[2022.10.20] :new: We trained our model on [Dichotomous Image Segmentation dataset (DIS5K)](https://xuebinqin.github.io/dis/index.html) and showed competitive results! Trained checkpoint and pre-computed segmentation masks are available in [Model Zoo](./docs/model_zoo.md)). Also, you can check our qualitative and quantitative results in [Results](#results) section.
+[2022.10.20] :new: We trained our model on [Dichotomous Image Segmentation dataset (DIS5K)](https://xuebinqin.github.io/dis/index.html) and showed competitive results! Trained checkpoint and pre-computed segmentation masks are available in [Model Zoo](./docs/model_zoo.md)). Also, you can check our qualitative and quantitative results in [Results](#:100:-results) section.
 
 [2022.10.28] Multi GPU training for latest pytorch is now available.
 
@@ -49,7 +49,7 @@ To appear in the 16th Asian Conference on Computer Vision (ACCV2022)
 
 [2022.11.09] :car: Lane segmentation for driving scene built based on InSPyReNet is available in [LaneSOD](https://github.com/plemeri/LaneSOD) repository.
 
-## Demo :rocket:
+## :rocket: Demo
 
 * <img src=https://huggingface.co/front/assets/huggingface_logo-noborder.svg height="20px" width="20px"> Try [WepApp](https://huggingface.co/spaces/taskswithcode/salient-object-detection) on HuggingFace to generate your own results!
 
@@ -57,13 +57,13 @@ To appear in the 16th Asian Conference on Computer Vision (ACCV2022)
 :-:|:-:|:-:
 <img src=./figures/demo_webapp.gif height="250px" width="250px"> | <img src=./figures/demo_image.gif height="250px" width="250px"> | <img src=./figures/demo_video.gif height="250px" width="250px">
 
-## Architecture
+## :classical_building: Architecture
 
 [InSPyReNet](./figures/fig_architecture.png) | [pyramid blending](./figures/fig_pyramid_blending.png)
 :-:|:-:
 <img src=./figures/fig_architecture.png height="350px" width="350px"> | <img src=./figures/fig_pyramid_blending.png height="350px" width="350px">
 
-## Easy Download
+## :cake: Easy Download
 
 <details><summary>How to use easy download</summary>
 <p>
@@ -76,20 +76,20 @@ python utils/download.py --extra --dest [DEST]
 * `--extra, -e`: Without this argument, only the datasets, checkpoint, and results from our main paper will be downloaded. Otherwise, all data will be downloaded including results from supplementary material and DIS5K results.
 * `--dest [DEST], -d [DEST]`: If you want to specify the destination, use this argument. It will automatically create a symbolic links of the destination folders inside `data` and `snapshots`. Use this argument if you want to download data on other physical disk. Otherwise, it will download inside this repository folder.
 
-If you want to download a certain checkpoint or pre-computed map, please refer to [Getting Started](#getting-started) and [Model Zoo](#model-zoo).
+If you want to download a certain checkpoint or pre-computed map, please refer to [Getting Started](#:flight_departure:-getting-started) and [Model Zoo](#:giraffe:-model-zoo).
 
 </p>
 </details>
 
-## Getting Started
+## :flight_departure: Getting Started
 
 Please refer to [getting_started.md](./docs/getting_started.md) for training, testing, and evaluating on benchmarks, and inferencing on your own images.
 
-## Model Zoo
+## :giraffe: Model Zoo
 
 Please refer to [model_zoo.md](./docs/model_zoo.md) for downloading pre-trained models and pre-computed saliency maps.
 
-## Results
+## :100: Results
 
 * Quantitative
 
@@ -114,7 +114,7 @@ Dataset | Sm | mae | adpEm | maxEm | avgEm | adpFm | maxFm | avgFm | wFm | mBA |
 :-:|:-:|:-:|:-:
 <img src=./figures/fig_qualitative.png height="250px" width="250px"> | <img src=./figures/fig_qualitative2.png height="250px" width="250px"> | <img src=./figures/fig_qualitative3.jpg height="250px" width="250px"> | <img src=./figures/fig_qualitative_dis.png height="250px" width="250px">
 
-## Citation
+## :trophy: Citation
 
 ```
 @inproceedings{kim2022revisiting,
