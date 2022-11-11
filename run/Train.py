@@ -69,7 +69,7 @@ def train(opt, args):
     if args.device_num > 1:
         model = nn.SyncBatchNorm.convert_sync_batchnorm(model)
         model = model.cuda()
-        model = nn.parallel.DistributedDataParallel(model, device_ids=[args.local_rank], find_unused_parameters=True)
+        model = nn.parallel.DistributedDataParallel(model, device_ids=[args.local_rank])
     else:
         model = model.cuda()
 
