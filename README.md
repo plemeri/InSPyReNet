@@ -125,17 +125,17 @@ Dataset | Sm | mae | adpEm | maxEm | avgEm | adpFm | maxFm | avgFm | wFm | mBA |
 }
 ```
 
-## Acknowledgement
+## :mortar_board: Acknowledgement
 
 This work was supported by Institute of Information & communications Technology Planning & Evaluation (IITP) grant funded by the Korea government (MSIT) 
 (No.2017-0-00897, Development of Object Detection and Recognition for Intelligent Vehicles) and 
 (No.B0101-15-0266, Development of High Performance Visual BigData Discovery Platform for Large-Scale Realtime Data Analysis)
 
-### Special Thanks to
+### :tada: Special Thanks to
 * [TasksWithCode](https://github.com/taskswithcode) team for sharing our work and amazing web app demo.
 
 
-## References
+## :paperclip: References
 
 ### Related Works
 
