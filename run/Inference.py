@@ -23,13 +23,13 @@ torch.backends.cudnn.allow_tf32 = False
 
 def _args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--config',      type=str,            default='configs/InSPyReNet_SwinB.yaml')
-    parser.add_argument('--source',      type=str)
-    parser.add_argument('--dest',        type=str,            default=None)
-    parser.add_argument('--type',        type=str,            default='map')
-    parser.add_argument('--gpu',         action='store_true', default=False)
-    parser.add_argument('--jit',         action='store_true', default=False)
-    parser.add_argument('--verbose',     action='store_true', default=False)
+    parser.add_argument('--config', '-c',     type=str,            default='configs/InSPyReNet_SwinB.yaml')
+    parser.add_argument('--source', '-s',     type=str)
+    parser.add_argument('--dest', '-d',       type=str,            default=None)
+    parser.add_argument('--type', '-t',       type=str,            default='map')
+    parser.add_argument('--gpu', '-g',        action='store_true', default=False)
+    parser.add_argument('--jit', '-j',        action='store_true', default=False)
+    parser.add_argument('--verbose', '-v',    action='store_true', default=False)
     return parser.parse_args()
 
 def get_format(source):

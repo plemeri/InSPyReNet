@@ -76,6 +76,8 @@ python utils/download.py --extra --dest [DEST]
 * `--extra, -e`: Without this argument, only the datasets, checkpoint, and results from our main paper will be downloaded. Otherwise, all data will be downloaded including results from supplementary material and DIS5K results.
 * `--dest [DEST], -d [DEST]`: If you want to specify the destination, use this argument. It will automatically create a symbolic links of the destination folders inside `data` and `snapshots`. Use this argument if you want to download data on other physical disk. Otherwise, it will download inside this repository folder.
 
+If you want to download a certain checkpoint or pre-computed map, please refer to [Getting Started](#getting-started) and [Model Zoo](#model-zoo).
+
 </p>
 </details>
 

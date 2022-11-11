@@ -104,18 +104,26 @@ DIS-TE4   | `data/Test_Dataset/...` | [Link](https://postechackr-my.sharepoint.c
   python run/Inference.py --config configs/InSPyReNet_SwinB.yaml --source [SOURCE] --dest [DEST] --type [TYPE] --gpu --jit --verbose
   ```
 
-  * SOURCE: Specify your data in this argument.
+  * `--source [SOURCE]`: Specify your data in this argument.
     * Single image - `image.png`
     * Folder containing images - `path/to/img/folder`
     * Single video - `video.mp4`
     * Folder containing videos - `path/to/vid/folder`
     * Webcam input: `0` (may vary depends on your device.)
-  * DEST (optional): Specify your destination folder. If not specified, it will be saved in `results` folder.
-  * TYPE: Choose between `map, green, rgba, blur`
+  * `--dest [DEST]` (optional): Specify your destination folder. If not specified, it will be saved in `results` folder.
+  * `--type [TYPE]`: Choose between `map` `green`, `rgba`, `blur`, `overlay`, and another image file.
     * `map` will output saliency map only. 
     * `green` will change the background with green screen. 
     * `rgba` will generate RGBA output regarding saliency score as an alpha map. Note that this will not work for video and webcam input. 
     * `blur` will blur the background.
-  * --gpu: Use this argument if you want to use GPU. 
-  * --jit: Slightly improves inference speed when used. 
-  * --verbose: Use when you want to visualize progress.
+    * `overlay` will cover the salient object with translucent green color, and highlight the edges.
+    * Another image file (e.g., `backgroud.png`) will be used as a background, and the object will be overlapped on it.
+    <details><summary>Examples of TYPE argument</summary>
+    <p>
+    <img src=../figures/demo_type.png >
+    </p>
+    </details>
+  * `--gpu`: Use this argument if you want to use GPU. 
+  * `--jit`: Slightly improves inference speed when used. 
+  * `--verbose`: Use when you want to visualize progress.
+
