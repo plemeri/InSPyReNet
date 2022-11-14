@@ -72,6 +72,11 @@ DIS-TE4   | `data/Test_Dataset/...` | [Link](https://postechackr-my.sharepoint.c
   CUDA_VISIBLE_DEVICES=0,1 torchrun --standalone --nproc_per_node=2 run/Train.py --config configs/InSPyReNet_SwinB.yaml --verbose
   ```
 
+  * `--config [CONFIG_FILE], -c [CONFIG_FILE]`: config file path for training.
+  * `--resume, -r`: use this argument to resume from last checkpoint.
+  * `--verbose, -v`: use this argument to output progress info.
+  * `--debug, -d`: use this argument to save debug images every epoch.
+
   * Train with extra training datasets can be done by just changing [Train.Dataset.sets](https://github.com/plemeri/InSPyReNet/blob/main/configs/InSPyReNet_SwinB.yaml#L12) in the `yaml` config file, which is just simply adding more directories (e.g., HRSOD-TR, HRSOD-TR, UHRSD-TR, ...):
    ```
    Train:
