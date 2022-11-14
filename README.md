@@ -101,27 +101,33 @@ Please refer to [model_zoo.md](./docs/model_zoo.md) for downloading pre-trained 
 
 * :new: [Added in 2022.10.20] Quantitative results on DIS5K dataset [[Log file](https://postechackr-my.sharepoint.com/:t:/g/personal/taehoon1018_postech_ac_kr/EeczZ1XEboZKhxqif9m1VwsBhMc--dLYqlZ_5TicEXr2ZA?e=aCFXhp)]
 
-  * Trained with LR scale (384 X 384) [[Config](./configs/extra_dataset/InSPyReNet_SwinB_DIS5K_LR.yaml)]
+  <details><summary>Click to see the results</summary>
+  <p>
 
-    Dataset  | Sm     | mae    | adpEm  | maxEm  | avgEm  | adpFm  | maxFm  | avgFm  | wFm    | mBA    | HCE<sup>*</sup> |
-    :-       |:-      |:-      |:-      |:-      |:-      |:-      |:-      |:-      |:-      |:-      |:-               |
-    DIS-VD   | 0.8868 | 0.0427 | 0.9145 | 0.9352 | 0.9217 | 0.8295 | 0.8760 | 0.8523 | 0.8259 | 0.7654 | 905             |
-    DIS-TE1  | 0.8618 | 0.0447 | 0.8679 | 0.9071 | 0.8952 | 0.7556 | 0.8341 | 0.8083 | 0.7771 | 0.7453 | 148             |
-    DIS-TE2  | 0.8934 | 0.0383 | 0.9131 | 0.9356 | 0.9253 | 0.8281 | 0.8811 | 0.8599 | 0.8339 | 0.7587 | 316             |
-    DIS-TE3  | 0.9019 | 0.0381 | 0.9278 | 0.9496 | 0.9376 | 0.8529 | 0.9038 | 0.8802 | 0.8558 | 0.7741 | 582             |
-    DIS-TE4  | 0.8913 | 0.0461 | 0.9316 | 0.9433 | 0.9255 | 0.8545 | 0.8915 | 0.8655 | 0.8395 | 0.7789 | 2243            |
+    * Trained with LR scale (384 X 384) [[Config](./configs/extra_dataset/InSPyReNet_SwinB_DIS5K_LR.yaml)]
 
-  * Trained with HR scale (1024 X 1024) [[Config](./configs/extra_dataset/InSPyReNet_SwinB_DIS5K.yaml)]
+      Dataset  | Sm     | mae    | adpEm  | maxEm  | avgEm  | adpFm  | maxFm  | avgFm  | wFm    | mBA    | HCE<sup>*</sup> |
+      :-       |:-      |:-      |:-      |:-      |:-      |:-      |:-      |:-      |:-      |:-      |:-               |
+      DIS-VD   | 0.8868 | 0.0427 | 0.9145 | 0.9352 | 0.9217 | 0.8295 | 0.8760 | 0.8523 | 0.8259 | 0.7654 | 905             |
+      DIS-TE1  | 0.8618 | 0.0447 | 0.8679 | 0.9071 | 0.8952 | 0.7556 | 0.8341 | 0.8083 | 0.7771 | 0.7453 | 148             |
+      DIS-TE2  | 0.8934 | 0.0383 | 0.9131 | 0.9356 | 0.9253 | 0.8281 | 0.8811 | 0.8599 | 0.8339 | 0.7587 | 316             |
+      DIS-TE3  | 0.9019 | 0.0381 | 0.9278 | 0.9496 | 0.9376 | 0.8529 | 0.9038 | 0.8802 | 0.8558 | 0.7741 | 582             |
+      DIS-TE4  | 0.8913 | 0.0461 | 0.9316 | 0.9433 | 0.9255 | 0.8545 | 0.8915 | 0.8655 | 0.8395 | 0.7789 | 2243            |
 
-    Dataset  | Sm     | mae    | adpEm  | maxEm  | avgEm  | adpFm  | maxFm  | avgFm  | wFm    | mBA    | HCE<sup>*</sup> |
-    :-       |:-      |:-      |:-      |:-      |:-      |:-      |:-      |:-      |:-      |:-      |:-               |
-    DIS-VD   | 0.8997 | 0.0416 | 0.9141 | 0.9398 | 0.9216 | 0.8364 | 0.8893 | 0.8603 | 0.8336 | 0.8003 | 904             |
-    DIS-TE1  | 0.8733 | 0.0432 | 0.8743 | 0.9070 | 0.8940 | 0.7771 | 0.8453 | 0.8195 | 0.7882 | 0.7966 | 110             |
-    DIS-TE2  | 0.9053 | 0.0364 | 0.9154 | 0.9410 | 0.9279 | 0.8439 | 0.8941 | 0.8703 | 0.8462 | 0.8034 | 255             |
-    DIS-TE3  | 0.9179 | 0.0341 | 0.9403 | 0.9586 | 0.9427 | 0.8752 | 0.9191 | 0.8923 | 0.8707 | 0.8079 | 522             |
-    DIS-TE4  | 0.9052 | 0.0424 | 0.9361 | 0.9535 | 0.9282 | 0.8598 | 0.9051 | 0.8700 | 0.8479 | 0.7994 | 2336            |
+    * Trained with HR scale (1024 X 1024) [[Config](./configs/extra_dataset/InSPyReNet_SwinB_DIS5K.yaml)]
 
-  * *: HCE here is relax Human Correction Error which is proposed in DIS([project page](https://xuebinqin.github.io/dis/index.html) | [paper](https://arxiv.org/pdf/2203.03041.pdf)) and you can compute yourself from their [github](https://github.com/xuebinqin/DIS) repository.
+      Dataset  | Sm     | mae    | adpEm  | maxEm  | avgEm  | adpFm  | maxFm  | avgFm  | wFm    | mBA    | HCE<sup>*</sup> |
+      :-       |:-      |:-      |:-      |:-      |:-      |:-      |:-      |:-      |:-      |:-      |:-               |
+      DIS-VD   | 0.8997 | 0.0416 | 0.9141 | 0.9398 | 0.9216 | 0.8364 | 0.8893 | 0.8603 | 0.8336 | 0.8003 | 904             |
+      DIS-TE1  | 0.8733 | 0.0432 | 0.8743 | 0.9070 | 0.8940 | 0.7771 | 0.8453 | 0.8195 | 0.7882 | 0.7966 | 110             |
+      DIS-TE2  | 0.9053 | 0.0364 | 0.9154 | 0.9410 | 0.9279 | 0.8439 | 0.8941 | 0.8703 | 0.8462 | 0.8034 | 255             |
+      DIS-TE3  | 0.9179 | 0.0341 | 0.9403 | 0.9586 | 0.9427 | 0.8752 | 0.9191 | 0.8923 | 0.8707 | 0.8079 | 522             |
+      DIS-TE4  | 0.9052 | 0.0424 | 0.9361 | 0.9535 | 0.9282 | 0.8598 | 0.9051 | 0.8700 | 0.8479 | 0.7994 | 2336            |
+
+    * *: HCE here is relax Human Correction Error which is proposed in DIS([project page](https://xuebinqin.github.io/dis/index.html) | [paper](https://arxiv.org/pdf/2203.03041.pdf)) and you can compute yourself from their [github](https://github.com/xuebinqin/DIS) repository.
+
+  </p>
+  </details>
 
 * Qualitative
 
