@@ -55,8 +55,8 @@ Test:
         root: "data/Test_Dataset"
         sets: ['DIS-VD', 'DIS-TE1', 'DIS-TE2', 'DIS-TE3', 'DIS-TE4']
         transforms:
-            dynamic_resize:
-                L: 1280
+            static_resize:
+                size: [1024, 1024]
             tonumpy: NULL
             normalize: 
                 mean: [0.485, 0.456, 0.406]
