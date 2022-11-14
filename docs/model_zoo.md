@@ -33,12 +33,12 @@ Backbone |  Train DB  | Config | OneDrive | GDrive
 SwinB | DUTS-TR, DUTS-TE, DUT-OMRON, FSS-1000, MSRA-10K, ECSSD, HKU-IS, PASCAL-S, HRSOD-TR, UHRSD-TR | [Plus_Ultra_LR](../configs/extra_dataset/Plus_Ultra_LR.yaml) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/ESKuh1zhToVFsIxhUUsgkbgBnu2kFXCFLRuSz1xxsKzjhA?e=02HDrm&download=1) | [Link](https://drive.google.com/file/d/1iRX-0MVbUjvAVns5MtVdng6CQlGOIo3m/view?usp=sharing)
 SwinB | DUTS-TR, DUTS-TE, DUT-OMRON, FSS-1000, MSRA-10K, ECSSD, HKU-IS, PASCAL-S, HRSOD-TR, UHRSD-TR | [Plus_Ultra](../configs/extra_dataset/Plus_Ultra.yaml) | In progress | In progress
 
-### :new: Trained with Dichotomous Image Segmentation dataset (DIS5K-TR) with LR (384 X 384) and HR (1024 X 1024, in progress) scale [Added in 2022.10.20] 
+### :new: Trained with Dichotomous Image Segmentation dataset (DIS5K-TR) with LR (384 X 384) and HR (1024 X 1024) scale [Added in 2022.10.20] 
 
 Backbone |  Train DB  | Config | OneDrive | GDrive
 :-|:-|:-|:-|:-
 SwinB | DIS5K-TR | [InSPyReNet_SwinB_DIS5K_LR](../configs/extra_dataset/InSPyReNet_SwinB_DIS5K_LR.yaml) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/ERKrQ_YeoJRHl_3HcH8ZJLoBedsa6hZlmIIf66wobZRGuw?e=EywJmS&download=1) | [Link](https://drive.google.com/file/d/1Sj7GZoocGMHyKNhFnQQc1FTs76ysJIX3/view?usp=sharing)
-SwinB | DIS5K-TR | [InSPyReNet_SwinB_DIS5K](../configs/extra_dataset/InSPyReNet_SwinB_DIS5K.yaml) | In progress | In progress
+SwinB | DIS5K-TR | [InSPyReNet_SwinB_DIS5K](../configs/extra_dataset/InSPyReNet_SwinB_DIS5K.yaml) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/EShRbD-jZuRJiWv6DS2Us34BwgazGZvK1t4uTKvgE5379Q?e=8oVpS8) | [Link](https://drive.google.com/file/d/1aCxHMbhvj8ah77jXVgqvqImQA_Y0G-Yg/view?usp=sharing)
 
 
 ## Pre-Computed Saliency Maps
@@ -59,4 +59,4 @@ Config | DUTS-TE | DUT-OMRON | ECSSD | HKU-IS | PASCAL-S | DAVIS-S | HRSOD-TE | 
 Config | DIS-VD | DIS-TE1 | DIS-TE2 | DIS-TE3 | DIS-TE4
 :-|:-|:-|:-|:-|:-|
 [InSPyReNet_SwinB_DIS5K_LR](../configs/extra_dataset/InSPyReNet_SwinB_DIS5K_LR.yaml) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/EUbzddb_QRRCtnXC8Xl6vZoBC6IqOfom52BWbzOYk-b2Ow?e=aqJYi1&download=1) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/ESeW_SOD26tHjBLymmgFaXwBIJlljzNycaGWXLpOp_d_kA?e=2EyMai&download=1) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/EYWT5fZDjI5Bn-iQM1TsB1num0-UqfJC1TIv-LuOXoA?e=jCcnty&download=1) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/EQXm1DEBfaNJmH0B-A3o23kBn4v5j53kP2nF9CpG9SQkyw?e=lEUiZh&download=1) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/EZeH2ufGsFZIoUh6D8Rtv88BBF_ddQXav4xYXXRP_ayEAg?e=AMzIp8&download=1)
-[InSPyReNet_SwinB_DIS5K](../configs/extra_dataset/InSPyReNet_SwinB_DIS5K.yaml) | In progress | In progress | In progress | In progress | In progress
+[InSPyReNet_SwinB_DIS5K](../configs/extra_dataset/InSPyReNet_SwinB_DIS5K.yaml) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/EUisiphB_W5BjgfpIYu9oNgB_fY4XxL-MhR2gR-ZZUt49Q?e=gqorYs) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/EW2y54ROYIZFlEq5ilRFwOsBSrIm2-HGsUHPHykaJvUBfA?e=797fxr) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/ER6yEGZkgWVOsL-mauYgPyoBDIoU0Mck-twEBgQi5g3Mxw?e=0yJZTT) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/Edvzj0iZ8hdDthm4Q-p2YHgBhP1X5z4AAccAoUasr2nihA?e=1dognG) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/EWwMORYg8DlCgGGqOQFThZ8BgIU9wV9-0DwLrKldQl7N8w?e=nCwuqy)
