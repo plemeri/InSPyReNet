@@ -38,6 +38,22 @@ To appear in the 16th Asian Conference on Computer Vision (ACCV2022)
   Therefore, we propose an image pyramid-based SOD framework, Inverse Saliency Pyramid Reconstruction Network (InSPyReNet), for HR prediction without any of HR datasets.
   We design InSPyReNet to produce a strict image pyramid structure of saliency map, which enables to ensemble multiple results with pyramid-based image blending.
   For HR prediction, we design a pyramid blending method which synthesizes two different image pyramids from a pair of LR and HR scale from the same image to overcome effective receptive field (ERF) discrepancy. Our extensive evaluation on public LR and HR SOD benchmarks demonstrates that InSPyReNet surpasses the State-of-the-Art (SotA) methods on various SOD metrics and boundary accuracy.
+
+## Contents
+
+1. [News](#newspaper-news)
+2. [Demo](#rocket-demo)
+3. [Architecture](#classical_building-architecture)
+4. [Easy Download](#cake-easy-download)
+5. [Getting Started](#flight_departure-getting-started)
+6. [Model Zoo](#giraffe-model-zoo)
+7. [Results](#100-results)
+  * [Quantitative Results](#quantitative-results)
+  * [Qualitative Results](#qualitative-results)
+8. [Citation](#trophy-citation)
+9. [Acknowledgement](#mortar_board-acknowledgement)
+  * [Special Thanks to](#tada-special-thanks-to)
+10. [References](#paperclip-references)
   
 ## :newspaper: News
 
@@ -93,13 +109,13 @@ Please refer to [model_zoo.md](./docs/model_zoo.md) for downloading pre-trained 
 
 ## :100: Results
 
-* Quantitative
+### Quantitative Results
 
 [LR Benchmark](./figures/fig_quantitative.png) | [HR Benchmark](./figures/fig_quantitative2.png) | [HR Benchmark (Trained with extra DB)](./figures/fig_quantitative3.png) 
 :-:|:-:|:-:
 <img src=./figures/fig_quantitative.png height="250px" width="250px"> | <img src=./figures/fig_quantitative2.png height="250px" width="250px"> | <img src=./figures/fig_quantitative3.png height="250px" width="250px">
 
-* :new: [Added in 2022.10.20] Quantitative results on DIS5K dataset [[Log file](https://postechackr-my.sharepoint.com/:t:/g/personal/taehoon1018_postech_ac_kr/EeczZ1XEboZKhxqif9m1VwsBhMc--dLYqlZ_5TicEXr2ZA?e=aCFXhp)]
+### :new: [Added in 2022.10.20] Quantitative Results on DIS5K Dataset [[Log file](https://postechackr-my.sharepoint.com/:t:/g/personal/taehoon1018_postech_ac_kr/EeczZ1XEboZKhxqif9m1VwsBhMc--dLYqlZ_5TicEXr2ZA?e=aCFXhp)]
 
   <details><summary>Click to see the results</summary>
   <p>
@@ -129,7 +145,7 @@ Please refer to [model_zoo.md](./docs/model_zoo.md) for downloading pre-trained 
   </p>
   </details>
 
-* Qualitative
+### Qualitative Results
 
 [DAVIS-S & HRSOD](./figures/fig_qualitative.png) | [UHRSD](./figures/fig_qualitative2.png) | [UHRSD (Trained with extra DB)](./figures/fig_qualitative3.jpg) | :new: [DIS](./figures/fig_qualitative_dis.png)
 :-:|:-:|:-:|:-:
