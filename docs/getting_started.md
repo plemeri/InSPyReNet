@@ -23,6 +23,8 @@ Item | Destination Folder | OneDrive | GDrive
 Res2Net50 checkpoint | `data/backbone_ckpt/*.pth` | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/EUO7GDBwoC9CulTPdnq_yhQBlc0SIyyELMy3OmrNhOjcGg?e=T3PVyG&download=1) | [Link](https://drive.google.com/file/d/1MMhioAsZ-oYa5FpnTi22XBGh5HkjLX3y/view?usp=sharing)
 SwinB checkpoint     | `data/backbone_ckpt/*.pth` | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/ESlYCLy0endMhcZm9eC2A4ABatxupp4UPh03EcqFjbtSRw?e=7y6lLt&download=1) | [Link](https://drive.google.com/file/d/1fBJFMupe5pV-Vtou-k8LTvHclWs0y1bI/view?usp=sharing)
 
+* We changed Res2Net50 checkpoint to resolve an error while training with DDP. Please refer to [issue #9](https://github.com/plemeri/InSPyReNet/issues/9).
+
 ### Train Datasets
 Item | Destination Folder | OneDrive | GDrive
 :-|:-|:-|:-
