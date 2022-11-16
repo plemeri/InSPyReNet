@@ -169,7 +169,7 @@ This work was supported by Institute of Information & communications Technology 
 (No.B0101-15-0266, Development of High Performance Visual BigData Discovery Platform for Large-Scale Realtime Data Analysis)
 
 ### :tada: Special Thanks to
-* [TasksWithCode](https://github.com/taskswithcode) team for sharing our work and amazing web app demo.
+* [TasksWithCode](https://github.com/taskswithcode) team for sharing our work and making the most amazing web app demo.
 
 
 ## :paperclip: References
