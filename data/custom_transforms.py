@@ -19,7 +19,7 @@ class static_resize:
     # size: h x w
     def __init__(self, size=[384, 384], base_size=None):
         self.size = size[::-1]
-        self.base_size = base_size[::-1]
+        self.base_size = base_size[::-1] if base_size is not None else None
             
     def __call__(self, sample):
         sample['image'] = sample['image'].resize(self.size, Image.BILINEAR)
