@@ -16,9 +16,10 @@ from utils.misc import *
         
 class static_resize:
     # Resize for training
+    # size: h x w
     def __init__(self, size=[384, 384], base_size=None):
-        self.size = size
-        self.base_size = base_size
+        self.size = size[::-1]
+        self.base_size = base_size[::-1]
             
     def __call__(self, sample):
         sample['image'] = sample['image'].resize(self.size, Image.BILINEAR)
@@ -33,9 +34,10 @@ class static_resize:
         return sample
 
 class dynamic_resize:
+    # base_size: h x w
     def __init__(self, L=1280, base_size=[384, 384]): 
         self.L = L
-        self.base_size = base_size
+        self.base_size = base_size[::-1]
                     
     def __call__(self, sample):
         size = list(sample['image'].size)
