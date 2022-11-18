@@ -16,7 +16,6 @@
 [![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/revisiting-image-pyramid-structure-for-high/dichotomous-image-segmentation-on-dis-te3)](https://paperswithcode.com/sota/dichotomous-image-segmentation-on-dis-te3?p=revisiting-image-pyramid-structure-for-high)
 [![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/revisiting-image-pyramid-structure-for-high/dichotomous-image-segmentation-on-dis-te4)](https://paperswithcode.com/sota/dichotomous-image-segmentation-on-dis-te4?p=revisiting-image-pyramid-structure-for-high)
 
-
 Official PyTorch implementation of PyTorch implementation of Revisiting Image Pyramid Structure for High Resolution Salient Object Detection (InSPyReNet)
 
 To appear in the 16th Asian Conference on Computer Vision (ACCV2022)
@@ -30,7 +29,7 @@ To appear in the 16th Asian Conference on Computer Vision (ACCV2022)
 <a href="https://colab.research.google.com/github/taskswithcode/InSPyReNet/blob/main/TWCSOD.ipynb"><img  src="https://colab.research.google.com/assets/colab-badge.svg"></a>
 </p>
 
-> [Taehun Kim](https://scholar.google.co.kr/citations?user=f12-9yQAAAAJ&hl=en), [Kunhee Kim](https://scholar.google.co.kr/citations?user=6sU5r7MAAAAJ&hl=en), Joonyeong Lee, Dongmin Cha, [Jiho Lee](https://scholar.google.co.kr/citations?user=1Q1awj8AAAAJ&hl=en), [Daijin Kim](https://scholar.google.co.kr/citations?user=Mw6anjAAAAAJ&hl=en)
+> [Taehun Kim](https://scholar.google.co.kr/citations?user=f12-9yQAAAAJ&hl=en), [Kunhee Kim](https://scholar.google.co.kr/citations?user=6sU5r7MAAAAJ&hl=en), [Joonyeong Lee](https://scholar.google.co.kr/citations?hl=en&user=pOM4zSYAAAAJ), Dongmin Cha, [Jiho Lee](https://scholar.google.co.kr/citations?user=1Q1awj8AAAAJ&hl=en), [Daijin Kim](https://scholar.google.co.kr/citations?user=Mw6anjAAAAAJ&hl=en)
 
 > **Abstract:**
   Salient object detection (SOD) has been in the spotlight recently, yet has been studied less for high-resolution (HR) images. 
@@ -39,7 +38,7 @@ To appear in the 16th Asian Conference on Computer Vision (ACCV2022)
   We design InSPyReNet to produce a strict image pyramid structure of saliency map, which enables to ensemble multiple results with pyramid-based image blending.
   For HR prediction, we design a pyramid blending method which synthesizes two different image pyramids from a pair of LR and HR scale from the same image to overcome effective receptive field (ERF) discrepancy. Our extensive evaluation on public LR and HR SOD benchmarks demonstrates that InSPyReNet surpasses the State-of-the-Art (SotA) methods on various SOD metrics and boundary accuracy.
 
-## Contents
+## :bookmark_tabs: Contents
 
 1. [News](#newspaper-news)
 2. [Demo](#rocket-demo)
@@ -66,6 +65,12 @@ To appear in the 16th Asian Conference on Computer Vision (ACCV2022)
 [2022.10.31] :new: [TasksWithCode](https://github.com/taskswithcode) provided an amazing web demo with [HuggingFace](https://huggingface.co). Visit the [WepApp](https://huggingface.co/spaces/taskswithcode/salient-object-detection) and try with your image! 
 
 [2022.11.09] :car: Lane segmentation for driving scene built based on InSPyReNet is available in [LaneSOD](https://github.com/plemeri/LaneSOD) repository.
+
+[2022.11.18] I am speaking at The 16th Asian Conference on Computer Vision (ACCV2022). Please check out my talk if you're attending the event! #ACCV2022 #Macau - via #Whova event app
+
+<p align="center">
+<img src=./figures/banner.png >
+</p>
 
 ## :rocket: Demo
 
@@ -184,7 +189,7 @@ This work was supported by Institute of Information & communications Technology 
 
 * Backbones: [Res2Net](https://github.com/Res2Net/Res2Net-PretrainedModels), [Swin Transformer](https://github.com/microsoft/Swin-Transformer)
 
-* Datasets:
+* Datasets
   * LR Benchmarks: [DUTS](http://saliencydetection.net/duts/), [DUT-OMRON](http://saliencydetection.net/dut-omron/), [ECSSD](http://www.cse.cuhk.edu.hk/leojia/projects/hsaliency/dataset.html), [HKU-IS](https://i.cs.hku.hk/~gbli/deep_saliency.html), [PASCAL-S](http://cbi.gatech.edu/salobj/)
   * HR Benchmarks: [DAVIS-S, HRSOD](https://github.com/yi94code/HRSOD), [UHRSD](https://github.com/iCVTEAM/PGNet)
   * Dichotomous Image Segmentation: [DIS5K](https://xuebinqin.github.io/dis/index.html)
