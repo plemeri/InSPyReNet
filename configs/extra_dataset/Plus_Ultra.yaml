@@ -69,8 +69,10 @@ Test:
         root: "data/Test_Dataset"
         sets:  ['DUTS-TE', 'DUT-OMRON', 'ECSSD', 'HKU-IS', 'PASCAL-S', 'DAVIS-S', 'HRSOD-TE', 'UHRSD-TE']
         transforms:
-            static_resize: 
-                size: [1024, 1024]
+            # static_resize: 
+            #     size: [1024, 1024]
+            dynamic_resize:
+                L: 1280
             tonumpy: NULL
             normalize: 
                 mean: [0.485, 0.456, 0.406]

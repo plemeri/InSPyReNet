@@ -1,14 +1,13 @@
 import os
-import torch
-
-import tqdm
-import sys
-
 import cv2
+import sys
+import tqdm
+import torch
+import datetime
+
 import torch.nn as nn
 import torch.distributed as dist
 import torch.cuda as cuda
-import torch.multiprocessing as mp
 
 from torch.utils.data.dataloader import DataLoader
 from torch.optim import Adam, SGD
@@ -36,7 +35,7 @@ def train(opt, args):
 
     if args.device_num > 1:
         cuda.set_device(args.local_rank)
-        dist.init_process_group(backend='nccl', rank=args.local_rank, world_size=args.device_num)
+        dist.init_process_group(backend='nccl', rank=args.local_rank, world_size=args.device_num, timeout=datetime.timedelta(seconds=3600))
         train_sampler = DistributedSampler(train_dataset, shuffle=True)
     else:
         train_sampler = None

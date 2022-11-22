@@ -1,8 +1,7 @@
-import torch
 import os
-import argparse
-import tqdm
 import sys
+import tqdm
+import torch
 
 import numpy as np
 
