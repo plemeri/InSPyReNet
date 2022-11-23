@@ -85,13 +85,13 @@ pip install transparent-background
 
 [WepApp](https://huggingface.co/spaces/taskswithcode/salient-object-detection) | [Image Sample](./figures/demo_image.gif) | [Video Sample](./figures/demo_video.gif)
 :-:|:-:|:-:
-<img src=./figures/demo_webapp.gif height="250px" width="250px"> | <img src=./figures/demo_image.gif height="250px" width="250px"> | <img src=./figures/demo_video.gif height="250px" width="250px">
+<img src=./figures/demo_webapp.gif> | <img src=./figures/demo_image.gif> | <img src=./figures/demo_video.gif>
 
 ## :classical_building: Architecture
 
 [InSPyReNet](./figures/fig_architecture.png) | [pyramid blending](./figures/fig_pyramid_blending.png)
 :-:|:-:
-<img src=./figures/fig_architecture.png height="350px" width="350px"> | <img src=./figures/fig_pyramid_blending.png height="350px" width="350px">
+<img src=./figures/fig_architecture.png > | <img src=./figures/fig_pyramid_blending.png>
 
 ## :cake: Easy Download
 
@@ -125,7 +125,7 @@ Please refer to [model_zoo.md](./docs/model_zoo.md) for downloading pre-trained 
 
 [LR Benchmark](./figures/fig_quantitative.png) | [HR Benchmark](./figures/fig_quantitative2.png) | [HR Benchmark (Trained with extra DB)](./figures/fig_quantitative3.png) 
 :-:|:-:|:-:
-<img src=./figures/fig_quantitative.png height="250px" width="250px"> | <img src=./figures/fig_quantitative2.png height="250px" width="250px"> | <img src=./figures/fig_quantitative3.png height="250px" width="250px">
+<img src=./figures/fig_quantitative.png> | <img src=./figures/fig_quantitative2.png> | <img src=./figures/fig_quantitative3.png>
 
 ### :new: [Added in 2022.10.20] Quantitative Results on DIS5K Dataset [[Log file](https://postechackr-my.sharepoint.com/:t:/g/personal/taehoon1018_postech_ac_kr/EeczZ1XEboZKhxqif9m1VwsBhMc--dLYqlZ_5TicEXr2ZA?e=aCFXhp)]
 
@@ -161,7 +161,7 @@ Please refer to [model_zoo.md](./docs/model_zoo.md) for downloading pre-trained 
 
 [DAVIS-S & HRSOD](./figures/fig_qualitative.png) | [UHRSD](./figures/fig_qualitative2.png) | [UHRSD (Trained with extra DB)](./figures/fig_qualitative3.jpg) | :new: [DIS](./figures/fig_qualitative_dis.png)
 :-:|:-:|:-:|:-:
-<img src=./figures/fig_qualitative.png height="250px" width="250px"> | <img src=./figures/fig_qualitative2.png height="250px" width="250px"> | <img src=./figures/fig_qualitative3.jpg height="250px" width="250px"> | <img src=./figures/fig_qualitative_dis.png height="250px" width="250px">
+<img src=./figures/fig_qualitative.png> | <img src=./figures/fig_qualitative2.png> | <img src=./figures/fig_qualitative3.jpg> | <img src=./figures/fig_qualitative_dis.png>
 
 ## :trophy: Citation
 
