@@ -140,6 +140,7 @@ class VideoLoader:
             self.index += 1
         
         else:
+            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             image = Image.fromarray(frame).convert('RGB')
             shape = image.size[::-1]
             sample = {'image': image, 'shape': shape, 'name': name, 'original': image}

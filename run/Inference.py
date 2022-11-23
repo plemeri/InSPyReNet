@@ -157,7 +157,7 @@ def inference(opt, args):
         if _format == 'Image':
             Image.fromarray(img).save(os.path.join(save_dir, sample['name'] + '.png'))
         elif _format == 'Video' and writer is not None:
-            writer.write(img)
+            writer.write(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
         elif _format == 'Webcam':
             cv2.imshow('InSPyReNet', img)
 
