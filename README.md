@@ -68,6 +68,8 @@ To appear in the 16th Asian Conference on Computer Vision (ACCV2022)
 
 [2022.11.18] I am speaking at The 16th Asian Conference on Computer Vision (ACCV2022). Please check out my talk if you're attending the event! #ACCV2022 #Macau - via #Whova event app
 
+[2022.11.23] We made our work available on pypi package. Please visit [transparent-background](https://github.com/plemeri/transparent-background) to download our tool and try on your machine. It works as command-line tool and python api.
+
 <p align="center">
 <img src=./figures/banner.png >
 </p>
@@ -75,6 +77,11 @@ To appear in the 16th Asian Conference on Computer Vision (ACCV2022)
 ## :rocket: Demo
 
 * <img src=https://huggingface.co/front/assets/huggingface_logo-noborder.svg height="20px" width="20px"> Try [WepApp](https://huggingface.co/spaces/taskswithcode/salient-object-detection) on HuggingFace to generate your own results!
+
+* Try using our model as command-line tool or python API. More details about how to use is available on [transparent-background](https://github.com/plemeri/transparent-background)
+```
+pip install transparent-background
+```
 
 [WepApp](https://huggingface.co/spaces/taskswithcode/salient-object-detection) | [Image Sample](./figures/demo_image.gif) | [Video Sample](./figures/demo_video.gif)
 :-:|:-:|:-:
