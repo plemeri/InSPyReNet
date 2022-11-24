@@ -23,7 +23,7 @@ To appear in the 16th Asian Conference on Computer Vision (ACCV2022)
 <p align="center">
 <a href="https://github.com/plemeri/InSPyReNet/blob/main/LICENSE"><img  src="https://img.shields.io/badge/license-MIT-blue"></a>
 <a href="https://arxiv.org/abs/2209.09475"><img  src="https://img.shields.io/badge/arXiv-Paper-<COLOR>.svg" ></a>
-<a href=""><img  src="https://img.shields.io/static/v1?label=inproceedings&message=Paper&color=orange"></a>
+<a href="https://openaccess.thecvf.com/content/ACCV2022/html/Kim_Revisiting_Image_Pyramid_Structure_for_High_Resolution_Salient_Object_Detection_ACCV_2022_paper.html"><img  src="https://img.shields.io/static/v1?label=inproceedings&message=Paper&color=orange"></a>
 <a href="https://huggingface.co/spaces/taskswithcode/salient-object-detection"><img  src="https://img.shields.io/static/v1?label=HuggingFace&message=Demo&color=yellow"></a>
 <a href="https://www.taskswithcode.com/salient_object_detection/"><img  src="https://img.shields.io/static/v1?label=TasksWithCode&message=Demo&color=blue"></a>
 <a href="https://colab.research.google.com/github/taskswithcode/InSPyReNet/blob/main/TWCSOD.ipynb"><img  src="https://colab.research.google.com/assets/colab-badge.svg"></a>
@@ -170,6 +170,7 @@ Please refer to [model_zoo.md](./docs/model_zoo.md) for downloading pre-trained 
   title={Revisiting Image Pyramid Structure for High Resolution Salient Object Detection},
   author={Kim, Taehun and Kim, Kunhee and Lee, Joonyeong and Cha, Dongmin and Lee, Jiho and Kim, Daijin},
   booktitle={Proceedings of the Asian Conference on Computer Vision},
+  pages={108--124},
   year={2022}
 }
 ```
