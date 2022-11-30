@@ -24,7 +24,10 @@ class ImagePyramid:
         self.kernel = self.kernel.to(device)
         return self
         
-    def cuda(self, idx=0):
+    def cuda(self, idx=None):
+        if idx is None:
+            idx = torch.cuda.current_device()
+            
         self.to(device="cuda:{}".format(idx))
         return self
 
@@ -66,7 +69,10 @@ class Transition:
         self.kernel = self.kernel.to(device)
         return self
         
-    def cuda(self, idx=0):
+    def cuda(self, idx=None):
+        if idx is None:
+            idx = torch.cuda.current_device()
+            
         self.to(device="cuda:{}".format(idx))
         return self
         
