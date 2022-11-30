@@ -42,7 +42,7 @@ To appear in the 16th Asian Conference on Computer Vision (ACCV2022)
 
 1. [News](#newspaper-news)
 2. [Demo](#rocket-demo)
-3. [Architecture](#classical_building-architecture)
+3. [Applications](#video_game-applications)
 4. [Easy Download](#cake-easy-download)
 5. [Getting Started](#flight_departure-getting-started)
 6. [Model Zoo](#giraffe-model-zoo)
@@ -76,7 +76,7 @@ To appear in the 16th Asian Conference on Computer Vision (ACCV2022)
 :-:|:-:
 <img src=./figures/demo_image.gif height=200px> | <img src=./figures/demo_video.gif height=200px>
 
-## Applications
+## :video_game: Applications
 Here are some applications/extensions of our work.
 ### <img src=https://huggingface.co/front/assets/huggingface_logo-noborder.svg height="20px" width="20px"> Web Application
 [TasksWithCode](https://github.com/taskswithcode) provided [WepApp](https://huggingface.co/spaces/taskswithcode/salient-object-detection) on HuggingFace to generate your own results!
