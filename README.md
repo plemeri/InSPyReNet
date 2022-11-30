@@ -64,34 +64,38 @@ To appear in the 16th Asian Conference on Computer Vision (ACCV2022)
 
 [2022.10.31] :new: [TasksWithCode](https://github.com/taskswithcode) provided an amazing web demo with [HuggingFace](https://huggingface.co). Visit the [WepApp](https://huggingface.co/spaces/taskswithcode/salient-object-detection) and try with your image! 
 
-[2022.11.09] :car: Lane segmentation for driving scene built based on InSPyReNet is available in [LaneSOD](https://github.com/plemeri/LaneSOD) repository.
+[2022.11.09] :car: Lane segmentation for driving scene built based on InSPyReNet is available in [`LaneSOD`](https://github.com/plemeri/LaneSOD) repository.
 
 [2022.11.18] I am speaking at The 16th Asian Conference on Computer Vision (ACCV2022). Please check out my talk if you're attending the event! #ACCV2022 #Macau - via #Whova event app
 
-<p align="center">
-<img src=./figures/banner.png >
-</p>
-
-[2022.11.23] We made our work available on pypi package. Please visit [transparent-background](https://github.com/plemeri/transparent-background) to download our tool and try on your machine. It works as command-line tool and python api.
+[2022.11.23] We made our work available on pypi package. Please visit [`transparent-background`](https://github.com/plemeri/transparent-background) to download our tool and try on your machine. It works as command-line tool and python api.
 
 ## :rocket: Demo
 
-<img src=https://huggingface.co/front/assets/huggingface_logo-noborder.svg height="20px" width="20px"> Try [WepApp](https://huggingface.co/spaces/taskswithcode/salient-object-detection) on HuggingFace to generate your own results!
+[Image Sample](./figures/demo_image.gif) | [Video Sample](./figures/demo_video.gif)
+:-:|:-:
+<img src=./figures/demo_image.gif height=200px> | <img src=./figures/demo_video.gif height=200px>
 
-Try using our model as command-line tool or python API. More details about how to use is available on [transparent-background](https://github.com/plemeri/transparent-background)
-```
+## Applications
+Here are some applications/extensions of our work.
+### <img src=https://huggingface.co/front/assets/huggingface_logo-noborder.svg height="20px" width="20px"> Web Application
+[TasksWithCode](https://github.com/taskswithcode) provided [WepApp](https://huggingface.co/spaces/taskswithcode/salient-object-detection) on HuggingFace to generate your own results!
+
+[Web Demo](https://huggingface.co/spaces/taskswithcode/salient-object-detection) |
+|:-:
+<img src=./figures/demo_webapp.gif height=200px> |
+
+### :pager: Command-line Tool / Python API
+Try using our model as command-line tool or python API. More details about how to use is available on [`transparent-background`](https://github.com/plemeri/transparent-background).
+```bash
 pip install transparent-background
 ```
+### :car: Lane Segmentation
+We extend our model to detect lane markers in a driving scene in [`LaneSOD`](https://github.com/plemeri/LaneSOD)
 
-[WepApp](https://huggingface.co/spaces/taskswithcode/salient-object-detection) | [Image Sample](./figures/demo_image.gif) | [Video Sample](./figures/demo_video.gif)
-:-:|:-:|:-:
-<img src=./figures/demo_webapp.gif height=200px> | <img src=./figures/demo_image.gif height=200px> | <img src=./figures/demo_video.gif height=200px>
-
-## :classical_building: Architecture
-
-[InSPyReNet](./figures/fig_architecture.png) | [pyramid blending](./figures/fig_pyramid_blending.png)
-:-:|:-:
-<img src=./figures/fig_architecture.png height=200px> | <img src=./figures/fig_pyramid_blending.png height=200px>
+[Lane Segmentation](https://github.com/plemeri/LaneSOD) |
+|:-:
+<img src=https://github.com/plemeri/LaneSOD/blob/main/figures/Teaser.gif height=200px> |
 
 ## :cake: Easy Download
 
@@ -99,7 +103,7 @@ pip install transparent-background
 <p>
 
 Downloading each dataset, checkpoint is quite bothering, even for me :zzz:. Instead, you can download data we provide including `ImageNet pre-trained backbone checkpoints`, `Training Datasets`, `Testing Datasets for benchmark`, `Pre-trained model checkpoints`, `Pre-computed saliency maps` with single command below.
-```
+```bash
 python utils/download.py --extra --dest [DEST]
 ```
 
