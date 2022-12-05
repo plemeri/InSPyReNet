@@ -1,4 +1,4 @@
-# :flight_departure: Getting Started
+# Getting Started :flight_departure:
 
 ## Create environment
   * Create conda environment with following command `conda create -y -n inspyrenet python`

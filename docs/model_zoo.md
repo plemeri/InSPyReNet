@@ -1,4 +1,4 @@
-# :giraffe: Model Zoo
+# Model Zoo :giraffe:
 
 ## Pre-trained Checkpoints
 
