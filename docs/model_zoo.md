@@ -26,22 +26,26 @@ Backbone |  Train DB  | Config | OneDrive | GDrive
 SwinB | DUTS-TR, HRSOD-TR | [InSPyReNet_SwinB_DH](../configs/extra_dataset/InSPyReNet_SwinB_DH.yaml) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/EW2Qg-tMBBxNkygMj-8QgMUBiqHox5ExTOJl0LGLsn6AtA?e=Mam8Ur&download=1) | [Link](https://drive.google.com/file/d/1UBGFDUYZ9SysZr96dhsscZg7nDXt6IUD/view?usp=sharing) 
 SwinB | HRSOD-TR, UHRSD-TR | [InSPyReNet_SwinB_HU](../configs/extra_dataset/InSPyReNet_SwinB_HU.yaml) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/EeE8nnCt_AdFvxxu0JsxwDgBCtGchuUka6DW9za_epX-Qw?e=U7wZu9&download=1) | [Link](https://drive.google.com/file/d/1HB02tiInEgo-pNzwqyvyV6eSN1Y2xPRJ/view?usp=sharing)
 
-### <img src="https://www.kindpng.com/picc/b/124-1249525_all-might-png.png" width=20px> Trained with Massive SOD Datasets (with LR (384 X 384) and HR (1024 X 1024), Not in the paper, just for fun!)
 
-Backbone |  Train DB  | Config | OneDrive | GDrive
-:-|:-|:-|:-|:-
-SwinB | DUTS-TR, HRSOD-TR, UHRSD-TR, DUTS-TE, DUT-OMRON, ECSSD,HKU-IS, PASCAL-S, DAVIS-S, HRSOD-TE,UHRSD-TE, FSS-1000, MSRA-10K | [Plus_Ultra_LR](../configs/extra_dataset/Plus_Ultra_LR.yaml) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/ESKuh1zhToVFsIxhUUsgkbgBnu2kFXCFLRuSz1xxsKzjhA?e=02HDrm&download=1) | [Link](https://drive.google.com/file/d/1iRX-0MVbUjvAVns5MtVdng6CQlGOIo3m/view?usp=sharing)
-SwinB | DUTS-TR, HRSOD-TR, UHRSD-TR, DUTS-TE, DUT-OMRON, ECSSD,HKU-IS, PASCAL-S, DAVIS-S, HRSOD-TE,UHRSD-TE, FSS-1000, MSRA-10K | [Plus_Ultra](../configs/extra_dataset/Plus_Ultra.yaml) | [Link](https://drive.google.com/file/d/13oBl5MTVcWER3YU4fSxW3ATlVfueFQPY/view?usp=sharing) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/ET0R-yM8MfVHqI4g94AlL6AB-D6LxNajaWeDV4xbVQyh7w?e=l4JkZn)
-
-### :new: Trained with Dichotomous Image Segmentation dataset (DIS5K-TR) with LR (384 X 384) and HR (1024 X 1024) scale [Added in 2022.10.20] 
+### Trained with Dichotomous Image Segmentation dataset (DIS5K-TR) with LR (384 X 384) and HR (1024 X 1024) scale
 
 Backbone |  Train DB  | Config | OneDrive | GDrive
 :-|:-|:-|:-|:-
 SwinB | DIS5K-TR | [InSPyReNet_SwinB_DIS5K_LR](../configs/extra_dataset/InSPyReNet_SwinB_DIS5K_LR.yaml) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/ERKrQ_YeoJRHl_3HcH8ZJLoBedsa6hZlmIIf66wobZRGuw?e=EywJmS&download=1) | [Link](https://drive.google.com/file/d/1Sj7GZoocGMHyKNhFnQQc1FTs76ysJIX3/view?usp=sharing)
 SwinB | DIS5K-TR | [InSPyReNet_SwinB_DIS5K](../configs/extra_dataset/InSPyReNet_SwinB_DIS5K.yaml) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/EShRbD-jZuRJiWv6DS2Us34BwgazGZvK1t4uTKvgE5379Q?e=8oVpS8) | [Link](https://drive.google.com/file/d/1aCxHMbhvj8ah77jXVgqvqImQA_Y0G-Yg/view?usp=sharing)
 
+### <img src="https://www.kindpng.com/picc/b/124-1249525_all-might-png.png" width=20px> Trained with Massive SOD Datasets (with LR (384 X 384) and HR (1024 X 1024), Not in the paper, for real-world scenarios)
+
+Backbone |  Train DB  | Config | OneDrive | GDrive
+:-|:-|:-|:-|:-
+SwinB | DUTS-TR, HRSOD-TR, UHRSD-TR, DIS-TR, DUTS-TE, DUT-OMRON, ECSSD,HKU-IS, PASCAL-S, DAVIS-S, HRSOD-TE,UHRSD-TE, FSS-1000, MSRA-10K, DIS-VD, DIS-TE1, DIS-TE2, DIS-TE3, DIS-TE4 | [Plus_Ultra_LR](../configs/extra_dataset/Plus_Ultra_LR.yaml) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/ESKuh1zhToVFsIxhUUsgkbgBnu2kFXCFLRuSz1xxsKzjhA?e=02HDrm&download=1) | [Link](https://drive.google.com/file/d/1iRX-0MVbUjvAVns5MtVdng6CQlGOIo3m/view?usp=sharing)
+SwinB | DUTS-TR, HRSOD-TR, UHRSD-TR, DIS-TR, DUTS-TE, DUT-OMRON, ECSSD,HKU-IS, PASCAL-S, DAVIS-S, HRSOD-TE,UHRSD-TE, FSS-1000, MSRA-10K, DIS-VD, DIS-TE1, DIS-TE2, DIS-TE3, DIS-TE4 | [Plus_Ultra](../configs/extra_dataset/Plus_Ultra.yaml) | [Link](https://drive.google.com/file/d/13oBl5MTVcWER3YU4fSxW3ATlVfueFQPY/view?usp=sharing) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/ET0R-yM8MfVHqI4g94AlL6AB-D6LxNajaWeDV4xbVQyh7w?e=l4JkZn)
+
+* We used above checkpoints for [`transparent-background`](https://github.com/plemeri/transparent-background) which is a cool background removing command-line tool / python API!
 
 ## Pre-Computed Saliency Maps
+
+### Salient Object Detection benchmarks
 
 Config | DUTS-TE | DUT-OMRON | ECSSD | HKU-IS | PASCAL-S | DAVIS-S | HRSOD-TE | UHRSD-TE
 :-|:-|:-|:-|:-|:-|:-|:-|:-
@@ -53,8 +57,7 @@ Config | DUTS-TE | DUT-OMRON | ECSSD | HKU-IS | PASCAL-S | DAVIS-S | HRSOD-TE | 
 [InSPyReNet_SwinB_DH](../configs/extra_dataset/InSPyReNet_SwinB_DH.yaml) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/EWNaRqtzhtNFhMVfLcoyfqQBw35M8q8bxME3yZyhkTtc7Q?e=jrJe3v) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/EZF5_s8JfR9HqGBUZHSM_j4BVVMONp38_gJ1ekEdvlM-qQ?e=0chMdl) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/EZuaFObyNOtKg0W5cM7bqPYBZYGg7Z3V3i4sClI6bU_ntA?e=BxxQI7) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/EY-yEnNNNT5KpiURhiDAkDEBMkiA1QwQ_T0wB1UC75GXVg?e=Lle02B) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/EYfbsgWhm7lAlX_wj_WZZowBV_-l-UvvThC4LJEKpV0BQQ?e=zTiKpI) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/Ef0GUP7c0bBBonHlqgB988YB0rgxCFq3oo0u8xCN8wfyyQ?e=LCb8UV) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/EVUZBnRpa35AmrvdUybsQDMBzMZvuJWe5tT7635lh9MHDQ?e=FlpQW1) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/ETfZ_zdrDvhOh21u2mqVhigBSxn3vlfKVIwXhRfzzSSFzA?e=kXBBi9)
 [InSPyReNet_SwinB_HU](../configs/extra_dataset/InSPyReNet_SwinB_HU.yaml) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/EZq4JUACKCBMk2bn4yoWz6sBOKrSFTPfL7d5xopc1uDw_A?e=RtVHSl) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/ETJaqoSPaYtNkc8eSGDeKzMBbjbuOAWgJwG4q52bW87aew?e=Pguh4b) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/EZAeCI6BPMdNsicnQ-m1pVEBwAhOiIcbelhOMoRGXGEvVA?e=BQKd7Q) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/EVmGvZGz54JOvrIymLsSwq4Bpos3vWSXZm3oV7-qmGZgHA?e=4UhDgv) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/ERHDUybOh4ZKkqWZpcu7MiMBFuTK6wACkKUZaNeEQGbCNQ?e=GCQnoe) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/ESPmZXTnfO5CrCoo_0OADxgBt_3FoU5mSFoSE4QWbWxumQ?e=HAsAYz) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/EdTnUwEeMZNBrPSBBbGZKQcBmVshSTfca9qz_BqNpAUpOg?e=HsJ4Gx) | [Link](https://postechackr-my.sharepoint.com/:u:/g/personal/taehoon1018_postech_ac_kr/ET48owfVQEdImrh0V4gx8_ABsYXgbIJqtpq77aK_U28VwQ?e=h8er3H)
 
-
-### * :new: DIS5K Results [Added in 2022.10.20]
+### DIS5K Results
 
 Config | DIS-VD | DIS-TE1 | DIS-TE2 | DIS-TE3 | DIS-TE4
 :-|:-|:-|:-|:-|:-|

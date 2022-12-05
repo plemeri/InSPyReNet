@@ -38,66 +38,66 @@ To appear in the 16th Asian Conference on Computer Vision (ACCV2022)
   We design InSPyReNet to produce a strict image pyramid structure of saliency map, which enables to ensemble multiple results with pyramid-based image blending.
   For HR prediction, we design a pyramid blending method which synthesizes two different image pyramids from a pair of LR and HR scale from the same image to overcome effective receptive field (ERF) discrepancy. Our extensive evaluation on public LR and HR SOD benchmarks demonstrates that InSPyReNet surpasses the State-of-the-Art (SotA) methods on various SOD metrics and boundary accuracy.
 
-## :bookmark_tabs: Contents
+## Contents
 
-1. [News](#newspaper-news)
-2. [Demo](#rocket-demo)
-3. [Applications](#video_game-applications)
-4. [Easy Download](#cake-easy-download)
-5. [Getting Started](#flight_departure-getting-started)
-6. [Model Zoo](#giraffe-model-zoo)
-7. [Results](#100-results)
+1. [News](#news-newspaper)
+2. [Demo](#demo-rocket)
+3. [Applications](#applications-video_game)
+4. [Easy Download](#easy-download-cake)
+5. [Getting Started](#getting-started-flight_departure)
+6. [Model Zoo](#model-zoo-giraffe)
+7. [Results](#results-100)
     * [Quantitative Results](#quantitative-results)
     * [Qualitative Results](#qualitative-results)
-8. [Citation](#trophy-citation)
-9. [Acknowledgement](#mortar_board-acknowledgement)
-    * [Special Thanks to](#tada-special-thanks-to)
-10. [References](#paperclip-references)
+8. [Citation](#citation)
+9. [Acknowledgement](#acknowledgement)
+    * [Special Thanks to](#special-thanks-to-tada)
+10. [References](#references)
   
-## :newspaper: News
+## News :newspaper:
 
 [2022.10.04] [TasksWithCode](https://github.com/taskswithcode) mentioned our work in [Blog](https://medium.com/@taskswithcode/twc-9-7c960c921f69) and reproducing our work on [Colab](https://github.com/taskswithcode/InSPyReNet). Thank you for your attention!
 
-[2022.10.20] :new: We trained our model on [Dichotomous Image Segmentation dataset (DIS5K)](https://xuebinqin.github.io/dis/index.html) and showed competitive results! Trained checkpoint and pre-computed segmentation masks are available in [Model Zoo](./docs/model_zoo.md)). Also, you can check our qualitative and quantitative results in [Results](#100-results) section.
+[2022.10.20] We trained our model on [Dichotomous Image Segmentation dataset (DIS5K)](https://xuebinqin.github.io/dis/index.html) and showed competitive results! Trained checkpoint and pre-computed segmentation masks are available in [Model Zoo](./docs/model_zoo.md)). Also, you can check our qualitative and quantitative results in [Results](#100-results) section.
 
 [2022.10.28] Multi GPU training for latest pytorch is now available.
 
-[2022.10.31] :new: [TasksWithCode](https://github.com/taskswithcode) provided an amazing web demo with [HuggingFace](https://huggingface.co). Visit the [WepApp](https://huggingface.co/spaces/taskswithcode/salient-object-detection) and try with your image! 
+[2022.10.31] [TasksWithCode](https://github.com/taskswithcode) provided an amazing web demo with [HuggingFace](https://huggingface.co). Visit the [WepApp](https://huggingface.co/spaces/taskswithcode/salient-object-detection) and try with your image! 
 
 [2022.11.09] :car: Lane segmentation for driving scene built based on InSPyReNet is available in [`LaneSOD`](https://github.com/plemeri/LaneSOD) repository.
 
 [2022.11.18] I am speaking at The 16th Asian Conference on Computer Vision (ACCV2022). Please check out my talk if you're attending the event! #ACCV2022 #Macau - via #Whova event app
 
-[2022.11.23] We made our work available on pypi package. Please visit [`transparent-background`](https://github.com/plemeri/transparent-background) to download our tool and try on your machine. It works as command-line tool and python api.
+[2022.11.23] We made our work available on pypi package. Please visit [`transparent-background`](https://github.com/plemeri/transparent-background) to download our tool and try on your machine. It works as command-line tool and python API.
 
-## :rocket: Demo
+## Demo :rocket:
 
 [Image Sample](./figures/demo_image.gif) | [Video Sample](./figures/demo_video.gif)
 :-:|:-:
 <img src=./figures/demo_image.gif height=200px> | <img src=./figures/demo_video.gif height=200px>
 
-## :video_game: Applications
+## Applications :video_game: 
 Here are some applications/extensions of our work.
-### <img src=https://huggingface.co/front/assets/huggingface_logo-noborder.svg height="20px" width="20px"> Web Application
+### Web Application <img src=https://huggingface.co/front/assets/huggingface_logo-noborder.svg height="20px" width="20px"> 
 [TasksWithCode](https://github.com/taskswithcode) provided [WepApp](https://huggingface.co/spaces/taskswithcode/salient-object-detection) on HuggingFace to generate your own results!
 
 [Web Demo](https://huggingface.co/spaces/taskswithcode/salient-object-detection) |
 |:-:
 <img src=./figures/demo_webapp.gif height=200px> |
 
-### :pager: Command-line Tool / Python API
+### Command-line Tool / Python API :pager: 
 Try using our model as command-line tool or python API. More details about how to use is available on [`transparent-background`](https://github.com/plemeri/transparent-background).
 ```bash
 pip install transparent-background
 ```
-### :car: Lane Segmentation
+### Lane Segmentation :car: 
 We extend our model to detect lane markers in a driving scene in [`LaneSOD`](https://github.com/plemeri/LaneSOD)
 
 [Lane Segmentation](https://github.com/plemeri/LaneSOD) |
 |:-:
 <img src=https://github.com/plemeri/LaneSOD/blob/main/figures/Teaser.gif height=200px> |
 
-## :cake: Easy Download
+## Easy Download :cake: 
 
 <details><summary>How to use easy download</summary>
 <p>
@@ -115,59 +115,32 @@ If you want to download a certain checkpoint or pre-computed map, please refer t
 </p>
 </details>
 
-## :flight_departure: Getting Started
+## Getting Started :flight_departure:
 
 Please refer to [getting_started.md](./docs/getting_started.md) for training, testing, and evaluating on benchmarks, and inferencing on your own images.
 
-## :giraffe: Model Zoo
+## Model Zoo :giraffe:
 
 Please refer to [model_zoo.md](./docs/model_zoo.md) for downloading pre-trained models and pre-computed saliency maps.
 
-## :100: Results
+## Results :100:
 
 ### Quantitative Results
 
-[LR Benchmark](./figures/fig_quantitative.png) | [HR Benchmark](./figures/fig_quantitative2.png) | [HR Benchmark (Trained with extra DB)](./figures/fig_quantitative3.png) 
-:-:|:-:|:-:
-<img src=./figures/fig_quantitative.png height=200px> | <img src=./figures/fig_quantitative2.png height=200px> | <img src=./figures/fig_quantitative3.png height=200px>
-
-### :new: [Added in 2022.10.20] Quantitative Results on DIS5K Dataset [[Log file](https://postechackr-my.sharepoint.com/:t:/g/personal/taehoon1018_postech_ac_kr/EeczZ1XEboZKhxqif9m1VwsBhMc--dLYqlZ_5TicEXr2ZA?e=aCFXhp)]
-
-<details><summary>Click to see the results</summary>
-<p>
-
-  * Trained with LR scale (384 X 384) [[Config](./configs/extra_dataset/InSPyReNet_SwinB_DIS5K_LR.yaml)]
-
-    Dataset  | Sm     | mae    | adpEm  | maxEm  | avgEm  | adpFm  | maxFm  | avgFm  | wFm    | mBA    | HCE<sup>*</sup> |
-    :-       |:-      |:-      |:-      |:-      |:-      |:-      |:-      |:-      |:-      |:-      |:-               |
-    DIS-VD   | 0.8868 | 0.0427 | 0.9145 | 0.9352 | 0.9217 | 0.8295 | 0.8760 | 0.8523 | 0.8259 | 0.7654 | 905             |
-    DIS-TE1  | 0.8618 | 0.0447 | 0.8679 | 0.9071 | 0.8952 | 0.7556 | 0.8341 | 0.8083 | 0.7771 | 0.7453 | 148             |
-    DIS-TE2  | 0.8934 | 0.0383 | 0.9131 | 0.9356 | 0.9253 | 0.8281 | 0.8811 | 0.8599 | 0.8339 | 0.7587 | 316             |
-    DIS-TE3  | 0.9019 | 0.0381 | 0.9278 | 0.9496 | 0.9376 | 0.8529 | 0.9038 | 0.8802 | 0.8558 | 0.7741 | 582             |
-    DIS-TE4  | 0.8913 | 0.0461 | 0.9316 | 0.9433 | 0.9255 | 0.8545 | 0.8915 | 0.8655 | 0.8395 | 0.7789 | 2243            |
-
-  * Trained with HR scale (1024 X 1024) [[Config](./configs/extra_dataset/InSPyReNet_SwinB_DIS5K.yaml)]
-
-    Dataset  | Sm     | mae    | adpEm  | maxEm  | avgEm  | adpFm  | maxFm  | avgFm  | wFm    | mBA    | HCE<sup>*</sup> |
-    :-       |:-      |:-      |:-      |:-      |:-      |:-      |:-      |:-      |:-      |:-      |:-               |
-    DIS-VD   | 0.8997 | 0.0416 | 0.9141 | 0.9398 | 0.9216 | 0.8364 | 0.8893 | 0.8603 | 0.8336 | 0.8003 | 904             |
-    DIS-TE1  | 0.8733 | 0.0432 | 0.8743 | 0.9070 | 0.8940 | 0.7771 | 0.8453 | 0.8195 | 0.7882 | 0.7966 | 110             |
-    DIS-TE2  | 0.9053 | 0.0364 | 0.9154 | 0.9410 | 0.9279 | 0.8439 | 0.8941 | 0.8703 | 0.8462 | 0.8034 | 255             |
-    DIS-TE3  | 0.9179 | 0.0341 | 0.9403 | 0.9586 | 0.9427 | 0.8752 | 0.9191 | 0.8923 | 0.8707 | 0.8079 | 522             |
-    DIS-TE4  | 0.9052 | 0.0424 | 0.9361 | 0.9535 | 0.9282 | 0.8598 | 0.9051 | 0.8700 | 0.8479 | 0.7994 | 2336            |
-
-  * *: HCE here is relax Human Correction Error which is proposed in DIS([project page](https://xuebinqin.github.io/dis/index.html) | [paper](https://arxiv.org/pdf/2203.03041.pdf)) and you can compute yourself from their [github](https://github.com/xuebinqin/DIS) repository.
+[LR Benchmark](./figures/fig_quantitative.png) | [HR Benchmark](./figures/fig_quantitative2.png) | [HR Benchmark (Trained with extra DB)](./figures/fig_quantitative3.png) | [DIS](./figures/fig_quantitative4.png)
+:-:|:-:|:-:|:-:
+<img src=./figures/fig_quantitative.png height=200px> | <img src=./figures/fig_quantitative2.png height=200px> | <img src=./figures/fig_quantitative3.png height=200px> | <img src=./figures/fig_quantitative4.png height=200px>
 
 </p>
 </details>
 
 ### Qualitative Results
 
-[DAVIS-S & HRSOD](./figures/fig_qualitative.png) | [UHRSD](./figures/fig_qualitative2.png) | [UHRSD (w/ HR scale)](./figures/fig_qualitative3.jpg) | :new: [DIS](./figures/fig_qualitative_dis.png)
+[DAVIS-S & HRSOD](./figures/fig_qualitative.png) | [UHRSD](./figures/fig_qualitative2.png) | [UHRSD (w/ HR scale)](./figures/fig_qualitative3.jpg) | [DIS](./figures/fig_qualitative_dis.png)
 :-:|:-:|:-:|:-:
 <img src=./figures/fig_qualitative.png height=200px> | <img src=./figures/fig_qualitative2.png height=200px> | <img src=./figures/fig_qualitative3.jpg height=200px> | <img src=./figures/fig_qualitative_dis.png height=200px>
 
-## :trophy: Citation
+## Citation
 
 ```
 @inproceedings{kim2022revisiting,
@@ -179,17 +152,17 @@ Please refer to [model_zoo.md](./docs/model_zoo.md) for downloading pre-trained 
 }
 ```
 
-## :mortar_board: Acknowledgement
+## Acknowledgement
 
 This work was supported by Institute of Information & communications Technology Planning & Evaluation (IITP) grant funded by the Korea government (MSIT) 
 (No.2017-0-00897, Development of Object Detection and Recognition for Intelligent Vehicles) and 
 (No.B0101-15-0266, Development of High Performance Visual BigData Discovery Platform for Large-Scale Realtime Data Analysis)
 
-### :tada: Special Thanks to
+### Special Thanks to :tada:
 * [TasksWithCode](https://github.com/taskswithcode) team for sharing our work and making the most amazing web app demo.
 
 
-## :paperclip: References
+## References
 
 ### Related Works
 

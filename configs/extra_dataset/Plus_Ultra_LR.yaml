@@ -12,7 +12,8 @@ Train:
         sets: [
                'Train_Dataset/DUTS-TR', 
                'Train_Dataset/HRSOD-TR', 
-               'Train_Dataset/UHRSD-TR', 
+               'Train_Dataset/UHRSD-TR',
+               'Train_Dataset/DIS-TR',
                'Test_Dataset/DUTS-TE', 
                'Test_Dataset/DUT-OMRON', 
                'Test_Dataset/ECSSD', 
@@ -22,7 +23,12 @@ Train:
                'Test_Dataset/HRSOD-TE',
                'Test_Dataset/UHRSD-TE', 
                'Test_Dataset/FSS-1000', 
-               'Test_Dataset/MSRA-10K'
+               'Test_Dataset/MSRA-10K',
+               'Test_Dataset/DIS-VD',
+               'Test_Dataset/DIS-TE1',
+               'Test_Dataset/DIS-TE2',
+               'Test_Dataset/DIS-TE3',
+               'Test_Dataset/DIS-TE4'
                ]
         transforms:
             static_resize: 
