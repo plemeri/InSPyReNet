@@ -2,7 +2,7 @@
 
 ## Pre-trained Checkpoints
 
-:label: Note: If you want to try our trained checkpoints below, please make sure to locate `latest.pth` file to the [Test.Checkpoint.checkpoint_dir](https://github.com/plemeri/InSPyReNet/blob/main/configs/InSPyReNet_SwinB.yaml#L72). 
+:label: Note: If you want to try our trained checkpoints below, please make sure to locate `latest.pth` file to the [Test.Checkpoint.checkpoint_dir](https://github.com/plemeri/InSPyReNet/blob/main/configs/InSPyReNet_SwinB.yaml#L69). 
 
 ### Trained with LR dataset only (DUTS-TR, 384 X 384)
 
