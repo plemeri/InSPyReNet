@@ -70,6 +70,8 @@ To appear in the 16th Asian Conference on Computer Vision (ACCV2022)
 
 [2022.11.23] We made our work available on pypi package. Please visit [`transparent-background`](https://github.com/plemeri/transparent-background) to download our tool and try on your machine. It works as command-line tool and python API.
 
+[2023.01.18] [rsreetech](https://github.com/rsreetech) shared a tutorial for our pypi package [`transparent-background`](https://github.com/plemeri/transparent-background) using colab. :tv: [[Youtube](https://www.youtube.com/watch?v=jKuQEnKmv4A)]
+
 ## Demo :rocket:
 
 [Image Sample](./figures/demo_image.gif) | [Video Sample](./figures/demo_video.gif)
