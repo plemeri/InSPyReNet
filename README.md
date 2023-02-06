@@ -58,7 +58,7 @@ To appear in the 16th Asian Conference on Computer Vision (ACCV2022)
 
 [2022.10.04] [TasksWithCode](https://github.com/taskswithcode) mentioned our work in [Blog](https://medium.com/@taskswithcode/twc-9-7c960c921f69) and reproducing our work on [Colab](https://github.com/taskswithcode/InSPyReNet). Thank you for your attention!
 
-[2022.10.20] We trained our model on [Dichotomous Image Segmentation dataset (DIS5K)](https://xuebinqin.github.io/dis/index.html) and showed competitive results! Trained checkpoint and pre-computed segmentation masks are available in [Model Zoo](./docs/model_zoo.md)). Also, you can check our qualitative and quantitative results in [Results](#100-results) section.
+[2022.10.20] We trained our model on [Dichotomous Image Segmentation dataset (DIS5K)](https://xuebinqin.github.io/dis/index.html) and showed competitive results! Trained checkpoint and pre-computed segmentation masks are available in [Model Zoo](./docs/model_zoo.md)). Also, you can check our qualitative and quantitative results in [Results](#results-100) section.
 
 [2022.10.28] Multi GPU training for latest pytorch is now available.
 
@@ -112,7 +112,7 @@ python utils/download.py --extra --dest [DEST]
 * `--extra, -e`: Without this argument, only the datasets, checkpoint, and results from our main paper will be downloaded. Otherwise, all data will be downloaded including results from supplementary material and DIS5K results.
 * `--dest [DEST], -d [DEST]`: If you want to specify the destination, use this argument. It will automatically create a symbolic links of the destination folders inside `data` and `snapshots`. Use this argument if you want to download data on other physical disk. Otherwise, it will download inside this repository folder.
 
-If you want to download a certain checkpoint or pre-computed map, please refer to [Getting Started](#flight_departure-getting-started) and [Model Zoo](#giraffe-model-zoo).
+If you want to download a certain checkpoint or pre-computed map, please refer to [Getting Started](#getting-started-flight_departure) and [Model Zoo](#model-zoo-giraffe).
 
 </p>
 </details>
