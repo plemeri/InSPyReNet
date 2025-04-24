@@ -24,7 +24,7 @@ To appear in the 16th Asian Conference on Computer Vision (ACCV2022)
 <a href="https://github.com/plemeri/InSPyReNet/blob/main/LICENSE"><img  src="https://img.shields.io/badge/license-MIT-blue"></a>
 <a href="https://arxiv.org/abs/2209.09475"><img  src="https://img.shields.io/badge/arXiv-Paper-<COLOR>.svg" ></a>
 <a href="https://openaccess.thecvf.com/content/ACCV2022/html/Kim_Revisiting_Image_Pyramid_Structure_for_High_Resolution_Salient_Object_Detection_ACCV_2022_paper.html"><img  src="https://img.shields.io/static/v1?label=inproceedings&message=Paper&color=orange"></a>
-<a href="https://huggingface.co/spaces/taskswithcode/salient-object-detection"><img  src="https://img.shields.io/static/v1?label=HuggingFace&message=Demo&color=yellow"></a>
+<a href="https://huggingface.co/spaces/gokaygokay/Inspyrenet-Rembg"><img  src="https://img.shields.io/static/v1?label=HuggingFace&message=Demo&color=yellow"></a>
 <a href="https://www.taskswithcode.com/salient_object_detection/"><img  src="https://img.shields.io/static/v1?label=TasksWithCode&message=Demo&color=blue"></a>
 <a href="https://colab.research.google.com/github/taskswithcode/InSPyReNet/blob/main/TWCSOD.ipynb"><img  src="https://colab.research.google.com/assets/colab-badge.svg"></a>
 </p>
@@ -81,11 +81,9 @@ To appear in the 16th Asian Conference on Computer Vision (ACCV2022)
 ## Applications :video_game: 
 Here are some applications/extensions of our work.
 ### Web Application <img src=https://huggingface.co/front/assets/huggingface_logo-noborder.svg height="20px" width="20px"> 
-[TasksWithCode](https://github.com/taskswithcode) provided [WepApp](https://huggingface.co/spaces/taskswithcode/salient-object-detection) on HuggingFace to generate your own results!
+*Server Down* <s>[TasksWithCode](https://github.com/taskswithcode) provided [WepApp](https://huggingface.co/spaces/taskswithcode/salient-object-detection) on HuggingFace to generate your own results!</s>
 
-[Web Demo](https://huggingface.co/spaces/taskswithcode/salient-object-detection) |
-|:-:
-<img src=./figures/demo_webapp.gif height=200px> |
+[gokaygokay](https://huggingface.co/gokaygokay) provided huggingface space for our project [WepApp](https://huggingface.co/spaces/gokaygokay/Inspyrenet-Rembg). This works with recent work [connecting HuggingFace spaces to MCP server](https://github.com/evalstate/mcp-hfspace) 👍
 
 ### Command-line Tool / Python API :pager: 
 Try using our model as command-line tool or python API. More details about how to use is available on [`transparent-background`](https://github.com/plemeri/transparent-background).
