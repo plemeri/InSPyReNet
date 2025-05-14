@@ -1,3 +1,5 @@
+[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/plemeri-inspyrenet-badge.png)](https://mseep.ai/app/plemeri-inspyrenet)
+
 # Revisiting Image Pyramid Structure for High Resolution Salient Object Detection (InSPyReNet)
 
 [![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/revisiting-image-pyramid-structure-for-high/salient-object-detection-on-hku-is)](https://paperswithcode.com/sota/salient-object-detection-on-hku-is?p=revisiting-image-pyramid-structure-for-high)
